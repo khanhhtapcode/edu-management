@@ -6,6 +6,16 @@ export default auth((req) => {
   const { pathname } = req.nextUrl
 
   const isLoginPage = pathname === "/login"
+  const isApiRoute =
+    pathname.startsWith("/api/") && !pathname.startsWith("/api/auth")
+
+  // API mutation: trả 401 JSON thay vì redirect HTML
+  if (!isLoggedIn && isApiRoute) {
+    return NextResponse.json(
+      { message: "Bạn cần đăng nhập để thực hiện thao tác này" },
+      { status: 401 }
+    )
+  }
 
   // Chưa đăng nhập -> ép về /login (trừ trang login)
   if (!isLoggedIn && !isLoginPage) {
@@ -23,5 +33,7 @@ export default auth((req) => {
 
 export const config = {
   // Chặn tất cả trừ static, image, favicon và auth api
-  matcher: ["/((?!api/auth|_next/static|_next/image|favicon.ico|.*\\.svg).*)"],
+  matcher: [
+    "/((?!api/auth|_next/static|_next/image|favicon.ico|.*\\.(?:svg|jpg|jpeg|png|webp|ico)).*)",
+  ],
 }

@@ -2,6 +2,7 @@ import type { Metadata } from "next"
 import { Inter } from "next/font/google"
 import "./globals.css"
 import { Toaster } from "@/components/ui/sonner"
+import { APP_LOGO } from "@/lib/constants"
 
 const inter = Inter({
   variable: "--font-inter",
@@ -9,9 +10,13 @@ const inter = Inter({
 })
 
 export const metadata: Metadata = {
-  title: "EduTrack — Quản lý lớp học & học sinh",
+  title: "NY MATH CLASS — Quản lý lớp học & học sinh",
   description:
     "Hệ thống quản lý lớp học, học sinh, điểm danh và báo cáo cho trung tâm giáo dục.",
+  icons: {
+    icon: APP_LOGO,
+    apple: APP_LOGO,
+  },
 }
 
 export default function RootLayout({

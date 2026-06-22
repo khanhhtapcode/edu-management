@@ -9,6 +9,7 @@ import {
   pdf,
 } from "@react-pdf/renderer"
 import { formatMonth, formatDate } from "@/lib/utils"
+import { getAppLogoDataUrl } from "@/lib/app-logo"
 
 let fontsRegistered = false
 function registerFonts() {
@@ -72,7 +73,7 @@ const styles = StyleSheet.create({
     paddingBottom: 12,
     marginBottom: 16,
   },
-  logo: { width: 54, height: 54, objectFit: "contain" },
+  logo: { width: 120, height: 40, objectFit: "contain" },
   brand: { fontSize: 18, fontWeight: 700, color: PRIMARY },
   brandSub: { fontSize: 9, color: SLATE },
   title: {
@@ -157,21 +158,15 @@ function ReportDocument({
   logo,
 }: {
   data: ReportPdfData
-  logo?: string
+  logo: string
 }) {
   return (
     <Document>
       <Page size="A4" style={styles.page}>
         <View style={styles.header}>
           <View style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>
-            {logo ? (
-              // eslint-disable-next-line jsx-a11y/alt-text
-              <Image src={logo} style={styles.logo} />
-            ) : null}
-            <View>
-              <Text style={styles.brand}>EduTrack</Text>
-              <Text style={styles.brandSub}>Trung tâm Giáo dục</Text>
-            </View>
+            {/* eslint-disable-next-line jsx-a11y/alt-text */}
+            <Image src={logo} style={styles.logo} />
           </View>
           <View>
             <Text style={styles.brandSub}>
@@ -284,7 +279,8 @@ function ReportDocument({
         </View>
 
         <Text style={styles.footer} fixed>
-          EduTrack · Phiếu báo cáo được tạo tự động · {formatMonth(data.reportMonth)}
+          NY MATH CLASS · Phiếu báo cáo được tạo tự động ·{" "}
+          {formatMonth(data.reportMonth)}
         </Text>
       </Page>
     </Document>
@@ -293,6 +289,9 @@ function ReportDocument({
 
 export async function generateReportPdf(data: ReportPdfData, logo?: string) {
   registerFonts()
-  const blob = await pdf(<ReportDocument data={data} logo={logo} />).toBlob()
+  const resolvedLogo = logo ?? (await getAppLogoDataUrl())
+  const blob = await pdf(
+    <ReportDocument data={data} logo={resolvedLogo} />
+  ).toBlob()
   return blob
 }

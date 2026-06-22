@@ -9,9 +9,9 @@ import {
   ClipboardCheck,
   NotebookPen,
   FileBarChart,
-  GraduationCap,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { BrandLogo } from "@/components/brand-logo"
 
 const NAV = [
   { href: "/", label: "Tổng quan", icon: LayoutDashboard },
@@ -27,11 +27,8 @@ export function Sidebar() {
 
   return (
     <aside className="hidden w-64 shrink-0 flex-col border-r bg-sidebar md:flex">
-      <div className="flex h-16 items-center gap-2 border-b px-6">
-        <div className="flex size-8 items-center justify-center rounded-md bg-primary text-primary-foreground">
-          <GraduationCap className="size-5" />
-        </div>
-        <span className="text-lg font-bold tracking-tight">EduTrack</span>
+      <div className="flex h-16 items-center border-b px-4">
+        <BrandLogo />
       </div>
       <nav className="flex-1 space-y-1 p-3">
         {NAV.map((item) => {

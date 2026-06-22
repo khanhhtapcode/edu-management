@@ -26,18 +26,26 @@ export async function computeMonthlyStats(
 
   const { start, end } = monthRange(reportMonth)
 
+  // Chỉ tính buổi học thuộc ca của học sinh (nếu đã gán ca)
   const lessons = await db.lesson.findMany({
-    where: { date: { gte: start, lt: end } },
+    where: {
+      date: { gte: start, lt: end },
+      ...(student.shiftId ? { shiftId: student.shiftId } : {}),
+    },
     orderBy: { date: "asc" },
   })
   const lessonIds = lessons.map((l) => l.id)
 
-  const attendances = await db.attendance.findMany({
-    where: { studentId, lessonId: { in: lessonIds } },
-  })
-  const comments = await db.studentComment.findMany({
-    where: { studentId, lessonId: { in: lessonIds } },
-  })
+  const attendances = lessonIds.length
+    ? await db.attendance.findMany({
+        where: { studentId, lessonId: { in: lessonIds } },
+      })
+    : []
+  const comments = lessonIds.length
+    ? await db.studentComment.findMany({
+        where: { studentId, lessonId: { in: lessonIds } },
+      })
+    : []
 
   const presentCount = attendances.filter(
     (a) =>
@@ -53,7 +61,7 @@ export async function computeMonthlyStats(
   const lateCount = attendances.filter(
     (a) => a.status === ATTENDANCE_STATUS.LATE
   ).length
-  const totalLessons = attendances.length
+  const totalLessons = lessons.length
   const attendanceRate =
     totalLessons > 0 ? Math.round((presentCount / totalLessons) * 1000) / 10 : 0
 

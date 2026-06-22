@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useTransition, useEffect } from "react"
+import { useState, useTransition } from "react"
 import { useRouter } from "next/navigation"
 import { Plus, Save, Loader2, CalendarDays, CheckCircle2 } from "lucide-react"
 import { toast } from "sonner"
@@ -69,25 +69,74 @@ export function AttendanceClient({
   roster: Roster[]
 }) {
   const router = useRouter()
-  const [isPending, startTransition] = useTransition()
-
-  const [records, setRecords] = useState<Record<string, { status: string; lateMinutes: number }>>(
-    {}
-  )
   const [newOpen, setNewOpen] = useState(false)
-
-  // Khởi tạo state từ roster mỗi khi đổi buổi học
-  useEffect(() => {
-    const init: Record<string, { status: string; lateMinutes: number }> = {}
-    for (const r of roster) {
-      init[r.studentId] = { status: r.status, lateMinutes: r.lateMinutes }
-    }
-    setRecords(init)
-  }, [roster])
 
   function selectLesson(id: string) {
     router.push(`/attendance?lessonId=${id}`)
   }
+
+  return (
+    <div className="space-y-4">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+        <div className="w-full sm:w-96 space-y-2">
+          <Label>Chọn buổi học</Label>
+          <Select value={selectedLesson?.id ?? ""} onValueChange={selectLesson}>
+            <SelectTrigger>
+              <SelectValue placeholder="Chọn buổi học để điểm danh" />
+            </SelectTrigger>
+            <SelectContent>
+              {lessons.map((l) => (
+                <SelectItem key={l.id} value={l.id}>
+                  {formatDate(l.date)} · {l.shiftName} · {l.topic}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+        <Button variant="outline" onClick={() => setNewOpen(true)}>
+          <Plus className="size-4" /> Buổi học mới
+        </Button>
+      </div>
+
+      {!selectedLesson ? (
+        <div className="rounded-xl border border-dashed bg-card p-10 text-center text-sm text-muted-foreground">
+          Chưa có buổi học nào. Tạo buổi học mới để bắt đầu điểm danh.
+        </div>
+      ) : (
+        <AttendanceRoster
+          key={selectedLesson.id}
+          roster={roster}
+          selectedLesson={selectedLesson}
+        />
+      )}
+
+      <NewLessonDialog
+        open={newOpen}
+        onOpenChange={setNewOpen}
+        shifts={shifts}
+      />
+    </div>
+  )
+}
+
+function buildRecords(roster: Roster[]) {
+  const init: Record<string, { status: string; lateMinutes: number }> = {}
+  for (const r of roster) {
+    init[r.studentId] = { status: r.status, lateMinutes: r.lateMinutes }
+  }
+  return init
+}
+
+function AttendanceRoster({
+  roster,
+  selectedLesson,
+}: {
+  roster: Roster[]
+  selectedLesson: NonNullable<SelectedLesson>
+}) {
+  const router = useRouter()
+  const [isPending, startTransition] = useTransition()
+  const [records, setRecords] = useState(() => buildRecords(roster))
 
   function setStatus(studentId: string, status: string) {
     setRecords((prev) => ({
@@ -149,140 +198,105 @@ export function AttendanceClient({
   const markedCount = roster.filter((r) => records[r.studentId]?.status).length
 
   return (
-    <div className="space-y-4">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-        <div className="w-full sm:w-96 space-y-2">
-          <Label>Chọn buổi học</Label>
-          <Select value={selectedLesson?.id ?? ""} onValueChange={selectLesson}>
-            <SelectTrigger>
-              <SelectValue placeholder="Chọn buổi học để điểm danh" />
-            </SelectTrigger>
-            <SelectContent>
-              {lessons.map((l) => (
-                <SelectItem key={l.id} value={l.id}>
-                  {formatDate(l.date)} · {l.shiftName} · {l.topic}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-        <Button variant="outline" onClick={() => setNewOpen(true)}>
-          <Plus className="size-4" /> Buổi học mới
-        </Button>
-      </div>
-
-      {!selectedLesson ? (
-        <div className="rounded-xl border border-dashed bg-card p-10 text-center text-sm text-muted-foreground">
-          Chưa có buổi học nào. Tạo buổi học mới để bắt đầu điểm danh.
-        </div>
-      ) : (
-        <Card>
-          <CardContent className="p-4 sm:p-6">
-            <div className="mb-4 flex flex-col gap-3 border-b pb-4 sm:flex-row sm:items-center sm:justify-between">
-              <div className="flex items-center gap-3">
-                <div className="flex size-11 items-center justify-center rounded-xl bg-primary/10 text-primary">
-                  <CalendarDays className="size-6" />
-                </div>
-                <div>
-                  <p className="font-semibold">{selectedLesson.topic}</p>
-                  <p className="text-sm text-muted-foreground">
-                    {formatDate(selectedLesson.date)} · {selectedLesson.shiftName}{" "}
-                    ({selectedLesson.shiftTime})
-                  </p>
-                </div>
-              </div>
-              <div className="flex items-center gap-2">
-                <Badge variant="secondary">
-                  {markedCount}/{roster.length} đã điểm danh
-                </Badge>
-                <Button variant="outline" size="sm" onClick={markAllPresent}>
-                  <CheckCircle2 className="size-4" /> Tất cả có mặt
-                </Button>
-              </div>
+    <Card>
+      <CardContent className="p-4 sm:p-6">
+        <div className="mb-4 flex flex-col gap-3 border-b pb-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-center gap-3">
+            <div className="flex size-11 items-center justify-center rounded-xl bg-primary/10 text-primary">
+              <CalendarDays className="size-6" />
             </div>
-
-            {roster.length === 0 ? (
-              <p className="py-8 text-center text-sm text-muted-foreground">
-                Ca học này chưa có học sinh nào được gán. Hãy gán học sinh ở mục
-                “Ca học”.
+            <div>
+              <p className="font-semibold">{selectedLesson.topic}</p>
+              <p className="text-sm text-muted-foreground">
+                {formatDate(selectedLesson.date)} · {selectedLesson.shiftName}{" "}
+                ({selectedLesson.shiftTime})
               </p>
-            ) : (
-              <div className="space-y-2">
-                {roster.map((r) => {
-                  const rec = records[r.studentId]
-                  return (
-                    <div
-                      key={r.studentId}
-                      className="flex flex-col gap-3 rounded-lg border p-3 sm:flex-row sm:items-center sm:justify-between"
-                    >
-                      <div className="min-w-0">
-                        <p className="font-medium">{r.fullName}</p>
-                        <p className="text-xs text-muted-foreground">
-                          {r.className}
-                        </p>
-                      </div>
-                      <div className="flex flex-wrap items-center gap-2">
-                        {Object.values(ATTENDANCE_STATUS).map((st) => (
-                          <button
-                            key={st}
-                            type="button"
-                            onClick={() => setStatus(r.studentId, st)}
-                            className={cn(
-                              "cursor-pointer rounded-md border px-3 py-1.5 text-xs font-medium transition-colors duration-200",
-                              rec?.status === st
-                                ? STATUS_STYLES[st]
-                                : "bg-background hover:bg-accent"
-                            )}
-                          >
-                            {ATTENDANCE_STATUS_LABEL[st]}
-                          </button>
-                        ))}
-                        {rec?.status === ATTENDANCE_STATUS.LATE && (
-                          <div className="flex items-center gap-1">
-                            <Input
-                              type="number"
-                              min={0}
-                              value={rec.lateMinutes || ""}
-                              onChange={(e) =>
-                                setLate(r.studentId, Number(e.target.value))
-                              }
-                              className="h-8 w-20"
-                              placeholder="phút"
-                            />
-                            <span className="text-xs text-muted-foreground">
-                              phút
-                            </span>
-                          </div>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <Badge variant="secondary">
+              {markedCount}/{roster.length} đã điểm danh
+            </Badge>
+            <Button variant="outline" size="sm" onClick={markAllPresent}>
+              <CheckCircle2 className="size-4" /> Tất cả có mặt
+            </Button>
+          </div>
+        </div>
+
+        {roster.length === 0 ? (
+          <p className="py-8 text-center text-sm text-muted-foreground">
+            Ca học này chưa có học sinh nào được gán. Hãy gán học sinh ở mục
+            “Ca học”.
+          </p>
+        ) : (
+          <div className="space-y-2">
+            {roster.map((r) => {
+              const rec = records[r.studentId]
+              return (
+                <div
+                  key={r.studentId}
+                  className="flex flex-col gap-3 rounded-lg border p-3 sm:flex-row sm:items-center sm:justify-between"
+                >
+                  <div className="min-w-0">
+                    <p className="font-medium">{r.fullName}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {r.className}
+                    </p>
+                  </div>
+                  <div className="flex flex-wrap items-center gap-2">
+                    {Object.values(ATTENDANCE_STATUS).map((st) => (
+                      <button
+                        key={st}
+                        type="button"
+                        onClick={() => setStatus(r.studentId, st)}
+                        className={cn(
+                          "cursor-pointer rounded-md border px-3 py-1.5 text-xs font-medium transition-colors duration-200",
+                          rec?.status === st
+                            ? STATUS_STYLES[st]
+                            : "bg-background hover:bg-accent"
                         )}
+                      >
+                        {ATTENDANCE_STATUS_LABEL[st]}
+                      </button>
+                    ))}
+                    {rec?.status === ATTENDANCE_STATUS.LATE && (
+                      <div className="flex items-center gap-1">
+                        <Input
+                          type="number"
+                          min={0}
+                          value={rec.lateMinutes || ""}
+                          onChange={(e) =>
+                            setLate(r.studentId, Number(e.target.value))
+                          }
+                          className="h-8 w-20"
+                          placeholder="phút"
+                        />
+                        <span className="text-xs text-muted-foreground">
+                          phút
+                        </span>
                       </div>
-                    </div>
-                  )
-                })}
-              </div>
-            )}
+                    )}
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        )}
 
-            {roster.length > 0 && (
-              <div className="mt-4 flex justify-end">
-                <Button onClick={save} disabled={isPending}>
-                  {isPending ? (
-                    <Loader2 className="size-4 animate-spin" />
-                  ) : (
-                    <Save className="size-4" />
-                  )}
-                  Lưu điểm danh
-                </Button>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-      )}
-
-      <NewLessonDialog
-        open={newOpen}
-        onOpenChange={setNewOpen}
-        shifts={shifts}
-      />
-    </div>
+        {roster.length > 0 && (
+          <div className="mt-4 flex justify-end">
+            <Button onClick={save} disabled={isPending}>
+              {isPending ? (
+                <Loader2 className="size-4 animate-spin" />
+              ) : (
+                <Save className="size-4" />
+              )}
+              Lưu điểm danh
+            </Button>
+          </div>
+        )}
+      </CardContent>
+    </Card>
   )
 }
 

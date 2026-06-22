@@ -1,10 +1,11 @@
 "use client"
 
 import { useState, useTransition } from "react"
-import { LogOut, Menu, GraduationCap, Loader2 } from "lucide-react"
+import { LogOut, Menu, Loader2 } from "lucide-react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { logout } from "@/lib/actions/auth"
+import { BrandLogo } from "@/components/brand-logo"
 import { Button } from "@/components/ui/button"
 import {
   Sheet,
@@ -57,10 +58,9 @@ export function Topbar() {
           </Button>
         </SheetTrigger>
         <SheetContent side="left" className="w-64 p-0">
-          <SheetHeader className="h-16 justify-center border-b px-6">
-            <SheetTitle className="flex items-center gap-2">
-              <GraduationCap className="size-5 text-primary" /> EduTrack
-            </SheetTitle>
+          <SheetHeader className="h-16 justify-center border-b px-4">
+            <SheetTitle className="sr-only">Menu điều hướng</SheetTitle>
+            <BrandLogo />
           </SheetHeader>
           <nav className="space-y-1 p-3">
             {NAV.map((item) => {

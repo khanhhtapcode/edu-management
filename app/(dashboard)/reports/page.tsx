@@ -20,7 +20,6 @@ export default async function ReportsPage({
 }) {
   const sp = await searchParams
   const month = sp.month ?? currentMonth()
-  const studentId = sp.studentId
 
   const [students, reports] = await Promise.all([
     db.student.findMany({
@@ -34,6 +33,8 @@ export default async function ReportsPage({
       take: 30,
     }),
   ])
+
+  const studentId = sp.studentId ?? students[0]?.id
 
   let stats: ReportStats | null = null
   if (studentId) {

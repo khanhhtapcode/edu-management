@@ -1,18 +1,15 @@
-import { GraduationCap } from "lucide-react"
+import { BrandLogo } from "@/components/brand-logo"
 import { LoginForm } from "./_components/login-form"
 
-export const metadata = { title: "Đăng nhập — EduTrack" }
+export const metadata = { title: "Đăng nhập — NY MATH CLASS" }
 
 export default function LoginPage() {
   return (
     <div className="grid min-h-svh lg:grid-cols-2">
       {/* Cột trái: form */}
       <div className="flex flex-col gap-6 p-6 md:p-10">
-        <div className="flex items-center gap-2">
-          <div className="flex size-8 items-center justify-center rounded-md bg-primary text-primary-foreground">
-            <GraduationCap className="size-5" />
-          </div>
-          <span className="text-lg font-semibold">EduTrack</span>
+        <div className="flex items-center">
+          <BrandLogo priority />
         </div>
         <div className="flex flex-1 items-center justify-center">
           <div className="w-full max-w-sm">
@@ -33,7 +30,7 @@ export default function LoginPage() {
       <div className="relative hidden overflow-hidden bg-primary lg:block">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(255,255,255,0.18),transparent_55%)]" />
         <div className="relative flex h-full flex-col justify-between p-12 text-primary-foreground">
-          <GraduationCap className="size-10 opacity-90" />
+          <BrandLogo className="h-14 brightness-0 invert" />
           <div>
             <h2 className="text-3xl font-bold leading-tight">
               Quản lý lớp học hiện đại, gọn nhẹ và trực quan.
@@ -44,7 +41,7 @@ export default function LoginPage() {
             </p>
           </div>
           <p className="text-sm text-primary-foreground/70">
-            © {new Date().getFullYear()} EduTrack
+            © {new Date().getFullYear()} NY MATH CLASS
           </p>
         </div>
       </div>

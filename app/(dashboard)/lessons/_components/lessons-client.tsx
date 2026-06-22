@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useTransition, useEffect } from "react"
+import { useState, useTransition } from "react"
 import { useRouter } from "next/navigation"
 import { Plus, Save, Loader2, Trash2, NotebookPen } from "lucide-react"
 import { toast } from "sonner"
@@ -75,94 +75,10 @@ export function LessonsClient({
   roster: RosterRow[]
 }) {
   const router = useRouter()
-  const [isPending, startTransition] = useTransition()
   const [newOpen, setNewOpen] = useState(false)
-  const [deleting, setDeleting] = useState(false)
-
-  // Nội dung bài học
-  const [content, setContent] = useState({
-    topic: detail?.topic ?? "",
-    coreKnowledge: detail?.coreKnowledge ?? "",
-    classWork: detail?.classWork ?? "",
-    homework: detail?.homework ?? "",
-  })
-  // Bảng nhận xét
-  const [comments, setComments] = useState<Record<string, RosterRow>>({})
-
-  useEffect(() => {
-    setContent({
-      topic: detail?.topic ?? "",
-      coreKnowledge: detail?.coreKnowledge ?? "",
-      classWork: detail?.classWork ?? "",
-      homework: detail?.homework ?? "",
-    })
-    const map: Record<string, RosterRow> = {}
-    for (const r of roster) map[r.studentId] = { ...r }
-    setComments(map)
-  }, [detail, roster])
 
   function selectLesson(id: string) {
     router.push(`/lessons?lessonId=${id}`)
-  }
-
-  function saveContent() {
-    if (!detail) return
-    startTransition(async () => {
-      try {
-        await apiFetch(`/api/lessons/${detail.id}`, {
-          method: "PATCH",
-          body: content,
-        })
-        toast.success("Đã lưu nội dung bài học")
-        router.refresh()
-      } catch (error) {
-        toast.error(error instanceof Error ? error.message : "Có lỗi xảy ra")
-      }
-    })
-  }
-
-  function setComment(id: string, field: keyof RosterRow, value: string | number) {
-    setComments((prev) => ({
-      ...prev,
-      [id]: { ...prev[id], [field]: value },
-    }))
-  }
-
-  function saveComments() {
-    if (!detail) return
-    const records = Object.values(comments).map((c) => ({
-      studentId: c.studentId,
-      focusScore: c.focusScore,
-      attitude: c.attitude,
-      reception: c.reception,
-      improvement: c.improvement,
-    }))
-    startTransition(async () => {
-      try {
-        await apiFetch("/api/comments", {
-          method: "POST",
-          body: { lessonId: detail.id, records },
-        })
-        toast.success("Đã lưu nhận xét")
-        router.refresh()
-      } catch (error) {
-        toast.error(error instanceof Error ? error.message : "Có lỗi xảy ra")
-      }
-    })
-  }
-
-  function deleteLesson() {
-    if (!detail) return
-    startTransition(async () => {
-      try {
-        await apiFetch(`/api/lessons/${detail.id}`, { method: "DELETE" })
-        toast.success("Đã xóa buổi học")
-        setDeleting(false)
-        router.push("/lessons")
-      } catch (error) {
-        toast.error(error instanceof Error ? error.message : "Có lỗi xảy ra")
-      }
-    })
   }
 
   return (
@@ -193,9 +109,102 @@ export function LessonsClient({
           Chưa có buổi học. Tạo buổi học mới để ghi nhật ký.
         </div>
       ) : (
-        <>
-          {/* Nội dung bài học */}
-          <Card>
+        <LessonDetailEditor
+          key={detail.id}
+          detail={detail}
+          roster={roster}
+        />
+      )}
+
+      <NewLessonDialog open={newOpen} onOpenChange={setNewOpen} shifts={shifts} />
+    </div>
+  )
+}
+
+function LessonDetailEditor({
+  detail,
+  roster,
+}: {
+  detail: NonNullable<Detail>
+  roster: RosterRow[]
+}) {
+  const router = useRouter()
+  const [isPending, startTransition] = useTransition()
+  const [deleting, setDeleting] = useState(false)
+
+  const [content, setContent] = useState({
+    topic: detail.topic,
+    coreKnowledge: detail.coreKnowledge,
+    classWork: detail.classWork,
+    homework: detail.homework,
+  })
+  const [comments, setComments] = useState<Record<string, RosterRow>>(() => {
+    const map: Record<string, RosterRow> = {}
+    for (const r of roster) map[r.studentId] = { ...r }
+    return map
+  })
+
+  function saveContent() {
+    startTransition(async () => {
+      try {
+        await apiFetch(`/api/lessons/${detail.id}`, {
+          method: "PATCH",
+          body: content,
+        })
+        toast.success("Đã lưu nội dung bài học")
+        router.refresh()
+      } catch (error) {
+        toast.error(error instanceof Error ? error.message : "Có lỗi xảy ra")
+      }
+    })
+  }
+
+  function setComment(id: string, field: keyof RosterRow, value: string | number) {
+    setComments((prev) => ({
+      ...prev,
+      [id]: { ...prev[id], [field]: value },
+    }))
+  }
+
+  function saveComments() {
+    const records = Object.values(comments).map((c) => ({
+      studentId: c.studentId,
+      focusScore: c.focusScore,
+      attitude: c.attitude,
+      reception: c.reception,
+      improvement: c.improvement,
+    }))
+    startTransition(async () => {
+      try {
+        await apiFetch("/api/comments", {
+          method: "POST",
+          body: { lessonId: detail.id, records },
+        })
+        toast.success("Đã lưu nhận xét")
+        router.refresh()
+      } catch (error) {
+        toast.error(error instanceof Error ? error.message : "Có lỗi xảy ra")
+      }
+    })
+  }
+
+  function deleteLesson() {
+    startTransition(async () => {
+      try {
+        await apiFetch(`/api/lessons/${detail.id}`, { method: "DELETE" })
+        toast.success("Đã xóa buổi học")
+        setDeleting(false)
+        router.push("/lessons")
+      } catch (error) {
+        toast.error(error instanceof Error ? error.message : "Có lỗi xảy ra")
+      }
+    })
+  }
+
+  return (
+    <>
+      {/* Nội dung bài học */}
+      <Card>
             <CardHeader className="flex-row items-center justify-between space-y-0">
               <CardTitle className="flex items-center gap-2 text-base">
                 <NotebookPen className="size-5 text-primary" />
@@ -368,10 +377,6 @@ export function LessonsClient({
               )}
             </CardContent>
           </Card>
-        </>
-      )}
-
-      <NewLessonDialog open={newOpen} onOpenChange={setNewOpen} shifts={shifts} />
 
       <Dialog open={deleting} onOpenChange={setDeleting}>
         <DialogContent>
@@ -397,7 +402,7 @@ export function LessonsClient({
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </div>
+    </>
   )
 }
 
