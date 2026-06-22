@@ -1,0 +1,126 @@
+// EduTrack - Hệ thống quản lý lớp học & học sinh
+// PostgreSQL (Neon). DATABASE_URL dùng chuỗi pooled (-pooler) cho runtime,
+// DIRECT_URL dùng chuỗi direct cho migrate.
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// 1. Quản lý Lớp học chính quy
+model Class {
+  id          String    @id @default(cuid())
+  name        String
+  description String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  students    Student[]
+}
+
+// 2. Quản lý Ca học cố định
+model Shift {
+  id        String   @id @default(cuid())
+  name      String
+  startTime String // "07:30"
+  endTime   String // "10:30"
+  createdAt DateTime @default(now())
+
+  lessons  Lesson[]
+  students Student[] // học sinh được gán vào ca
+}
+
+// 3. Quản lý Học sinh
+model Student {
+  id          String   @id @default(cuid())
+  fullName    String
+  dateOfBirth DateTime
+  gender      String?
+  parentPhone String
+  schoolName  String?
+  status      String   @default("ACTIVE") // ACTIVE, RESERVED, INACTIVE
+  classId     String
+  class       Class    @relation(fields: [classId], references: [id])
+  shiftId     String?
+  shift       Shift?   @relation(fields: [shiftId], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  attendances Attendance[]
+  comments    StudentComment[]
+  reports     MonthlyReport[]
+}
+
+// 4. Buổi học cụ thể theo lịch thực tế
+model Lesson {
+  id            String   @id @default(cuid())
+  date          DateTime @default(now())
+  shiftId       String
+  shift         Shift    @relation(fields: [shiftId], references: [id])
+  topic         String
+  coreKnowledge String   @db.Text
+  classWork     String?  @db.Text
+  homework      String?  @db.Text
+  createdAt     DateTime @default(now())
+
+  attendances Attendance[]
+  comments    StudentComment[]
+}
+
+// 5. Điểm danh từng học sinh trong một buổi học
+model Attendance {
+  id          String   @id @default(cuid())
+  lessonId    String
+  lesson      Lesson   @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  studentId   String
+  student     Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  status      String // PRESENT, EXCUSED, UNEXCUSED, LATE
+  lateMinutes Int      @default(0)
+  updatedAt   DateTime @updatedAt
+
+  @@unique([lessonId, studentId])
+}
+
+// 6. Nhận xét chi tiết từng học sinh trong một buổi học
+model StudentComment {
+  id          String  @id @default(cuid())
+  lessonId    String
+  lesson      Lesson  @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  studentId   String
+  student     Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  focusScore  Int     @default(5) // 1-5
+  attitude    String  @db.Text
+  reception   String  @db.Text
+  improvement String? @db.Text
+
+  @@unique([lessonId, studentId])
+}
+
+// 7. Phiếu Báo Cáo Tổng Kết Tháng để xuất PDF
+model MonthlyReport {
+  id          String  @id @default(cuid())
+  studentId   String
+  student     Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  reportMonth String // "YYYY-MM"
+
+  totalLessons   Int
+  presentCount   Int
+  excusedCount   Int
+  unexcusedCount Int
+  attendanceRate Float
+
+  homeworkCompletionRate Float
+  homeworkComment        String @db.Text
+
+  teacherReview String  @db.Text
+  pdfUrl        String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([studentId, reportMonth])
+}
