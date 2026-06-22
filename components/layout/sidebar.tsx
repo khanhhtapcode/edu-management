@@ -24,8 +24,8 @@ export function Sidebar() {
       {/* Header */}
       <div
         className={cn(
-          "flex h-16 items-center border-b border-slate-100 shrink-0 relative",
-          collapsed ? "justify-center px-2" : "px-4"
+          "flex h-16 items-center border-b border-slate-100 shrink-0 gap-2",
+          collapsed ? "justify-center px-2" : "px-3"
         )}
       >
         {collapsed ? (
@@ -33,12 +33,31 @@ export function Sidebar() {
             NY
           </div>
         ) : (
-          <BrandLogo className="h-9 w-auto" priority />
+          <>
+            <BrandLogo className="h-9 w-auto flex-1 min-w-0" priority />
+            <button
+              onClick={toggle}
+              aria-label="Thu nhỏ sidebar"
+              className="flex size-7 shrink-0 items-center justify-center rounded-md text-slate-400 hover:bg-slate-100 hover:text-slate-700 transition-colors duration-150 cursor-pointer"
+            >
+              <ChevronLeft className="size-4" />
+            </button>
+          </>
         )}
       </div>
 
       {/* Navigation */}
       <nav className="flex-1 py-3 px-2 space-y-0.5 overflow-hidden">
+        {/* Expand button (collapsed mode only) */}
+        {collapsed && (
+          <button
+            onClick={toggle}
+            aria-label="Mở rộng sidebar"
+            className="flex w-full items-center justify-center py-2 mb-1 rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-700 transition-colors duration-150 cursor-pointer"
+          >
+            <ChevronLeft className="size-4 rotate-180" />
+          </button>
+        )}
         {/* Section label */}
         {!collapsed && (
           <p className="px-3 pb-2 text-[10px] font-semibold uppercase tracking-widest text-slate-400">
@@ -98,25 +117,6 @@ export function Sidebar() {
         )}
       </div>
 
-      {/* Collapse toggle button — floats on the right edge */}
-      <button
-        onClick={toggle}
-        aria-label={collapsed ? "Mở rộng sidebar" : "Thu nhỏ sidebar"}
-        className={cn(
-          "absolute -right-3 top-[4.5rem] z-20",
-          "flex size-6 items-center justify-center rounded-full",
-          "border border-slate-200 bg-white shadow-md",
-          "text-slate-400 hover:text-slate-700 hover:border-slate-300",
-          "transition-colors duration-150 cursor-pointer"
-        )}
-      >
-        <ChevronLeft
-          className={cn(
-            "size-3.5 transition-transform duration-300",
-            collapsed && "rotate-180"
-          )}
-        />
-      </button>
     </aside>
   )
 }

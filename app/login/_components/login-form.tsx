@@ -58,9 +58,6 @@ export function LoginForm() {
         {isPending && <Loader2 className="size-4 animate-spin" />}
         Đăng nhập
       </Button>
-      <p className="text-center text-xs text-muted-foreground">
-        Mặc định: <span className="font-medium">admin / admin123</span>
-      </p>
     </form>
   )
 }

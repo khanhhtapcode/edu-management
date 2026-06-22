@@ -30,7 +30,16 @@ export default function LoginPage() {
       <div className="relative hidden overflow-hidden bg-primary lg:block">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(255,255,255,0.18),transparent_55%)]" />
         <div className="relative flex h-full flex-col justify-between p-12 text-primary-foreground">
-          <BrandLogo className="h-14 brightness-0 invert" />
+          {/* Logo text-based vì JPG không hỗ trợ transparency trên nền màu */}
+          <div className="flex items-center gap-3">
+            <div className="flex size-11 items-center justify-center rounded-2xl bg-white/20 font-bold text-white text-lg shadow-sm">
+              NY
+            </div>
+            <div>
+              <p className="font-bold text-white text-base leading-tight">NY Math Class</p>
+              <p className="text-white/60 text-xs">Học Toán Thông Minh · Tư Duy Đột Phá</p>
+            </div>
+          </div>
           <div>
             <h2 className="text-3xl font-bold leading-tight">
               Quản lý lớp học hiện đại, gọn nhẹ và trực quan.
