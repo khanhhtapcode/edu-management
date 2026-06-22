@@ -70,7 +70,7 @@ export function StudentForm({
     defaultValues: {
       fullName: initial?.fullName ?? "",
       dateOfBirth: initial?.dateOfBirth?.slice(0, 10) ?? "",
-      gender: initial?.gender ?? GENDER.MALE,
+      gender: (initial?.gender as StudentValues["gender"]) ?? GENDER.MALE,
       parentPhone: initial?.parentPhone ?? "",
       schoolName: initial?.schoolName ?? "",
       status: (initial?.status as StudentValues["status"]) ?? MEMBER_STATUS.ACTIVE,
@@ -133,7 +133,12 @@ export function StudentForm({
           <Label>Giới tính</Label>
           <Select
             value={gender ?? GENDER.MALE}
-            onValueChange={(v) => setValue("gender", v)}
+            onValueChange={(v) =>
+              setValue("gender", v as StudentValues["gender"], {
+                shouldValidate: true,
+                shouldDirty: true,
+              })
+            }
           >
             <SelectTrigger>
               <SelectValue />
@@ -176,7 +181,12 @@ export function StudentForm({
       <div className="grid grid-cols-2 gap-3">
         <div className="space-y-2">
           <Label>Lớp đang học</Label>
-          <Select value={classId} onValueChange={(v) => setValue("classId", v)}>
+          <Select
+            value={classId}
+            onValueChange={(v) =>
+              setValue("classId", v, { shouldValidate: true, shouldDirty: true })
+            }
+          >
             <SelectTrigger>
               <SelectValue placeholder="Chọn lớp" />
             </SelectTrigger>

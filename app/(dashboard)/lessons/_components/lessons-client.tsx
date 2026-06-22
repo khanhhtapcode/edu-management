@@ -6,7 +6,7 @@ import { Plus, Save, Loader2, Trash2, NotebookPen } from "lucide-react"
 import { toast } from "sonner"
 
 import { apiFetch } from "@/lib/api-client"
-import { formatDate } from "@/lib/utils"
+import { formatDate, toDateInputValue } from "@/lib/utils"
 import { FOCUS_SCALE } from "@/lib/constants"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -417,7 +417,7 @@ function NewLessonDialog({
 }) {
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
-  const [date, setDate] = useState(new Date().toISOString().slice(0, 10))
+  const [date, setDate] = useState(toDateInputValue(new Date()))
   const [shiftId, setShiftId] = useState(shifts[0]?.id ?? "")
   const [topic, setTopic] = useState("")
   const [coreKnowledge, setCoreKnowledge] = useState("")

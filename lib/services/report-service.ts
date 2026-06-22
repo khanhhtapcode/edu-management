@@ -63,7 +63,9 @@ export async function computeMonthlyStats(
   ).length
   const totalLessons = lessons.length
   const attendanceRate =
-    totalLessons > 0 ? Math.round((presentCount / totalLessons) * 1000) / 10 : 0
+    totalLessons > 0
+      ? Math.min(100, Math.round((presentCount / totalLessons) * 1000) / 10)
+      : 0
 
   const avgFocus =
     comments.length > 0

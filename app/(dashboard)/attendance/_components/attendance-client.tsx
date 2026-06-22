@@ -6,7 +6,7 @@ import { Plus, Save, Loader2, CalendarDays, CheckCircle2 } from "lucide-react"
 import { toast } from "sonner"
 
 import { apiFetch } from "@/lib/api-client"
-import { formatDate, cn } from "@/lib/utils"
+import { formatDate, cn, toDateInputValue } from "@/lib/utils"
 import { ATTENDANCE_STATUS, ATTENDANCE_STATUS_LABEL } from "@/lib/constants"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -311,7 +311,7 @@ function NewLessonDialog({
 }) {
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
-  const [date, setDate] = useState(new Date().toISOString().slice(0, 10))
+  const [date, setDate] = useState(toDateInputValue(new Date()))
   const [shiftId, setShiftId] = useState(shifts[0]?.id ?? "")
   const [topic, setTopic] = useState("")
   const [coreKnowledge, setCoreKnowledge] = useState("")

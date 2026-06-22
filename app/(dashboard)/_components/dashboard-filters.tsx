@@ -18,7 +18,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
-import { formatDate } from "@/lib/utils"
+import { formatDate, toDateInputValue } from "@/lib/utils"
 
 type Option = { id: string; name: string }
 
@@ -95,9 +95,9 @@ export function DashboardFilters({
                 update({
                   range: "custom",
                   from: range?.from
-                    ? range.from.toISOString().slice(0, 10)
+                    ? toDateInputValue(range.from)
                     : undefined,
-                  to: range?.to ? range.to.toISOString().slice(0, 10) : undefined,
+                  to: range?.to ? toDateInputValue(range.to) : undefined,
                 })
               }}
             />

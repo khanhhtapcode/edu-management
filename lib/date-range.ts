@@ -11,14 +11,18 @@ export function resolveRange(
     new Date(d.getFullYear(), d.getMonth(), d.getDate())
 
   if (preset === "custom" && from) {
-    const start = startOfDay(new Date(from))
-    const endBase = to ? new Date(to) : new Date(from)
-    const end = new Date(
-      endBase.getFullYear(),
-      endBase.getMonth(),
-      endBase.getDate() + 1
-    )
-    return { start, end, preset: "custom" }
+    const fromDate = new Date(from)
+    const toDate = to ? new Date(to) : fromDate
+    // Bỏ qua khoảng tùy chọn nếu ngày không hợp lệ -> rơi về mặc định (today)
+    if (!Number.isNaN(fromDate.getTime()) && !Number.isNaN(toDate.getTime())) {
+      const start = startOfDay(fromDate)
+      const end = new Date(
+        toDate.getFullYear(),
+        toDate.getMonth(),
+        toDate.getDate() + 1
+      )
+      return { start, end, preset: "custom" }
+    }
   }
 
   if (preset === "week") {

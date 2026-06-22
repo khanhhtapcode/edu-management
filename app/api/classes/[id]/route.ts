@@ -12,7 +12,6 @@ export async function PATCH(request: NextRequest, { params }: Params) {
     const body = await request.json()
     const cls = await updateClass(id, body)
     revalidatePath("/students")
-    revalidatePath("/classes")
     return ok(cls)
   } catch (error) {
     return handleError(error)
@@ -25,7 +24,6 @@ export async function DELETE(_request: NextRequest, { params }: Params) {
     const { id } = await params
     const result = await deleteClass(id)
     revalidatePath("/students")
-    revalidatePath("/classes")
     return ok(result)
   } catch (error) {
     return handleError(error)

@@ -9,7 +9,6 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
     const cls = await createClass(body)
     revalidatePath("/students")
-    revalidatePath("/classes")
     return ok(cls, 201)
   } catch (error) {
     return handleError(error)

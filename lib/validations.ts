@@ -1,10 +1,13 @@
 import { z } from "zod"
-import { MEMBER_STATUS, ATTENDANCE_STATUS } from "@/lib/constants"
+import { MEMBER_STATUS, ATTENDANCE_STATUS, GENDER } from "@/lib/constants"
 
 export const studentSchema = z.object({
   fullName: z.string().trim().min(2, "Họ tên tối thiểu 2 ký tự"),
   dateOfBirth: z.string().min(1, "Vui lòng chọn ngày sinh"),
-  gender: z.string().optional().nullable(),
+  gender: z
+    .enum([GENDER.MALE, GENDER.FEMALE, GENDER.OTHER])
+    .optional()
+    .nullable(),
   parentPhone: z
     .string()
     .trim()
@@ -75,7 +78,9 @@ export const commentBulkSchema = z.object({
 
 export const assignShiftSchema = z.object({
   shiftId: z.string().min(1),
-  studentIds: z.array(z.string()),
+  studentIds: z
+    .array(z.string().min(1))
+    .min(1, "Vui lòng chọn ít nhất một học sinh"),
 })
 
 export const reportSchema = z.object({

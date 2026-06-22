@@ -68,6 +68,7 @@ export async function assignStudentsToShift(input: unknown) {
 
 /** Bỏ một học sinh khỏi ca học. */
 export async function removeStudentFromShift(studentId: string) {
+  if (!studentId) throw new ApiError(400, "Thiếu studentId")
   const student = await db.student.findUnique({ where: { id: studentId } })
   if (!student) throw new ApiError(404, "Không tìm thấy học sinh")
   return db.student.update({

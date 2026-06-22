@@ -2,25 +2,9 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import {
-  LayoutDashboard,
-  Users,
-  Clock,
-  ClipboardCheck,
-  NotebookPen,
-  FileBarChart,
-} from "lucide-react"
 import { cn } from "@/lib/utils"
+import { NAV, isNavActive } from "@/lib/nav"
 import { BrandLogo } from "@/components/brand-logo"
-
-const NAV = [
-  { href: "/", label: "Tổng quan", icon: LayoutDashboard },
-  { href: "/students", label: "Học sinh", icon: Users },
-  { href: "/shifts", label: "Ca học", icon: Clock },
-  { href: "/attendance", label: "Điểm danh", icon: ClipboardCheck },
-  { href: "/lessons", label: "Nhật ký bài học", icon: NotebookPen },
-  { href: "/reports", label: "Báo cáo & PDF", icon: FileBarChart },
-]
 
 export function Sidebar() {
   const pathname = usePathname()
@@ -32,10 +16,7 @@ export function Sidebar() {
       </div>
       <nav className="flex-1 space-y-1 p-3">
         {NAV.map((item) => {
-          const active =
-            item.href === "/"
-              ? pathname === "/"
-              : pathname.startsWith(item.href)
+          const active = isNavActive(item.href, pathname)
           const Icon = item.icon
           return (
             <Link
