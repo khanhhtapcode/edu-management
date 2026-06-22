@@ -6,7 +6,7 @@
 
 - **Next.js 16** (App Router) + **React 19** + **TypeScript**
 - **Tailwind CSS v4** + **shadcn/ui** (Radix Primitives) — theme *Education Modern* (Indigo)
-- **Prisma 6** ORM — mặc định **SQLite** cho dev (đổi sang PostgreSQL cho production)
+- **Prisma 6** ORM — **PostgreSQL** (Neon)
 - **NextAuth v5** (Credentials, 1 tài khoản superadmin)
 - **Recharts** (biểu đồ tròn / cột / radar)
 - **@react-pdf/renderer** (xuất PDF A4, hỗ trợ tiếng Việt) + **SheetJS/xlsx** (xuất Excel)
@@ -43,11 +43,13 @@
 # 1. Cài dependencies (đã cài sẵn)
 npm install
 
-# 2. Tạo DB & seed dữ liệu mẫu
-npm run db:push
+# 2. Cấu hình .env với chuỗi kết nối Neon (xem mục dưới)
+
+# 3. Tạo bảng trên Neon & seed dữ liệu mẫu
+npm run db:push        # hoặc: npm run db:migrate -- --name init
 npm run db:seed
 
-# 3. Chạy dev
+# 4. Chạy dev
 npm run dev
 ```
 
@@ -56,26 +58,31 @@ Mở http://localhost:3000 — đăng nhập với **admin / admin123**.
 ## Biến môi trường (`.env`)
 
 ```
-DATABASE_URL="file:./dev.db"
+DATABASE_URL="postgresql://USER:PASS@ep-xxxx-pooler.REGION.aws.neon.tech/neondb?sslmode=require"
+DIRECT_URL="postgresql://USER:PASS@ep-xxxx.REGION.aws.neon.tech/neondb?sslmode=require"
 AUTH_SECRET="..."          # đổi trong production
 ADMIN_USERNAME="admin"
 ADMIN_PASSWORD="admin123"
 ```
 
-## Chuyển sang PostgreSQL (production)
+## Deploy database lên Neon
 
-Trong `prisma/schema.prisma`:
+1. Tạo project trên [neon.tech](https://neon.tech) → mở **Connection Details**.
+2. Copy **2 chuỗi kết nối** vào `.env`:
+   - `DATABASE_URL` = chuỗi **Pooled** (host có `-pooler`) — dùng cho app runtime.
+   - `DIRECT_URL` = chuỗi **Direct** (không `-pooler`) — dùng cho migrate.
+   - Giữ nguyên `?sslmode=require`.
+3. Đẩy schema & dữ liệu mẫu:
+   ```bash
+   npm run db:migrate -- --name init   # tạo migration (dùng DIRECT_URL)
+   npm run db:seed
+   ```
+   > Hoặc nhanh hơn không cần file migration: `npm run db:push`.
+4. Trên nền tảng deploy (Vercel...), set các biến env tương tự và chạy
+   `npm run db:deploy` (prisma migrate deploy) khi build/release.
 
-```prisma
-datasource db {
-  provider = "postgresql"   // đổi từ "sqlite"
-  url      = env("DATABASE_URL")
-}
-```
-
-Thêm lại annotation `@db.Text` cho các trường nội dung dài (`coreKnowledge`, `classWork`,
-`homework`, `attitude`, `reception`, `improvement`, `homeworkComment`, `teacherReview`),
-cập nhật `DATABASE_URL` thành chuỗi kết nối Postgres, rồi chạy `npx prisma migrate dev`.
+> Lưu ý: `lib/db.ts` đã dùng singleton PrismaClient. Với Neon serverless,
+> luôn trỏ runtime tới chuỗi **pooled** để tránh cạn kết nối.
 
 ## Scripts
 
@@ -83,6 +90,8 @@ cập nhật `DATABASE_URL` thành chuỗi kết nối Postgres, rồi chạy `n
 |------|-------|
 | `npm run dev` | Chạy dev server |
 | `npm run build` | Build production |
-| `npm run db:push` | Đồng bộ schema vào DB |
+| `npm run db:push` | Đồng bộ schema vào DB (không tạo file migration) |
+| `npm run db:migrate` | Tạo & áp migration (dev) |
+| `npm run db:deploy` | Áp migration (production) |
 | `npm run db:seed` | Seed dữ liệu mẫu |
 | `npm run db:studio` | Mở Prisma Studio |
