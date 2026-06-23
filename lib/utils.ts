@@ -32,9 +32,22 @@ export function formatMonth(month: string): string {
   return `Tháng ${m}/${y}`
 }
 
+/** Parse "YYYY-MM-DD" theo giờ địa phương (tránh lệch ngày với UTC). */
+export function parseLocalDate(dateStr: string): Date {
+  const [y, m, d] = dateStr.split("-").map(Number)
+  if (!y || !m || !d) return new Date(Number.NaN)
+  return new Date(y, m - 1, d)
+}
+
 /** Tính tuổi từ ngày sinh */
 export function calcAge(dob: Date | string): number {
-  const d = typeof dob === "string" ? new Date(dob) : dob
-  const diff = Date.now() - d.getTime()
-  return Math.abs(new Date(diff).getUTCFullYear() - 1970)
+  const d = typeof dob === "string" ? parseLocalDate(dob.slice(0, 10)) : dob
+  if (Number.isNaN(d.getTime())) return 0
+  const today = new Date()
+  let age = today.getFullYear() - d.getFullYear()
+  const monthDiff = today.getMonth() - d.getMonth()
+  if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < d.getDate())) {
+    age--
+  }
+  return age
 }

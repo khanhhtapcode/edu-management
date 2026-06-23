@@ -49,7 +49,6 @@ async function main() {
           schoolName: "THPT Chu Văn An",
           status: "ACTIVE",
           classId: i % 2 === 0 ? class1.id : class2.id,
-          shiftId: shifts[i % 2].id,
         },
       })
     )
@@ -70,6 +69,7 @@ async function main() {
         date,
         shiftId: shifts[0].id,
         classId: class1.id,
+        dateKey: `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`,
         topic: topics[d].topic,
         coreKnowledge: topics[d].core,
         classWork: "Bài tập SGK trang 20",

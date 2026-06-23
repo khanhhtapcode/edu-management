@@ -68,11 +68,9 @@ function statusVariant(status: string) {
 export function StudentsClient({
   students,
   classes,
-  shifts,
 }: {
-  students: (StudentRow & { className: string; shiftName: string | null })[]
+  students: (StudentRow & { className: string })[]
   classes: Option[]
-  shifts: Option[]
 }) {
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
@@ -201,7 +199,6 @@ export function StudentsClient({
             <TableRow>
               <TableHead>Họ và tên</TableHead>
               <TableHead>Lớp</TableHead>
-              <TableHead className="hidden md:table-cell">Ca học</TableHead>
               <TableHead className="hidden lg:table-cell">Ngày sinh</TableHead>
               <TableHead className="hidden lg:table-cell">SĐT phụ huynh</TableHead>
               <TableHead>Trạng thái</TableHead>
@@ -211,7 +208,7 @@ export function StudentsClient({
           <TableBody>
             {pageRows.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={7} className="h-32 text-center text-muted-foreground">
+                <TableCell colSpan={6} className="h-32 text-center text-muted-foreground">
                   Không tìm thấy học sinh nào.
                 </TableCell>
               </TableRow>
@@ -226,13 +223,6 @@ export function StudentsClient({
                     </div>
                   </TableCell>
                   <TableCell>{s.className}</TableCell>
-                  <TableCell className="hidden md:table-cell">
-                    {s.shiftName ? (
-                      <Badge variant="outline">{s.shiftName}</Badge>
-                    ) : (
-                      <span className="text-muted-foreground">Chưa gán</span>
-                    )}
-                  </TableCell>
                   <TableCell className="hidden lg:table-cell">
                     {formatDate(s.dateOfBirth)}
                   </TableCell>
@@ -316,7 +306,6 @@ export function StudentsClient({
           <div className="mt-6">
             <StudentForm
               classes={classes}
-              shifts={shifts}
               initial={editing}
               onDone={() => setSheetOpen(false)}
             />

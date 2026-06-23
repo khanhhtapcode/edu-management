@@ -13,6 +13,9 @@ export async function POST(request: NextRequest) {
     const { lessonId, studentId } = await request.json()
     const result = await addStudentToLesson(lessonId, studentId)
     revalidatePath("/schedule")
+    revalidatePath("/lessons")
+    revalidatePath("/reports")
+    revalidatePath("/")
     return ok(result, 201)
   } catch (error) {
     return handleError(error)
@@ -28,6 +31,9 @@ export async function DELETE(request: NextRequest) {
     const studentId = searchParams.get("studentId") ?? ""
     const result = await removeStudentFromLesson(lessonId, studentId)
     revalidatePath("/schedule")
+    revalidatePath("/lessons")
+    revalidatePath("/reports")
+    revalidatePath("/")
     return ok(result)
   } catch (error) {
     return handleError(error)

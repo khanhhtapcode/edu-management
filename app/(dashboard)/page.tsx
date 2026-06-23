@@ -44,16 +44,20 @@ export default async function DashboardPage({
   const studentWhere = {
     status: MEMBER_STATUS.ACTIVE,
     ...(classId ? { classId } : {}),
-    ...(shiftId ? { shiftId } : {}),
   }
 
   const lessonWhere = {
     date: { gte: start, lt: end },
+    ...(classId ? { classId } : {}),
     ...(shiftId ? { shiftId } : {}),
   }
 
   const attendanceWhere = {
-    lesson: { date: { gte: start, lt: end }, ...(shiftId ? { shiftId } : {}) },
+    lesson: {
+      date: { gte: start, lt: end },
+      ...(classId ? { classId } : {}),
+      ...(shiftId ? { shiftId } : {}),
+    },
     ...(classId ? { student: { classId } } : {}),
   }
 

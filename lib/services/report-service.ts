@@ -26,18 +26,26 @@ export async function computeMonthlyStats(
 
   const { start, end } = monthRange(reportMonth)
 
+  // Chỉ buổi học của lớp học sinh trong tháng
   const lessons = await db.lesson.findMany({
-    where: { date: { gte: start, lt: end } },
+    where: {
+      classId: student.classId,
+      date: { gte: start, lt: end },
+    },
     orderBy: { date: "asc" },
   })
   const lessonIds = lessons.map((l) => l.id)
 
-  const attendances = await db.attendance.findMany({
-    where: { studentId, lessonId: { in: lessonIds } },
-  })
-  const comments = await db.studentComment.findMany({
-    where: { studentId, lessonId: { in: lessonIds } },
-  })
+  const attendances = lessonIds.length
+    ? await db.attendance.findMany({
+        where: { studentId, lessonId: { in: lessonIds } },
+      })
+    : []
+  const comments = lessonIds.length
+    ? await db.studentComment.findMany({
+        where: { studentId, lessonId: { in: lessonIds } },
+      })
+    : []
 
   const presentCount = attendances.filter(
     (a) => a.status === ATTENDANCE_STATUS.PRESENT
@@ -57,9 +65,6 @@ export async function computeMonthlyStats(
         ) / 10
       : 0
 
-  // Buổi học của lớp HS (để liệt kê nội dung đã học)
-  const classLessons = lessons.filter((l) => l.classId === student.classId)
-
   return {
     student,
     reportMonth,
@@ -68,7 +73,7 @@ export async function computeMonthlyStats(
     absentCount,
     attendanceRate,
     avgFocus,
-    lessons: classLessons,
+    lessons,
     comments,
   }
 }

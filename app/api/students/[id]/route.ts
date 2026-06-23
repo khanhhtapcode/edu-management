@@ -15,6 +15,9 @@ export async function PATCH(request: NextRequest, { params }: Params) {
     const body = await request.json()
     const student = await updateStudent(id, body)
     revalidatePath("/students")
+    revalidatePath("/schedule")
+    revalidatePath("/lessons")
+    revalidatePath("/reports")
     revalidatePath("/")
     return ok(student)
   } catch (error) {

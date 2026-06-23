@@ -1,6 +1,6 @@
 "use client"
 
-import { useForm } from "react-hook-form"
+import { useForm, useWatch } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useRouter } from "next/navigation"
 import { useTransition } from "react"
@@ -40,19 +40,14 @@ export type StudentRow = {
   schoolName: string | null
   status: string
   classId: string
-  shiftId: string | null
 }
-
-const NONE = "__none__"
 
 export function StudentForm({
   classes,
-  shifts,
   initial,
   onDone,
 }: {
   classes: Option[]
-  shifts: Option[]
   initial?: StudentRow
   onDone: () => void
 }) {
@@ -63,7 +58,7 @@ export function StudentForm({
     register,
     handleSubmit,
     setValue,
-    watch,
+    control,
     formState: { errors },
   } = useForm<StudentValues>({
     resolver: zodResolver(studentSchema),
@@ -75,25 +70,20 @@ export function StudentForm({
       schoolName: initial?.schoolName ?? "",
       status: (initial?.status as StudentValues["status"]) ?? MEMBER_STATUS.ACTIVE,
       classId: initial?.classId ?? "",
-      shiftId: initial?.shiftId ?? "",
     },
   })
 
   function onSubmit(values: StudentValues) {
     startTransition(async () => {
       try {
-        const body = {
-          ...values,
-          shiftId: values.shiftId === NONE ? "" : values.shiftId,
-        }
         if (initial) {
           await apiFetch(`/api/students/${initial.id}`, {
             method: "PATCH",
-            body,
+            body: values,
           })
           toast.success("Đã cập nhật học sinh")
         } else {
-          await apiFetch("/api/students", { method: "POST", body })
+          await apiFetch("/api/students", { method: "POST", body: values })
           toast.success("Đã thêm học sinh mới")
         }
         router.refresh()
@@ -104,10 +94,9 @@ export function StudentForm({
     })
   }
 
-  const gender = watch("gender") ?? GENDER.MALE
-  const status = watch("status")
-  const classId = watch("classId")
-  const shiftId = watch("shiftId") || NONE
+  const gender = useWatch({ control, name: "gender" }) ?? GENDER.MALE
+  const status = useWatch({ control, name: "status" })
+  const classId = useWatch({ control, name: "classId" })
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
@@ -178,46 +167,28 @@ export function StudentForm({
         />
       </div>
 
-      <div className="grid grid-cols-2 gap-3">
-        <div className="space-y-2">
-          <Label>Lớp đang học</Label>
-          <Select
-            value={classId}
-            onValueChange={(v) =>
-              setValue("classId", v, { shouldValidate: true, shouldDirty: true })
-            }
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="Chọn lớp" />
-            </SelectTrigger>
-            <SelectContent>
-              {classes.map((c) => (
-                <SelectItem key={c.id} value={c.id}>
-                  {c.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          {errors.classId && (
-            <p className="text-xs text-destructive">{errors.classId.message}</p>
-          )}
-        </div>
-        <div className="space-y-2">
-          <Label>Ca học</Label>
-          <Select value={shiftId} onValueChange={(v) => setValue("shiftId", v)}>
-            <SelectTrigger>
-              <SelectValue placeholder="Chưa gán" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value={NONE}>Chưa gán</SelectItem>
-              {shifts.map((s) => (
-                <SelectItem key={s.id} value={s.id}>
-                  {s.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
+      <div className="space-y-2">
+        <Label>Lớp đang học</Label>
+        <Select
+          value={classId}
+          onValueChange={(v) =>
+            setValue("classId", v, { shouldValidate: true, shouldDirty: true })
+          }
+        >
+          <SelectTrigger>
+            <SelectValue placeholder="Chọn lớp" />
+          </SelectTrigger>
+          <SelectContent>
+            {classes.map((c) => (
+              <SelectItem key={c.id} value={c.id}>
+                {c.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        {errors.classId && (
+          <p className="text-xs text-destructive">{errors.classId.message}</p>
+        )}
       </div>
 
       <div className="space-y-2">

@@ -1,3 +1,5 @@
+import { parseLocalDate } from "@/lib/utils"
+
 export type RangePreset = "today" | "week" | "month" | "custom"
 
 /** Trả về [start, end) cho preset/khoảng tùy chọn. */
@@ -11,8 +13,8 @@ export function resolveRange(
     new Date(d.getFullYear(), d.getMonth(), d.getDate())
 
   if (preset === "custom" && from) {
-    const fromDate = new Date(from)
-    const toDate = to ? new Date(to) : fromDate
+    const fromDate = parseLocalDate(from)
+    const toDate = to ? parseLocalDate(to) : fromDate
     // Bỏ qua khoảng tùy chọn nếu ngày không hợp lệ -> rơi về mặc định (today)
     if (!Number.isNaN(fromDate.getTime()) && !Number.isNaN(toDate.getTime())) {
       const start = startOfDay(fromDate)

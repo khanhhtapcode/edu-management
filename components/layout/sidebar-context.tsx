@@ -1,10 +1,37 @@
 "use client"
 
-import { createContext, useContext, useState, useEffect, useCallback } from "react"
+import {
+  createContext,
+  useContext,
+  useCallback,
+  useSyncExternalStore,
+} from "react"
 
 type SidebarContextType = {
   collapsed: boolean
   toggle: () => void
+}
+
+const STORAGE_KEY = "edu-sidebar-collapsed"
+const listeners = new Set<() => void>()
+
+function subscribe(onStoreChange: () => void) {
+  listeners.add(onStoreChange)
+  return () => listeners.delete(onStoreChange)
+}
+
+function getCollapsedSnapshot() {
+  if (typeof window === "undefined") return false
+  return localStorage.getItem(STORAGE_KEY) === "true"
+}
+
+function getCollapsedServerSnapshot() {
+  return false
+}
+
+function setCollapsedStore(value: boolean) {
+  localStorage.setItem(STORAGE_KEY, String(value))
+  listeners.forEach((listener) => listener())
 }
 
 const SidebarContext = createContext<SidebarContextType>({
@@ -13,19 +40,14 @@ const SidebarContext = createContext<SidebarContextType>({
 })
 
 export function SidebarProvider({ children }: { children: React.ReactNode }) {
-  const [collapsed, setCollapsed] = useState(false)
-
-  useEffect(() => {
-    const stored = localStorage.getItem("edu-sidebar-collapsed")
-    if (stored === "true") setCollapsed(true)
-  }, [])
+  const collapsed = useSyncExternalStore(
+    subscribe,
+    getCollapsedSnapshot,
+    getCollapsedServerSnapshot
+  )
 
   const toggle = useCallback(() => {
-    setCollapsed((prev) => {
-      const next = !prev
-      localStorage.setItem("edu-sidebar-collapsed", String(next))
-      return next
-    })
+    setCollapsedStore(!getCollapsedSnapshot())
   }, [])
 
   return (

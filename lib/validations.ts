@@ -19,7 +19,6 @@ export const studentSchema = z.object({
     MEMBER_STATUS.INACTIVE,
   ]),
   classId: z.string().min(1, "Vui lòng chọn lớp"),
-  shiftId: z.string().optional().nullable(),
 })
 export type StudentInput = z.infer<typeof studentSchema>
 
@@ -70,13 +69,6 @@ export const commentItemSchema = z.object({
 export const commentBulkSchema = z.object({
   lessonId: z.string().min(1),
   records: z.array(commentItemSchema),
-})
-
-export const assignShiftSchema = z.object({
-  shiftId: z.string().min(1),
-  studentIds: z
-    .array(z.string().min(1))
-    .min(1, "Vui lòng chọn ít nhất một học sinh"),
 })
 
 export const reportSchema = z.object({

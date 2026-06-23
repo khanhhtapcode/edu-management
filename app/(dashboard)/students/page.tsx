@@ -5,16 +5,15 @@ import { ClassManager } from "./_components/class-manager"
 export const dynamic = "force-dynamic"
 
 export default async function StudentsPage() {
-  const [students, classes, shifts] = await Promise.all([
+  const [students, classes] = await Promise.all([
     db.student.findMany({
-      include: { class: true, shift: true },
+      include: { class: true },
       orderBy: { createdAt: "desc" },
     }),
     db.class.findMany({
       include: { _count: { select: { students: true } } },
       orderBy: { name: "asc" },
     }),
-    db.shift.findMany({ orderBy: { startTime: "asc" } }),
   ])
 
   const rows = students.map((s) => ({
@@ -26,13 +25,10 @@ export default async function StudentsPage() {
     schoolName: s.schoolName,
     status: s.status,
     classId: s.classId,
-    shiftId: s.shiftId,
     className: s.class.name,
-    shiftName: s.shift?.name ?? null,
   }))
 
   const classOptions = classes.map((c) => ({ id: c.id, name: c.name }))
-  const shiftOptions = shifts.map((s) => ({ id: s.id, name: s.name }))
 
   return (
     <div className="space-y-6">
@@ -61,11 +57,7 @@ export default async function StudentsPage() {
           </p>
         </div>
       ) : (
-        <StudentsClient
-          students={rows}
-          classes={classOptions}
-          shifts={shiftOptions}
-        />
+        <StudentsClient students={rows} classes={classOptions} />
       )}
     </div>
   )

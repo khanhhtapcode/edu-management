@@ -9,6 +9,8 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
     const student = await createStudent(body)
     revalidatePath("/students")
+    revalidatePath("/schedule")
+    revalidatePath("/lessons")
     revalidatePath("/")
     return ok(student, 201)
   } catch (error) {

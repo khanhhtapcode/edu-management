@@ -1,6 +1,6 @@
 import { db } from "@/lib/db"
 import { ApiError } from "@/lib/api"
-import { shiftSchema, assignShiftSchema } from "@/lib/validations"
+import { shiftSchema } from "@/lib/validations"
 
 function toMinutes(time: string) {
   const [h, m] = time.split(":").map(Number)
@@ -39,40 +39,6 @@ export async function deleteShift(id: string) {
   if (lessonCount > 0) {
     throw new ApiError(409, "Không thể xóa ca học đã có buổi học")
   }
-  // Bỏ gán học sinh khỏi ca trước khi xóa
-  await db.student.updateMany({
-    where: { shiftId: id },
-    data: { shiftId: null },
-  })
   await db.shift.delete({ where: { id } })
   return { id }
-}
-
-/** Gán nhiều học sinh vào một ca học (ghi đè ca cũ của các học sinh đó). */
-export async function assignStudentsToShift(input: unknown) {
-  const parsed = assignShiftSchema.safeParse(input)
-  if (!parsed.success) {
-    throw new ApiError(400, parsed.error.issues[0]?.message ?? "Dữ liệu không hợp lệ")
-  }
-  const { shiftId, studentIds } = parsed.data
-
-  const shift = await db.shift.findUnique({ where: { id: shiftId } })
-  if (!shift) throw new ApiError(404, "Không tìm thấy ca học")
-
-  await db.student.updateMany({
-    where: { id: { in: studentIds } },
-    data: { shiftId },
-  })
-  return { shiftId, count: studentIds.length }
-}
-
-/** Bỏ một học sinh khỏi ca học. */
-export async function removeStudentFromShift(studentId: string) {
-  if (!studentId) throw new ApiError(400, "Thiếu studentId")
-  const student = await db.student.findUnique({ where: { id: studentId } })
-  if (!student) throw new ApiError(404, "Không tìm thấy học sinh")
-  return db.student.update({
-    where: { id: studentId },
-    data: { shiftId: null },
-  })
 }

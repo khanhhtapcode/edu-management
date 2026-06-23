@@ -3,6 +3,27 @@ import { ApiError } from "@/lib/api"
 import { attendanceSetSchema } from "@/lib/validations"
 import { ATTENDANCE_UNMARKED } from "@/lib/constants"
 
+/** Tạo dòng điểm danh rỗng cho học sinh trên mọi buổi học của lớp. */
+export async function seedAttendanceForClassLessons(
+  studentId: string,
+  classId: string
+) {
+  const lessons = await db.lesson.findMany({
+    where: { classId },
+    select: { id: true },
+  })
+  if (lessons.length === 0) return
+
+  await db.attendance.createMany({
+    data: lessons.map((l) => ({
+      lessonId: l.id,
+      studentId,
+      status: ATTENDANCE_UNMARKED,
+    })),
+    skipDuplicates: true,
+  })
+}
+
 /**
  * Điểm danh 1 học sinh (inline trên thời khóa biểu).
  * status: "" (chưa điểm) | PRESENT | ABSENT.
@@ -50,6 +71,9 @@ export async function removeStudentFromLesson(
   if (!lessonId || !studentId) {
     throw new ApiError(400, "Thiếu thông tin buổi học hoặc học sinh")
   }
-  await db.attendance.deleteMany({ where: { lessonId, studentId } })
+  await db.$transaction([
+    db.studentComment.deleteMany({ where: { lessonId, studentId } }),
+    db.attendance.deleteMany({ where: { lessonId, studentId } }),
+  ])
   return { lessonId, studentId }
 }
