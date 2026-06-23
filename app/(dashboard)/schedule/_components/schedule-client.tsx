@@ -11,6 +11,7 @@ import {
   Minus,
   Loader2,
   Trash2,
+  Pencil,
   UserPlus,
   Search,
   Clock,
@@ -34,6 +35,7 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
@@ -129,7 +131,10 @@ export function ScheduleClient({
 
   const [createCtx, setCreateCtx] = useState<{ shiftId: string; dateKey: string } | null>(null)
   const [addCtx, setAddCtx] = useState<CellLesson | null>(null)
-  const [shiftOpen, setShiftOpen] = useState(false)
+  const [shiftDialog, setShiftDialog] = useState<
+    { mode: "add" } | { mode: "edit"; shift: Shift } | null
+  >(null)
+  const [deletingShift, setDeletingShift] = useState<Shift | null>(null)
 
   const cellMap = useMemo(() => {
     const map = new Map<string, CellLesson[]>()
@@ -191,6 +196,19 @@ export function ScheduleClient({
     })
   }
 
+  function deleteShift(id: string) {
+    startTransition(async () => {
+      try {
+        await apiFetch(`/api/shifts/${id}`, { method: "DELETE" })
+        toast.success("Đã xóa ca học")
+        setDeletingShift(null)
+        router.refresh()
+      } catch (error) {
+        toast.error(error instanceof Error ? error.message : "Có lỗi xảy ra")
+      }
+    })
+  }
+
   return (
     <div className="space-y-4">
       {/* Header */}
@@ -215,7 +233,7 @@ export function ScheduleClient({
           <Button variant="outline" size="sm" onClick={() => goWeek(nextWeekKey)}>
             Tuần sau <ChevronRight className="size-4" />
           </Button>
-          <Button size="sm" onClick={() => setShiftOpen(true)}>
+          <Button size="sm" onClick={() => setShiftDialog({ mode: "add" })}>
             <Plus className="size-4" /> Thêm ca học
           </Button>
         </div>
@@ -252,11 +270,34 @@ export function ScheduleClient({
             </thead>
             <tbody>
               {shifts.map((shift) => (
-                <tr key={shift.id} className="align-top">
+                <tr key={shift.id} className="group/shift align-top">
                   <td className="sticky left-0 z-10 border-b border-r bg-white p-2">
-                    <div className="text-sm font-semibold">{shift.name}</div>
-                    <div className="rounded bg-amber-100 px-1.5 py-0.5 text-[10px] font-medium text-amber-700 inline-block mt-1">
-                      {shift.startTime}–{shift.endTime}
+                    <div className="flex items-start justify-between gap-1">
+                      <div className="min-w-0">
+                        <div className="text-sm font-semibold">{shift.name}</div>
+                        <div className="mt-1 inline-block rounded bg-amber-100 px-1.5 py-0.5 text-[10px] font-medium text-amber-700">
+                          {shift.startTime}–{shift.endTime}
+                        </div>
+                      </div>
+                      <div className="flex shrink-0 gap-0.5">
+                        <button
+                          type="button"
+                          onClick={() => setShiftDialog({ mode: "edit", shift })}
+                          className="rounded p-0.5 text-slate-300 transition-colors hover:bg-slate-100 hover:text-primary group-hover/shift:text-slate-400 cursor-pointer"
+                          aria-label="Sửa ca học"
+                        >
+                          <Pencil className="size-3.5" />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setDeletingShift(shift)}
+                          disabled={isPending}
+                          className="rounded p-0.5 text-slate-300 transition-colors hover:bg-rose-50 hover:text-rose-500 group-hover/shift:text-slate-400 cursor-pointer disabled:opacity-50"
+                          aria-label="Xóa ca học"
+                        >
+                          <Trash2 className="size-3.5" />
+                        </button>
+                      </div>
                     </div>
                   </td>
                   {days.map((d) => {
@@ -341,7 +382,43 @@ export function ScheduleClient({
           onClose={() => setAddCtx(null)}
         />
       )}
-      <AddShiftDialog open={shiftOpen} onOpenChange={setShiftOpen} />
+      {shiftDialog && (
+        <ShiftFormDialog
+          key={shiftDialog.mode === "edit" ? shiftDialog.shift.id : "add"}
+          mode={shiftDialog.mode}
+          shift={shiftDialog.mode === "edit" ? shiftDialog.shift : undefined}
+          onClose={() => setShiftDialog(null)}
+        />
+      )}
+
+      <Dialog
+        open={!!deletingShift}
+        onOpenChange={(o) => !o && setDeletingShift(null)}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Xác nhận xóa ca học</DialogTitle>
+            <DialogDescription>
+              Ca <strong>{deletingShift?.name}</strong> (
+              {deletingShift?.startTime}–{deletingShift?.endTime}) sẽ bị xóa
+              vĩnh viễn. Chỉ xóa được khi ca chưa có buổi học nào.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDeletingShift(null)}>
+              Hủy
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={() => deletingShift && deleteShift(deletingShift.id)}
+              disabled={isPending}
+            >
+              {isPending && <Loader2 className="size-4 animate-spin" />}
+              Xóa ca học
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
@@ -600,32 +677,39 @@ function AddStudentDialog({
   )
 }
 
-function AddShiftDialog({
-  open,
-  onOpenChange,
+function ShiftFormDialog({
+  mode,
+  shift,
+  onClose,
 }: {
-  open: boolean
-  onOpenChange: (o: boolean) => void
+  mode: "add" | "edit"
+  shift?: Shift
+  onClose: () => void
 }) {
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
-  const [name, setName] = useState("")
-  const [startTime, setStartTime] = useState("")
-  const [endTime, setEndTime] = useState("")
+  const [name, setName] = useState(shift?.name ?? "")
+  const [startTime, setStartTime] = useState(shift?.startTime ?? "")
+  const [endTime, setEndTime] = useState(shift?.endTime ?? "")
 
   function submit(e: React.FormEvent) {
     e.preventDefault()
     startTransition(async () => {
       try {
-        await apiFetch("/api/shifts", {
-          method: "POST",
-          body: { name, startTime, endTime },
-        })
-        toast.success("Đã thêm ca học")
-        onOpenChange(false)
-        setName("")
-        setStartTime("")
-        setEndTime("")
+        if (mode === "edit" && shift) {
+          await apiFetch(`/api/shifts/${shift.id}`, {
+            method: "PATCH",
+            body: { name, startTime, endTime },
+          })
+          toast.success("Đã cập nhật ca học")
+        } else {
+          await apiFetch("/api/shifts", {
+            method: "POST",
+            body: { name, startTime, endTime },
+          })
+          toast.success("Đã thêm ca học")
+        }
+        onClose()
         router.refresh()
       } catch (error) {
         toast.error(error instanceof Error ? error.message : "Có lỗi xảy ra")
@@ -634,11 +718,12 @@ function AddShiftDialog({
   }
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open onOpenChange={(o) => !o && onClose()}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <Clock className="size-5 text-primary" /> Thêm ca học
+            <Clock className="size-5 text-primary" />
+            {mode === "edit" ? "Sửa ca học" : "Thêm ca học"}
           </DialogTitle>
           <DialogDescription>Định dạng giờ HH:mm (vd 07:30).</DialogDescription>
         </DialogHeader>
@@ -674,7 +759,7 @@ function AddShiftDialog({
           </div>
           <Button type="submit" className="w-full" disabled={isPending}>
             {isPending && <Loader2 className="size-4 animate-spin" />}
-            Thêm ca học
+            {mode === "edit" ? "Lưu thay đổi" : "Thêm ca học"}
           </Button>
         </form>
       </DialogContent>
