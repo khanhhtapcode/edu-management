@@ -22,9 +22,16 @@ export async function updateClass(id: string, input: unknown) {
 }
 
 export async function deleteClass(id: string) {
-  const count = await db.student.count({ where: { classId: id } })
-  if (count > 0) {
+  const studentCount = await db.student.count({ where: { classId: id } })
+  if (studentCount > 0) {
     throw new ApiError(409, "Không thể xóa lớp đang có học sinh")
+  }
+  const lessonCount = await db.lesson.count({ where: { classId: id } })
+  if (lessonCount > 0) {
+    throw new ApiError(
+      409,
+      "Không thể xóa lớp đã có buổi học trên thời khóa biểu. Hãy xóa các buổi học của lớp trước."
+    )
   }
   await db.class.delete({ where: { id } })
   return { id }

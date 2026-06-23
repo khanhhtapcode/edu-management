@@ -84,6 +84,10 @@ export async function createLesson(input: unknown) {
   const lessonDate = data.date as Date
   await assertUniqueLessonSlot(cls.id, shift.id, lessonDate)
 
+  // Mặc định chuỗi rỗng để tránh vi phạm NOT NULL (an toàn dù DB đã migrate hay chưa)
+  data.topic = (data.topic as string | null | undefined) ?? ""
+  data.coreKnowledge = (data.coreKnowledge as string | null | undefined) ?? ""
+
   const lesson = await db.lesson.create({ data: data as never })
   await seedAttendanceForLesson(lesson.id, cls.id)
 

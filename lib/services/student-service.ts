@@ -50,13 +50,11 @@ export async function updateStudent(id: string, input: unknown) {
   return updated
 }
 
-/** Soft delete: chuyển trạng thái sang INACTIVE để bảo toàn lịch sử. */
-export async function softDeleteStudent(id: string) {
+/** Xóa cứng học sinh (cascade xóa điểm danh, nhận xét, báo cáo liên quan). */
+export async function deleteStudent(id: string) {
   const existing = await db.student.findUnique({ where: { id } })
   if (!existing) throw new ApiError(404, "Không tìm thấy học sinh")
 
-  return db.student.update({
-    where: { id },
-    data: { status: MEMBER_STATUS.INACTIVE },
-  })
+  await db.student.delete({ where: { id } })
+  return { id }
 }

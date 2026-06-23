@@ -3,7 +3,7 @@ import { revalidatePath } from "next/cache"
 import { requireAuth, ok, handleError } from "@/lib/api"
 import {
   updateStudent,
-  softDeleteStudent,
+  deleteStudent,
 } from "@/lib/services/student-service"
 
 type Params = { params: Promise<{ id: string }> }
@@ -29,10 +29,13 @@ export async function DELETE(_request: NextRequest, { params }: Params) {
   try {
     await requireAuth()
     const { id } = await params
-    const student = await softDeleteStudent(id)
+    const result = await deleteStudent(id)
     revalidatePath("/students")
+    revalidatePath("/schedule")
+    revalidatePath("/lessons")
+    revalidatePath("/reports")
     revalidatePath("/")
-    return ok(student)
+    return ok(result)
   } catch (error) {
     return handleError(error)
   }

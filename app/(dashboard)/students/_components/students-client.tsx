@@ -120,7 +120,7 @@ export function StudentsClient({
     startTransition(async () => {
       try {
         await apiFetch(`/api/students/${deleting.id}`, { method: "DELETE" })
-        toast.success("Đã chuyển học sinh sang trạng thái nghỉ học")
+        toast.success("Đã xóa học sinh")
         setDeleting(undefined)
         router.refresh()
       } catch (error) {
@@ -240,7 +240,6 @@ export function StudentsClient({
                         onClick={() => setDeleting(s)}
                         aria-label="Xóa"
                         className="text-destructive hover:text-destructive"
-                        disabled={s.status === MEMBER_STATUS.INACTIVE}
                       >
                         <Trash2 className="size-4" />
                       </Button>
@@ -310,9 +309,9 @@ export function StudentsClient({
           <DialogHeader>
             <DialogTitle>Xác nhận xóa học sinh</DialogTitle>
             <DialogDescription>
-              Học sinh <strong>{deleting?.fullName}</strong> sẽ được chuyển sang
-              trạng thái <strong>Nghỉ học</strong> (soft delete). Lịch sử điểm
-              danh và báo cáo vẫn được giữ lại.
+              Học sinh <strong>{deleting?.fullName}</strong> sẽ bị{" "}
+              <strong>xóa vĩnh viễn</strong> khỏi hệ thống, kèm toàn bộ lịch sử
+              điểm danh, nhận xét và báo cáo. Hành động không thể hoàn tác.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
