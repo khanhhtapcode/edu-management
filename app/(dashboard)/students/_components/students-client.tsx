@@ -8,12 +8,10 @@ import {
   Pencil,
   Trash2,
   Loader2,
-  Phone,
 } from "lucide-react"
 import { toast } from "sonner"
 
 import { apiFetch } from "@/lib/api-client"
-import { formatDate } from "@/lib/utils"
 import {
   MEMBER_STATUS,
   STUDENT_STATUS_LABEL,
@@ -199,8 +197,6 @@ export function StudentsClient({
             <TableRow>
               <TableHead>Họ và tên</TableHead>
               <TableHead>Lớp</TableHead>
-              <TableHead className="hidden lg:table-cell">Ngày sinh</TableHead>
-              <TableHead className="hidden lg:table-cell">SĐT phụ huynh</TableHead>
               <TableHead>Trạng thái</TableHead>
               <TableHead className="text-right">Thao tác</TableHead>
             </TableRow>
@@ -208,7 +204,7 @@ export function StudentsClient({
           <TableBody>
             {pageRows.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={6} className="h-32 text-center text-muted-foreground">
+                <TableCell colSpan={4} className="h-32 text-center text-muted-foreground">
                   Không tìm thấy học sinh nào.
                 </TableCell>
               </TableRow>
@@ -223,14 +219,6 @@ export function StudentsClient({
                     </div>
                   </TableCell>
                   <TableCell>{s.className}</TableCell>
-                  <TableCell className="hidden lg:table-cell">
-                    {formatDate(s.dateOfBirth)}
-                  </TableCell>
-                  <TableCell className="hidden lg:table-cell">
-                    <span className="inline-flex items-center gap-1 text-muted-foreground">
-                      <Phone className="size-3" /> {s.parentPhone}
-                    </span>
-                  </TableCell>
                   <TableCell>
                     <Badge variant={statusVariant(s.status)}>
                       {STUDENT_STATUS_LABEL[s.status]}

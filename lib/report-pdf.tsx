@@ -37,7 +37,6 @@ function registerFonts() {
 export type ReportPdfData = {
   studentName: string
   className: string
-  parentPhone: string
   reportMonth: string
   totalLessons: number
   presentCount: number
@@ -186,10 +185,6 @@ function ReportDocument({
           <View style={styles.infoRow}>
             <Text style={styles.infoLabel}>Lớp đang học:</Text>
             <Text style={styles.infoValue}>{data.className}</Text>
-          </View>
-          <View style={styles.infoRow}>
-            <Text style={styles.infoLabel}>SĐT phụ huynh:</Text>
-            <Text style={styles.infoValue}>{data.parentPhone}</Text>
           </View>
         </View>
 

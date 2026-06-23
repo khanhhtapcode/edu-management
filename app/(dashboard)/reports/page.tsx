@@ -46,7 +46,6 @@ export default async function ReportsPage({
       studentId,
       studentName: s.student.fullName,
       className: s.student.class.name,
-      parentPhone: s.student.parentPhone,
       reportMonth: month,
       totalLessons: s.totalLessons,
       presentCount: s.presentCount,

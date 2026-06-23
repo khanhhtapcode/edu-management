@@ -19,9 +19,7 @@ export default async function StudentsPage() {
   const rows = students.map((s) => ({
     id: s.id,
     fullName: s.fullName,
-    dateOfBirth: s.dateOfBirth.toISOString(),
     gender: s.gender,
-    parentPhone: s.parentPhone,
     schoolName: s.schoolName,
     status: s.status,
     classId: s.classId,

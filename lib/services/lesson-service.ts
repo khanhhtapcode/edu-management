@@ -2,7 +2,7 @@ import { db } from "@/lib/db"
 import { ApiError } from "@/lib/api"
 import { lessonSchema } from "@/lib/validations"
 import { MEMBER_STATUS, ATTENDANCE_UNMARKED } from "@/lib/constants"
-import { parseLocalDate, toDateInputValue } from "@/lib/utils"
+import { parseLocalDate } from "@/lib/utils"
 
 function parseLessonData(input: unknown, partial = false) {
   const schema = partial ? lessonSchema.partial() : lessonSchema
@@ -12,26 +12,33 @@ function parseLessonData(input: unknown, partial = false) {
   }
   const data = parsed.data as Record<string, unknown>
   if (typeof data.date === "string") {
-    const dateStr = data.date.slice(0, 10)
-    const d = parseLocalDate(dateStr)
+    const d = parseLocalDate(data.date.slice(0, 10))
     if (Number.isNaN(d.getTime())) throw new ApiError(400, "Ngày học không hợp lệ")
     data.date = d
-    data.dateKey = dateStr
   }
   return data
+}
+
+/** Khoảng [start, end) của một ngày theo giờ địa phương. */
+function dayRange(date: Date) {
+  const start = new Date(date.getFullYear(), date.getMonth(), date.getDate())
+  const end = new Date(start)
+  end.setDate(end.getDate() + 1)
+  return { start, end }
 }
 
 async function assertUniqueLessonSlot(
   classId: string,
   shiftId: string,
-  dateKey: string,
+  date: Date,
   excludeId?: string
 ) {
+  const { start, end } = dayRange(date)
   const existing = await db.lesson.findFirst({
     where: {
       classId,
       shiftId,
-      dateKey,
+      date: { gte: start, lt: end },
       ...(excludeId ? { id: { not: excludeId } } : {}),
     },
   })
@@ -74,8 +81,8 @@ export async function createLesson(input: unknown) {
   const cls = await db.class.findUnique({ where: { id: data.classId as string } })
   if (!cls) throw new ApiError(400, "Lớp học không tồn tại")
 
-  const dateKey = data.dateKey as string
-  await assertUniqueLessonSlot(cls.id, shift.id, dateKey)
+  const lessonDate = data.date as Date
+  await assertUniqueLessonSlot(cls.id, shift.id, lessonDate)
 
   const lesson = await db.lesson.create({ data: data as never })
   await seedAttendanceForLesson(lesson.id, cls.id)
@@ -99,19 +106,11 @@ export async function updateLesson(id: string, input: unknown) {
 
   const nextClassId = (data.classId as string | undefined) ?? existing.classId
   const nextShiftId = (data.shiftId as string | undefined) ?? existing.shiftId
-  const nextDateKey =
-    (data.dateKey as string | undefined) ??
-    toDateInputValue(existing.date)
+  const nextDate = (data.date as Date | undefined) ?? existing.date
 
-  await assertUniqueLessonSlot(nextClassId, nextShiftId, nextDateKey, id)
+  await assertUniqueLessonSlot(nextClassId, nextShiftId, nextDate, id)
 
-  const updated = await db.lesson.update({
-    where: { id },
-    data: {
-      ...data,
-      ...(data.date ? { dateKey: nextDateKey } : {}),
-    } as never,
-  })
+  const updated = await db.lesson.update({ where: { id }, data: data as never })
 
   if (nextClassId !== existing.classId) {
     await seedAttendanceForLesson(id, nextClassId)

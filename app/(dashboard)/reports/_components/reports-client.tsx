@@ -50,7 +50,6 @@ export type ReportStats = {
   studentId: string
   studentName: string
   className: string
-  parentPhone: string
   reportMonth: string
   totalLessons: number
   presentCount: number
@@ -281,7 +280,6 @@ function ReportStatsPanel({ stats }: { stats: ReportStats }) {
         {
           studentName: stats.studentName,
           className: stats.className,
-          parentPhone: stats.parentPhone,
           reportMonth: stats.reportMonth,
           totalLessons: stats.totalLessons,
           presentCount: stats.presentCount,

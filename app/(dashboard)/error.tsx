@@ -23,8 +23,14 @@ export default function Error({
       <div>
         <h2 className="text-xl font-semibold">Đã xảy ra lỗi</h2>
         <p className="mt-1 max-w-md text-sm text-muted-foreground">
-          {error.message || "Không thể tải dữ liệu. Vui lòng thử lại."}
+          {error.message ||
+            "Không thể tải dữ liệu. Kiểm tra kết nối database và thử lại."}
         </p>
+        {error.digest && (
+          <p className="mt-2 text-xs text-muted-foreground/70">
+            Mã lỗi: {error.digest}
+          </p>
+        )}
       </div>
       <Button onClick={() => reset()}>Thử lại</Button>
     </div>

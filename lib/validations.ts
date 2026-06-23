@@ -3,15 +3,10 @@ import { MEMBER_STATUS, ATTENDANCE_STATUS, GENDER } from "@/lib/constants"
 
 export const studentSchema = z.object({
   fullName: z.string().trim().min(2, "Họ tên tối thiểu 2 ký tự"),
-  dateOfBirth: z.string().min(1, "Vui lòng chọn ngày sinh"),
   gender: z
     .enum([GENDER.MALE, GENDER.FEMALE, GENDER.OTHER])
     .optional()
     .nullable(),
-  parentPhone: z
-    .string()
-    .trim()
-    .regex(/^[0-9]{9,11}$/, "Số điện thoại không hợp lệ (9-11 chữ số)"),
   schoolName: z.string().trim().optional().nullable(),
   status: z.enum([
     MEMBER_STATUS.ACTIVE,

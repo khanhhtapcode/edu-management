@@ -34,9 +34,7 @@ export type StudentValues = z.infer<typeof studentSchema>
 export type StudentRow = {
   id: string
   fullName: string
-  dateOfBirth: string
   gender: string | null
-  parentPhone: string
   schoolName: string | null
   status: string
   classId: string
@@ -64,9 +62,7 @@ export function StudentForm({
     resolver: zodResolver(studentSchema),
     defaultValues: {
       fullName: initial?.fullName ?? "",
-      dateOfBirth: initial?.dateOfBirth?.slice(0, 10) ?? "",
       gender: (initial?.gender as StudentValues["gender"]) ?? GENDER.MALE,
-      parentPhone: initial?.parentPhone ?? "",
       schoolName: initial?.schoolName ?? "",
       status: (initial?.status as StudentValues["status"]) ?? MEMBER_STATUS.ACTIVE,
       classId: initial?.classId ?? "",
@@ -108,54 +104,28 @@ export function StudentForm({
         )}
       </div>
 
-      <div className="grid grid-cols-2 gap-3">
-        <div className="space-y-2">
-          <Label htmlFor="dateOfBirth">Ngày sinh</Label>
-          <Input id="dateOfBirth" type="date" {...register("dateOfBirth")} />
-          {errors.dateOfBirth && (
-            <p className="text-xs text-destructive">
-              {errors.dateOfBirth.message}
-            </p>
-          )}
-        </div>
-        <div className="space-y-2">
-          <Label>Giới tính</Label>
-          <Select
-            value={gender ?? GENDER.MALE}
-            onValueChange={(v) =>
-              setValue("gender", v as StudentValues["gender"], {
-                shouldValidate: true,
-                shouldDirty: true,
-              })
-            }
-          >
-            <SelectTrigger>
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {Object.values(GENDER).map((g) => (
-                <SelectItem key={g} value={g}>
-                  {GENDER_LABEL[g]}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-      </div>
-
       <div className="space-y-2">
-        <Label htmlFor="parentPhone">Số điện thoại phụ huynh</Label>
-        <Input
-          id="parentPhone"
-          inputMode="numeric"
-          {...register("parentPhone")}
-          placeholder="0901234567"
-        />
-        {errors.parentPhone && (
-          <p className="text-xs text-destructive">
-            {errors.parentPhone.message}
-          </p>
-        )}
+        <Label>Giới tính</Label>
+        <Select
+          value={gender ?? GENDER.MALE}
+          onValueChange={(v) =>
+            setValue("gender", v as StudentValues["gender"], {
+              shouldValidate: true,
+              shouldDirty: true,
+            })
+          }
+        >
+          <SelectTrigger>
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {Object.values(GENDER).map((g) => (
+              <SelectItem key={g} value={g}>
+                {GENDER_LABEL[g]}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
 
       <div className="space-y-2">

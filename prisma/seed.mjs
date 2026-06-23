@@ -43,9 +43,7 @@ async function main() {
       await db.student.create({
         data: {
           fullName: names[i],
-          dateOfBirth: new Date(2008, i % 12, (i % 27) + 1),
           gender: i % 2 === 0 ? "MALE" : "FEMALE",
-          parentPhone: `09012345${String(i).padStart(2, "0")}`,
           schoolName: "THPT Chu Văn An",
           status: "ACTIVE",
           classId: i % 2 === 0 ? class1.id : class2.id,
@@ -69,7 +67,6 @@ async function main() {
         date,
         shiftId: shifts[0].id,
         classId: class1.id,
-        dateKey: `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`,
         topic: topics[d].topic,
         coreKnowledge: topics[d].core,
         classWork: "Bài tập SGK trang 20",

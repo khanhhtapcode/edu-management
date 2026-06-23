@@ -38,9 +38,7 @@ model Shift {
 model Student {
   id          String   @id @default(cuid())
   fullName    String
-  dateOfBirth DateTime
   gender      String?
-  parentPhone String
   schoolName  String?
   status      String   @default("ACTIVE") // ACTIVE, RESERVED, INACTIVE
   classId     String
@@ -57,7 +55,6 @@ model Student {
 model Lesson {
   id            String   @id @default(cuid())
   date          DateTime @default(now())
-  dateKey       String // "YYYY-MM-DD" — dùng cho unique slot
   shiftId       String
   shift         Shift    @relation(fields: [shiftId], references: [id])
   classId       String
@@ -70,8 +67,6 @@ model Lesson {
 
   attendances Attendance[]
   comments    StudentComment[]
-
-  @@unique([classId, shiftId, dateKey])
 }
 
 // 5. Điểm danh từng học sinh trong một buổi học (chỉ Có mặt / Vắng)

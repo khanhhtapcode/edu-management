@@ -2,7 +2,6 @@ import { db } from "@/lib/db"
 import { ApiError } from "@/lib/api"
 import { studentSchema } from "@/lib/validations"
 import { MEMBER_STATUS } from "@/lib/constants"
-import { parseLocalDate } from "@/lib/utils"
 import { seedAttendanceForClassLessons } from "@/lib/services/attendance-service"
 
 function parseStudentData(input: unknown, partial = false) {
@@ -11,16 +10,7 @@ function parseStudentData(input: unknown, partial = false) {
   if (!parsed.success) {
     throw new ApiError(400, parsed.error.issues[0]?.message ?? "Dữ liệu không hợp lệ")
   }
-  const data = parsed.data as Record<string, unknown>
-
-  if (typeof data.dateOfBirth === "string") {
-    const d = parseLocalDate(data.dateOfBirth.slice(0, 10))
-    if (Number.isNaN(d.getTime())) {
-      throw new ApiError(400, "Ngày sinh không hợp lệ")
-    }
-    data.dateOfBirth = d
-  }
-  return data
+  return parsed.data as Record<string, unknown>
 }
 
 export async function createStudent(input: unknown) {

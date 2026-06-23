@@ -38,16 +38,3 @@ export function parseLocalDate(dateStr: string): Date {
   if (!y || !m || !d) return new Date(Number.NaN)
   return new Date(y, m - 1, d)
 }
-
-/** Tính tuổi từ ngày sinh */
-export function calcAge(dob: Date | string): number {
-  const d = typeof dob === "string" ? parseLocalDate(dob.slice(0, 10)) : dob
-  if (Number.isNaN(d.getTime())) return 0
-  const today = new Date()
-  let age = today.getFullYear() - d.getFullYear()
-  const monthDiff = today.getMonth() - d.getMonth()
-  if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < d.getDate())) {
-    age--
-  }
-  return age
-}
