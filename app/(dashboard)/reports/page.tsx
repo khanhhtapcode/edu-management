@@ -50,15 +50,13 @@ export default async function ReportsPage({
       reportMonth: month,
       totalLessons: s.totalLessons,
       presentCount: s.presentCount,
-      excusedCount: s.excusedCount,
-      unexcusedCount: s.unexcusedCount,
-      lateCount: s.lateCount,
+      absentCount: s.absentCount,
       attendanceRate: s.attendanceRate,
       avgFocus: s.avgFocus,
       topics: s.lessons.map((l) => ({
         date: l.date.toISOString(),
-        topic: l.topic,
-        coreKnowledge: l.coreKnowledge,
+        topic: l.topic ?? "",
+        coreKnowledge: l.coreKnowledge ?? "",
         homework: l.homework ?? "",
       })),
       existing: existing

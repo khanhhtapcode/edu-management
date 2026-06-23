@@ -1,8 +1,7 @@
 import {
   LayoutDashboard,
   Users,
-  Clock,
-  ClipboardCheck,
+  CalendarRange,
   NotebookPen,
   FileBarChart,
   type LucideIcon,
@@ -12,10 +11,9 @@ export type NavItem = { href: string; label: string; icon: LucideIcon }
 
 /** Mục điều hướng dùng chung cho sidebar (desktop) và topbar (mobile). */
 export const NAV: NavItem[] = [
-  { href: "/", label: "Tổng quan", icon: LayoutDashboard },
+  { href: "/", label: "Dashboard", icon: LayoutDashboard },
   { href: "/students", label: "Học sinh", icon: Users },
-  { href: "/shifts", label: "Ca học", icon: Clock },
-  { href: "/attendance", label: "Điểm danh", icon: ClipboardCheck },
+  { href: "/schedule", label: "Thời khóa biểu", icon: CalendarRange },
   { href: "/lessons", label: "Nhật ký bài học", icon: NotebookPen },
   { href: "/reports", label: "Báo cáo & PDF", icon: FileBarChart },
 ]

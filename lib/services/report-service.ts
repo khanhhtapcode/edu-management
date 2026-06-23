@@ -26,46 +26,28 @@ export async function computeMonthlyStats(
 
   const { start, end } = monthRange(reportMonth)
 
-  // Chỉ tính buổi học thuộc ca của học sinh (nếu đã gán ca)
   const lessons = await db.lesson.findMany({
-    where: {
-      date: { gte: start, lt: end },
-      ...(student.shiftId ? { shiftId: student.shiftId } : {}),
-    },
+    where: { date: { gte: start, lt: end } },
     orderBy: { date: "asc" },
   })
   const lessonIds = lessons.map((l) => l.id)
 
-  const attendances = lessonIds.length
-    ? await db.attendance.findMany({
-        where: { studentId, lessonId: { in: lessonIds } },
-      })
-    : []
-  const comments = lessonIds.length
-    ? await db.studentComment.findMany({
-        where: { studentId, lessonId: { in: lessonIds } },
-      })
-    : []
+  const attendances = await db.attendance.findMany({
+    where: { studentId, lessonId: { in: lessonIds } },
+  })
+  const comments = await db.studentComment.findMany({
+    where: { studentId, lessonId: { in: lessonIds } },
+  })
 
   const presentCount = attendances.filter(
-    (a) =>
-      a.status === ATTENDANCE_STATUS.PRESENT ||
-      a.status === ATTENDANCE_STATUS.LATE
+    (a) => a.status === ATTENDANCE_STATUS.PRESENT
   ).length
-  const excusedCount = attendances.filter(
-    (a) => a.status === ATTENDANCE_STATUS.EXCUSED
+  const absentCount = attendances.filter(
+    (a) => a.status === ATTENDANCE_STATUS.ABSENT
   ).length
-  const unexcusedCount = attendances.filter(
-    (a) => a.status === ATTENDANCE_STATUS.UNEXCUSED
-  ).length
-  const lateCount = attendances.filter(
-    (a) => a.status === ATTENDANCE_STATUS.LATE
-  ).length
-  const totalLessons = lessons.length
+  const totalLessons = presentCount + absentCount
   const attendanceRate =
-    totalLessons > 0
-      ? Math.min(100, Math.round((presentCount / totalLessons) * 1000) / 10)
-      : 0
+    totalLessons > 0 ? Math.round((presentCount / totalLessons) * 1000) / 10 : 0
 
   const avgFocus =
     comments.length > 0
@@ -75,17 +57,18 @@ export async function computeMonthlyStats(
         ) / 10
       : 0
 
+  // Buổi học của lớp HS (để liệt kê nội dung đã học)
+  const classLessons = lessons.filter((l) => l.classId === student.classId)
+
   return {
     student,
     reportMonth,
     totalLessons,
     presentCount,
-    excusedCount,
-    unexcusedCount,
-    lateCount,
+    absentCount,
     attendanceRate,
     avgFocus,
-    lessons,
+    lessons: classLessons,
     comments,
   }
 }
@@ -113,8 +96,7 @@ export async function createOrUpdateReport(input: unknown) {
       reportMonth,
       totalLessons: stats.totalLessons,
       presentCount: stats.presentCount,
-      excusedCount: stats.excusedCount,
-      unexcusedCount: stats.unexcusedCount,
+      absentCount: stats.absentCount,
       attendanceRate: stats.attendanceRate,
       homeworkCompletionRate,
       homeworkComment,
@@ -123,8 +105,7 @@ export async function createOrUpdateReport(input: unknown) {
     update: {
       totalLessons: stats.totalLessons,
       presentCount: stats.presentCount,
-      excusedCount: stats.excusedCount,
-      unexcusedCount: stats.unexcusedCount,
+      absentCount: stats.absentCount,
       attendanceRate: stats.attendanceRate,
       homeworkCompletionRate,
       homeworkComment,

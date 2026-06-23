@@ -20,6 +20,7 @@ model Class {
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
   students    Student[]
+  lessons     Lesson[]
 }
 
 // 2. Quản lý Ca học cố định
@@ -55,14 +56,16 @@ model Student {
   reports     MonthlyReport[]
 }
 
-// 4. Buổi học cụ thể theo lịch thực tế
+// 4. Buổi học (1 ô trên thời khóa biểu): gắn với 1 lớp + 1 ca + 1 ngày
 model Lesson {
   id            String   @id @default(cuid())
   date          DateTime @default(now())
   shiftId       String
   shift         Shift    @relation(fields: [shiftId], references: [id])
-  topic         String
-  coreKnowledge String   @db.Text
+  classId       String
+  class         Class    @relation(fields: [classId], references: [id])
+  topic         String?  @db.Text
+  coreKnowledge String?  @db.Text
   classWork     String?  @db.Text
   homework      String?  @db.Text
   createdAt     DateTime @default(now())
@@ -71,16 +74,15 @@ model Lesson {
   comments    StudentComment[]
 }
 
-// 5. Điểm danh từng học sinh trong một buổi học
+// 5. Điểm danh từng học sinh trong một buổi học (chỉ Có mặt / Vắng)
 model Attendance {
-  id          String   @id @default(cuid())
-  lessonId    String
-  lesson      Lesson   @relation(fields: [lessonId], references: [id], onDelete: Cascade)
-  studentId   String
-  student     Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
-  status      String // PRESENT, EXCUSED, UNEXCUSED, LATE
-  lateMinutes Int      @default(0)
-  updatedAt   DateTime @updatedAt
+  id        String   @id @default(cuid())
+  lessonId  String
+  lesson    Lesson   @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  studentId String
+  student   Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  status    String   @default("") // "" = chưa điểm, PRESENT, ABSENT
+  updatedAt DateTime @updatedAt
 
   @@unique([lessonId, studentId])
 }
@@ -109,8 +111,7 @@ model MonthlyReport {
 
   totalLessons   Int
   presentCount   Int
-  excusedCount   Int
-  unexcusedCount Int
+  absentCount    Int
   attendanceRate Float
 
   homeworkCompletionRate Float

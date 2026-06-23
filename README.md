@@ -30,12 +30,13 @@
 
 ## Chức năng
 
-1. **Dashboard** — 4 KPI cards + bộ lọc động (thời gian / lớp / ca) + biểu đồ phân bố điểm danh & tỷ lệ chuyên cần theo lớp.
-2. **Học sinh** — CRUD, tìm kiếm debounce, lọc theo lớp/trạng thái, sửa qua Sheet, **soft delete** (chuyển INACTIVE). Quản lý lớp học kèm theo.
-3. **Ca học** — CRUD ca, tạo nhanh 4 ca mẫu, gán/bỏ học sinh vào ca bằng checkbox.
-4. **Điểm danh** — chọn buổi học → roster theo ca → toggle trạng thái một chạm (Có mặt / Vắng có phép / Vắng không phép / Đi muộn + số phút).
-5. **Nhật ký bài học** — nội dung chung (chủ đề, kiến thức, bài tập) + bảng đánh giá cá nhân inline-editable.
-6. **Báo cáo & PDF** — thống kê chuyên cần, biểu đồ tròn + radar, lưu snapshot báo cáo tháng, **xuất PDF A4** (upload logo) và **xuất Excel**, lịch sử báo cáo.
+1. **Dashboard** — 4 KPI cards + bộ lọc động (thời gian / lớp / ca) + biểu đồ phân bố điểm danh (Có mặt / Vắng) & tỷ lệ chuyên cần theo lớp.
+2. **Học sinh** — CRUD, tìm kiếm debounce, lọc theo lớp/trạng thái, sửa qua Sheet, **soft delete**. Quản lý lớp học kèm theo.
+3. **Thời khóa biểu** — lưới Ca × Ngày theo tuần (điều hướng tuần trước/này/sau). Mỗi ô là 1 buổi của 1 lớp; **điểm danh inline** ngay trên lịch (bấm badge: Chưa điểm → Có mặt → Vắng). Thêm buổi, thêm/bớt học sinh (+ Thêm HS), thêm ca học.
+4. **Nhật ký bài học** — nội dung chung (chủ đề, kiến thức, bài tập) + bảng đánh giá cá nhân inline-editable theo buổi.
+5. **Báo cáo & PDF** — thống kê chuyên cần (Có mặt/Vắng), biểu đồ tròn + radar, lưu snapshot, **xuất PDF A4** + **xuất Excel**, lịch sử báo cáo.
+
+> Điểm danh **2 trạng thái**: Có mặt / Vắng, thực hiện trực tiếp trên Thời khóa biểu (không còn màn điểm danh riêng).
 
 ## Bắt đầu
 

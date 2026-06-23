@@ -70,29 +70,28 @@ export default async function DashboardPage({
 
   const counts = {
     PRESENT: 0,
-    LATE: 0,
-    EXCUSED: 0,
-    UNEXCUSED: 0,
+    ABSENT: 0,
   }
   for (const a of attendances) {
     if (a.status in counts) counts[a.status as keyof typeof counts]++
   }
-  const absent = counts.EXCUSED + counts.UNEXCUSED
+  const absent = counts.ABSENT
 
   const pieData = [
     { name: ATTENDANCE_STATUS_LABEL.PRESENT, value: counts.PRESENT, color: "var(--chart-2)" },
-    { name: ATTENDANCE_STATUS_LABEL.LATE, value: counts.LATE, color: "var(--chart-4)" },
-    { name: ATTENDANCE_STATUS_LABEL.EXCUSED, value: counts.EXCUSED, color: "var(--chart-3)" },
-    { name: ATTENDANCE_STATUS_LABEL.UNEXCUSED, value: counts.UNEXCUSED, color: "var(--chart-5)" },
+    { name: ATTENDANCE_STATUS_LABEL.ABSENT, value: counts.ABSENT, color: "var(--chart-5)" },
   ]
 
   // Tỷ lệ chuyên cần theo lớp (trong kỳ)
   const byClass = new Map<string, { present: number; total: number }>()
   for (const a of attendances) {
+    if (a.status !== ATTENDANCE_STATUS.PRESENT && a.status !== ATTENDANCE_STATUS.ABSENT) {
+      continue // bỏ qua "chưa điểm"
+    }
     const cid = a.student.classId
     const entry = byClass.get(cid) ?? { present: 0, total: 0 }
     entry.total++
-    if (a.status === ATTENDANCE_STATUS.PRESENT || a.status === ATTENDANCE_STATUS.LATE) {
+    if (a.status === ATTENDANCE_STATUS.PRESENT) {
       entry.present++
     }
     byClass.set(cid, entry)
@@ -109,7 +108,11 @@ export default async function DashboardPage({
 
   const recentLessons = await db.lesson.findMany({
     where: lessonWhere,
-    include: { shift: true, _count: { select: { attendances: true } } },
+    include: {
+      shift: true,
+      class: true,
+      _count: { select: { attendances: true } },
+    },
     orderBy: { date: "desc" },
     take: 5,
   })
@@ -157,7 +160,7 @@ export default async function DashboardPage({
           title="Lượt vắng mặt"
           value={absent}
           icon={UserX}
-          hint={`Có phép ${counts.EXCUSED} · Không phép ${counts.UNEXCUSED}`}
+          hint={`Có mặt ${counts.PRESENT} lượt`}
           accent="warning"
         />
       </div>
@@ -177,7 +180,7 @@ export default async function DashboardPage({
           <CardHeader>
             <CardTitle>Tỷ lệ chuyên cần theo lớp</CardTitle>
             <CardDescription>
-              Tỷ lệ có mặt (gồm đi muộn) trên tổng lượt điểm danh
+              Tỷ lệ có mặt trên tổng lượt đã điểm danh
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -207,7 +210,10 @@ export default async function DashboardPage({
                   className="flex items-center justify-between gap-4 py-3"
                 >
                   <div className="min-w-0">
-                    <p className="truncate font-medium">{l.topic}</p>
+                    <p className="truncate font-medium">
+                      {l.class.name}
+                      {l.topic ? ` · ${l.topic}` : ""}
+                    </p>
                     <p className="text-xs text-muted-foreground">
                       {formatDate(l.date)} · {l.shift.name} (
                       {l.shift.startTime}–{l.shift.endTime})

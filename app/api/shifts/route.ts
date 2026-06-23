@@ -8,7 +8,7 @@ export async function POST(request: NextRequest) {
     await requireAuth()
     const body = await request.json()
     const shift = await createShift(body)
-    revalidatePath("/shifts")
+    revalidatePath("/schedule")
     return ok(shift, 201)
   } catch (error) {
     return handleError(error)

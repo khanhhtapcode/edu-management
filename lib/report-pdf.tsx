@@ -41,9 +41,7 @@ export type ReportPdfData = {
   reportMonth: string
   totalLessons: number
   presentCount: number
-  excusedCount: number
-  unexcusedCount: number
-  lateCount: number
+  absentCount: number
   attendanceRate: number
   avgFocus: number
   homeworkCompletionRate: number
@@ -200,10 +198,8 @@ function ReportDocument({
           <Text style={styles.sectionTitle}>Thống kê chuyên cần</Text>
           <View style={styles.statGrid}>
             <Stat value={String(data.totalLessons)} label="Tổng số buổi" />
-            <Stat value={String(data.presentCount)} label="Có mặt (gồm đi muộn)" />
-            <Stat value={String(data.lateCount)} label="Số buổi đi muộn" />
-            <Stat value={String(data.excusedCount)} label="Vắng có phép" />
-            <Stat value={String(data.unexcusedCount)} label="Vắng không phép" />
+            <Stat value={String(data.presentCount)} label="Số buổi có mặt" />
+            <Stat value={String(data.absentCount)} label="Số buổi vắng" />
             <Stat value={`${data.attendanceRate}%`} label="Tỷ lệ chuyên cần" />
           </View>
         </View>

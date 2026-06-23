@@ -11,7 +11,7 @@ export async function PATCH(request: NextRequest, { params }: Params) {
     const { id } = await params
     const body = await request.json()
     const shift = await updateShift(id, body)
-    revalidatePath("/shifts")
+    revalidatePath("/schedule")
     return ok(shift)
   } catch (error) {
     return handleError(error)
@@ -23,7 +23,7 @@ export async function DELETE(_request: NextRequest, { params }: Params) {
     await requireAuth()
     const { id } = await params
     const result = await deleteShift(id)
-    revalidatePath("/shifts")
+    revalidatePath("/schedule")
     return ok(result)
   } catch (error) {
     return handleError(error)

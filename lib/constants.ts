@@ -18,18 +18,17 @@ export const STUDENT_STATUS_LABEL: Record<string, string> = {
 
 export const ATTENDANCE_STATUS = {
   PRESENT: "PRESENT",
-  EXCUSED: "EXCUSED",
-  UNEXCUSED: "UNEXCUSED",
-  LATE: "LATE",
+  ABSENT: "ABSENT",
 } as const
 export type AttendanceStatus =
   (typeof ATTENDANCE_STATUS)[keyof typeof ATTENDANCE_STATUS]
 
+/** Chưa điểm danh */
+export const ATTENDANCE_UNMARKED = ""
+
 export const ATTENDANCE_STATUS_LABEL: Record<string, string> = {
   PRESENT: "Có mặt",
-  EXCUSED: "Vắng có phép",
-  UNEXCUSED: "Vắng không phép",
-  LATE: "Đi muộn",
+  ABSENT: "Vắng",
 }
 
 export const GENDER = {

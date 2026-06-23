@@ -41,26 +41,22 @@ export const shiftSchema = z.object({
 export const lessonSchema = z.object({
   date: z.string().min(1, "Vui lòng chọn ngày"),
   shiftId: z.string().min(1, "Vui lòng chọn ca học"),
-  topic: z.string().trim().min(1, "Chủ đề không được để trống"),
-  coreKnowledge: z.string().trim().min(1, "Kiến thức trọng tâm không được để trống"),
+  classId: z.string().min(1, "Vui lòng chọn lớp"),
+  topic: z.string().trim().optional().nullable(),
+  coreKnowledge: z.string().trim().optional().nullable(),
   classWork: z.string().trim().optional().nullable(),
   homework: z.string().trim().optional().nullable(),
 })
 
-export const attendanceItemSchema = z.object({
+// Điểm danh 1 học sinh (inline trên thời khóa biểu)
+export const attendanceSetSchema = z.object({
+  lessonId: z.string().min(1),
   studentId: z.string().min(1),
   status: z.enum([
     ATTENDANCE_STATUS.PRESENT,
-    ATTENDANCE_STATUS.EXCUSED,
-    ATTENDANCE_STATUS.UNEXCUSED,
-    ATTENDANCE_STATUS.LATE,
+    ATTENDANCE_STATUS.ABSENT,
+    "", // chưa điểm
   ]),
-  lateMinutes: z.number().int().min(0).default(0),
-})
-
-export const attendanceBulkSchema = z.object({
-  lessonId: z.string().min(1),
-  records: z.array(attendanceItemSchema),
 })
 
 export const commentItemSchema = z.object({

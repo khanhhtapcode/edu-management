@@ -54,9 +54,7 @@ export type ReportStats = {
   reportMonth: string
   totalLessons: number
   presentCount: number
-  excusedCount: number
-  unexcusedCount: number
-  lateCount: number
+  absentCount: number
   attendanceRate: number
   avgFocus: number
   topics: { date: string; topic: string; coreKnowledge: string; homework: string }[]
@@ -287,9 +285,7 @@ function ReportStatsPanel({ stats }: { stats: ReportStats }) {
           reportMonth: stats.reportMonth,
           totalLessons: stats.totalLessons,
           presentCount: stats.presentCount,
-          excusedCount: stats.excusedCount,
-          unexcusedCount: stats.unexcusedCount,
-          lateCount: stats.lateCount,
+          absentCount: stats.absentCount,
           attendanceRate: stats.attendanceRate,
           avgFocus: stats.avgFocus,
           homeworkCompletionRate: homeworkRate,
@@ -323,9 +319,7 @@ function ReportStatsPanel({ stats }: { stats: ReportStats }) {
         { "Chỉ tiêu": "Tháng", "Giá trị": formatMonth(stats.reportMonth) },
         { "Chỉ tiêu": "Tổng số buổi", "Giá trị": stats.totalLessons },
         { "Chỉ tiêu": "Có mặt", "Giá trị": stats.presentCount },
-        { "Chỉ tiêu": "Đi muộn", "Giá trị": stats.lateCount },
-        { "Chỉ tiêu": "Vắng có phép", "Giá trị": stats.excusedCount },
-        { "Chỉ tiêu": "Vắng không phép", "Giá trị": stats.unexcusedCount },
+        { "Chỉ tiêu": "Vắng", "Giá trị": stats.absentCount },
         { "Chỉ tiêu": "Tỷ lệ chuyên cần (%)", "Giá trị": stats.attendanceRate },
         { "Chỉ tiêu": "Hoàn thành BTVN (%)", "Giá trị": homeworkRate },
       ]
@@ -359,36 +353,32 @@ function ReportStatsPanel({ stats }: { stats: ReportStats }) {
   const pieData = [
     {
       name: ATTENDANCE_STATUS_LABEL.PRESENT,
-      value: stats.presentCount - stats.lateCount,
+      value: stats.presentCount,
       color: "var(--chart-2)",
     },
     {
-      name: ATTENDANCE_STATUS_LABEL.LATE,
-      value: stats.lateCount,
-      color: "var(--chart-4)",
-    },
-    {
-      name: ATTENDANCE_STATUS_LABEL.EXCUSED,
-      value: stats.excusedCount,
-      color: "var(--chart-3)",
-    },
-    {
-      name: ATTENDANCE_STATUS_LABEL.UNEXCUSED,
-      value: stats.unexcusedCount,
+      name: ATTENDANCE_STATUS_LABEL.ABSENT,
+      value: stats.absentCount,
       color: "var(--chart-5)",
     },
   ]
 
   const radarData = [
+    { criterion: "Tiếp thu", value: stats.avgFocus },
     { criterion: "Tập trung", value: stats.avgFocus },
     {
-      criterion: "Chuyên cần",
+      criterion: "Tinh thần",
       value: Math.round((stats.attendanceRate / 20) * 10) / 10,
     },
     {
-      criterion: "Bài tập",
+      criterion: "Kỹ năng",
       value: Math.round((homeworkRate / 20) * 10) / 10,
     },
+    {
+      criterion: "Bài BTVN",
+      value: Math.round((homeworkRate / 20) * 10) / 10,
+    },
+    { criterion: "Thái độ", value: stats.avgFocus },
   ]
 
   return (

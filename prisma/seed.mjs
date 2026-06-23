@@ -55,8 +55,8 @@ async function main() {
     )
   }
 
-  // Buổi học + điểm danh + nhận xét cho ca 1
-  const shift1Students = students.filter((s) => s.shiftId === shifts[0].id)
+  // Buổi học + điểm danh + nhận xét cho lớp 1 (Toán 10A1) ở Ca 1
+  const class1Students = students.filter((s) => s.classId === class1.id)
   const topics = [
     { topic: "Hàm số bậc hai", core: "Đồ thị parabol, đỉnh, trục đối xứng" },
     { topic: "Phương trình bậc hai", core: "Công thức nghiệm, định lý Viète" },
@@ -69,27 +69,27 @@ async function main() {
       data: {
         date,
         shiftId: shifts[0].id,
+        classId: class1.id,
         topic: topics[d].topic,
         coreKnowledge: topics[d].core,
         classWork: "Bài tập SGK trang 20",
         homework: "Hoàn thành bài 1-5",
       },
     })
-    const statuses = ["PRESENT", "PRESENT", "LATE", "EXCUSED"]
-    for (let i = 0; i < shift1Students.length; i++) {
+    const statuses = ["PRESENT", "PRESENT", "PRESENT", "ABSENT"]
+    for (let i = 0; i < class1Students.length; i++) {
       const st = statuses[(i + d) % statuses.length]
       await db.attendance.create({
         data: {
           lessonId: lesson.id,
-          studentId: shift1Students[i].id,
+          studentId: class1Students[i].id,
           status: st,
-          lateMinutes: st === "LATE" ? 10 : 0,
         },
       })
       await db.studentComment.create({
         data: {
           lessonId: lesson.id,
-          studentId: shift1Students[i].id,
+          studentId: class1Students[i].id,
           focusScore: 3 + ((i + d) % 3),
           attitude: "Tích cực",
           reception: "Tiếp thu tốt",

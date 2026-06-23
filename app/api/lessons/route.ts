@@ -8,7 +8,7 @@ export async function POST(request: NextRequest) {
     await requireAuth()
     const body = await request.json()
     const lesson = await createLesson(body)
-    revalidatePath("/attendance")
+    revalidatePath("/schedule")
     revalidatePath("/lessons")
     revalidatePath("/")
     return ok(lesson, 201)

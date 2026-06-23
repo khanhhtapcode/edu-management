@@ -41,13 +41,14 @@ type LessonItem = {
   id: string
   date: string
   topic: string
+  className: string
   shiftName: string
 }
 type Detail = {
   id: string
   date: string
-  shiftId: string
   shiftName: string
+  className: string
   topic: string
   coreKnowledge: string
   classWork: string
@@ -66,11 +67,13 @@ type RosterRow = {
 export function LessonsClient({
   lessons,
   shifts,
+  classes,
   detail,
   roster,
 }: {
   lessons: LessonItem[]
   shifts: { id: string; name: string }[]
+  classes: { id: string; name: string }[]
   detail: Detail
   roster: RosterRow[]
 }) {
@@ -93,7 +96,8 @@ export function LessonsClient({
             <SelectContent>
               {lessons.map((l) => (
                 <SelectItem key={l.id} value={l.id}>
-                  {formatDate(l.date)} · {l.shiftName} · {l.topic}
+                  {formatDate(l.date)} · {l.className}
+                  {l.topic ? ` · ${l.topic}` : ""}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -116,7 +120,12 @@ export function LessonsClient({
         />
       )}
 
-      <NewLessonDialog open={newOpen} onOpenChange={setNewOpen} shifts={shifts} />
+      <NewLessonDialog
+        open={newOpen}
+        onOpenChange={setNewOpen}
+        shifts={shifts}
+        classes={classes}
+      />
     </div>
   )
 }
@@ -208,7 +217,7 @@ function LessonDetailEditor({
             <CardHeader className="flex-row items-center justify-between space-y-0">
               <CardTitle className="flex items-center gap-2 text-base">
                 <NotebookPen className="size-5 text-primary" />
-                Nội dung bài học · {formatDate(detail.date)} · {detail.shiftName}
+                {detail.className} · {formatDate(detail.date)} · {detail.shiftName}
               </CardTitle>
               <Button
                 variant="ghost"
@@ -279,7 +288,7 @@ function LessonDetailEditor({
             <CardContent>
               {roster.length === 0 ? (
                 <p className="py-8 text-center text-sm text-muted-foreground">
-                  Ca học chưa có học sinh được gán.
+                  Buổi học chưa có học sinh nào.
                 </p>
               ) : (
                 <>
@@ -410,15 +419,18 @@ function NewLessonDialog({
   open,
   onOpenChange,
   shifts,
+  classes,
 }: {
   open: boolean
   onOpenChange: (o: boolean) => void
   shifts: { id: string; name: string }[]
+  classes: { id: string; name: string }[]
 }) {
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
   const [date, setDate] = useState(toDateInputValue(new Date()))
   const [shiftId, setShiftId] = useState(shifts[0]?.id ?? "")
+  const [classId, setClassId] = useState(classes[0]?.id ?? "")
   const [topic, setTopic] = useState("")
   const [coreKnowledge, setCoreKnowledge] = useState("")
 
@@ -428,7 +440,7 @@ function NewLessonDialog({
       try {
         const lesson = await apiFetch<{ id: string }>("/api/lessons", {
           method: "POST",
-          body: { date, shiftId, topic, coreKnowledge },
+          body: { date, shiftId, classId, topic, coreKnowledge },
         })
         toast.success("Đã tạo buổi học")
         onOpenChange(false)
@@ -478,6 +490,21 @@ function NewLessonDialog({
             </div>
           </div>
           <div className="space-y-2">
+            <Label>Lớp</Label>
+            <Select value={classId} onValueChange={setClassId}>
+              <SelectTrigger>
+                <SelectValue placeholder="Chọn lớp" />
+              </SelectTrigger>
+              <SelectContent>
+                {classes.map((c) => (
+                  <SelectItem key={c.id} value={c.id}>
+                    {c.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-2">
             <Label htmlFor="ltopic">Chủ đề bài học</Label>
             <Input
               id="ltopic"
@@ -496,7 +523,7 @@ function NewLessonDialog({
           <Button
             type="submit"
             className="w-full"
-            disabled={isPending || !shiftId}
+            disabled={isPending || !shiftId || !classId}
           >
             {isPending && <Loader2 className="size-4 animate-spin" />}
             Tạo buổi học
