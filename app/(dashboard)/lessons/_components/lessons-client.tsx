@@ -331,17 +331,18 @@ function LessonDetailEditor({
                             </Select>
                           </TableCell>
                           <TableCell>
-                            <Input
+                            <Textarea
                               value={c.attitude}
                               onChange={(e) =>
                                 setComment(c.studentId, "attitude", e.target.value)
                               }
-                              className="h-8"
+                              className="min-h-[60px] resize-y text-sm"
                               placeholder="..."
+                              rows={2}
                             />
                           </TableCell>
                           <TableCell>
-                            <Input
+                            <Textarea
                               value={c.reception}
                               onChange={(e) =>
                                 setComment(
@@ -350,12 +351,13 @@ function LessonDetailEditor({
                                   e.target.value
                                 )
                               }
-                              className="h-8"
+                              className="min-h-[60px] resize-y text-sm"
                               placeholder="..."
+                              rows={2}
                             />
                           </TableCell>
                           <TableCell>
-                            <Input
+                            <Textarea
                               value={c.improvement}
                               onChange={(e) =>
                                 setComment(
@@ -364,8 +366,9 @@ function LessonDetailEditor({
                                   e.target.value
                                 )
                               }
-                              className="h-8"
+                              className="min-h-[60px] resize-y text-sm"
                               placeholder="..."
+                              rows={2}
                             />
                           </TableCell>
                         </TableRow>
