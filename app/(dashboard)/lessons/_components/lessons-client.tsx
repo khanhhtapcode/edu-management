@@ -338,7 +338,7 @@ function LessonDetailEditor({
                               }
                               className="min-h-[60px] resize-y text-sm"
                               placeholder="..."
-                              rows={2}
+                              rows={4}
                             />
                           </TableCell>
                           <TableCell>
@@ -353,7 +353,7 @@ function LessonDetailEditor({
                               }
                               className="min-h-[60px] resize-y text-sm"
                               placeholder="..."
-                              rows={2}
+                              rows={4}
                             />
                           </TableCell>
                           <TableCell>
@@ -368,7 +368,7 @@ function LessonDetailEditor({
                               }
                               className="min-h-[60px] resize-y text-sm"
                               placeholder="..."
-                              rows={2}
+                              rows={4}
                             />
                           </TableCell>
                         </TableRow>
