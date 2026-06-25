@@ -62,6 +62,12 @@ export type ReportStats = {
   attendanceRate: number
   avgFocus: number
   topics: { date: string; topic: string; coreKnowledge: string; homework: string }[]
+  sessions: {
+    date: string
+    topic: string
+    coreKnowledge: string
+    status: string
+  }[]
   existing: {
     homeworkCompletionRate: number
     homeworkComment: string
@@ -464,6 +470,21 @@ function ReportStatsPanel({ stats }: { stats: ReportStats }) {
           </CardContent>
         </Card>
       </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">
+            Chi tiết buổi học trong tháng
+          </CardTitle>
+          <CardDescription>
+            Nội dung đã học theo từng buổi của {stats.studentName} ·{" "}
+            {formatMonth(stats.reportMonth)}
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="p-0 pb-2">
+          <LessonHistoryTable lessons={stats.sessions} />
+        </CardContent>
+      </Card>
 
       <Card>
         <CardHeader>

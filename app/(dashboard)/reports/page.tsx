@@ -21,18 +21,23 @@ export default async function ReportsPage({
   const sp = await searchParams
   const month = sp.month ?? currentMonth()
 
-  const [students, reports] = await Promise.all([
-    db.student.findMany({
-      where: { status: MEMBER_STATUS.ACTIVE },
-      include: { class: true },
-      orderBy: { fullName: "asc" },
-    }),
-    db.monthlyReport.findMany({
-      include: { student: { include: { class: true } } },
-      orderBy: { createdAt: "desc" },
-      take: 30,
-    }),
-  ])
+  const students = await db.student.findMany({
+    where: { status: MEMBER_STATUS.ACTIVE },
+    include: { class: true },
+    orderBy: { fullName: "asc" },
+  })
+
+  const studentId = sp.studentId ?? students[0]?.id
+
+  // Báo cáo đã lưu — lọc theo học sinh đang chọn
+  const reports = studentId
+    ? await db.monthlyReport.findMany({
+        where: { studentId },
+        include: { student: { include: { class: true } } },
+        orderBy: { createdAt: "desc" },
+        take: 30,
+      })
+    : []
 
   // Lấy chi tiết các buổi học (theo lớp + tháng) của từng báo cáo đã lưu,
   // dùng cho phần expand "Chi tiết buổi học" dưới mỗi dòng.
@@ -72,14 +77,34 @@ export default async function ReportsPage({
     })
   )
 
-  const studentId = sp.studentId ?? students[0]?.id
-
   let stats: ReportStats | null = null
   if (studentId) {
     const s = await computeMonthlyStats(studentId, month)
     const existing = await db.monthlyReport.findUnique({
       where: { studentId_reportMonth: { studentId, reportMonth: month } },
     })
+
+    // Danh sách buổi học trong tháng (kèm trạng thái điểm danh của HS này)
+    const [y, m] = month.split("-").map(Number)
+    const start = new Date(y, m - 1, 1)
+    const end = new Date(y, m, 1)
+    const monthLessons = await db.lesson.findMany({
+      where: { classId: s.student.classId, date: { gte: start, lt: end } },
+      include: {
+        attendances: {
+          where: { studentId },
+          select: { status: true },
+        },
+      },
+      orderBy: { date: "asc" },
+    })
+    const sessions = monthLessons.map((l) => ({
+      date: l.date.toISOString(),
+      topic: l.topic ?? "",
+      coreKnowledge: l.coreKnowledge ?? "",
+      status: l.attendances[0]?.status ?? "",
+    }))
+
     stats = {
       studentId,
       studentName: s.student.fullName,
@@ -96,6 +121,7 @@ export default async function ReportsPage({
         coreKnowledge: l.coreKnowledge ?? "",
         homework: l.homework ?? "",
       })),
+      sessions,
       existing: existing
         ? {
             homeworkCompletionRate: existing.homeworkCompletionRate,
