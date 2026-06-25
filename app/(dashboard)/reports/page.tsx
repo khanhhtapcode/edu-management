@@ -34,6 +34,44 @@ export default async function ReportsPage({
     }),
   ])
 
+  // Lấy chi tiết các buổi học (theo lớp + tháng) của từng báo cáo đã lưu,
+  // dùng cho phần expand "Chi tiết buổi học" dưới mỗi dòng.
+  const lessonsByReport: Record<
+    string,
+    {
+      date: string
+      topic: string
+      coreKnowledge: string
+      status: string
+    }[]
+  > = {}
+  await Promise.all(
+    reports.map(async (r) => {
+      const [y, m] = r.reportMonth.split("-").map(Number)
+      const start = new Date(y, m - 1, 1)
+      const end = new Date(y, m, 1)
+      const lessons = await db.lesson.findMany({
+        where: {
+          classId: r.student.classId,
+          date: { gte: start, lt: end },
+        },
+        include: {
+          attendances: {
+            where: { studentId: r.studentId },
+            select: { status: true },
+          },
+        },
+        orderBy: { date: "asc" },
+      })
+      lessonsByReport[r.id] = lessons.map((l) => ({
+        date: l.date.toISOString(),
+        topic: l.topic ?? "",
+        coreKnowledge: l.coreKnowledge ?? "",
+        status: l.attendances[0]?.status ?? "",
+      }))
+    })
+  )
+
   const studentId = sp.studentId ?? students[0]?.id
 
   let stats: ReportStats | null = null
@@ -96,6 +134,7 @@ export default async function ReportsPage({
           reportMonth: r.reportMonth,
           attendanceRate: r.attendanceRate,
           createdAt: formatDate(r.createdAt),
+          lessons: lessonsByReport[r.id] ?? [],
         }))}
       />
     </div>

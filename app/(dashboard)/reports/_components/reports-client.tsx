@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useTransition } from "react"
+import { Fragment, useState, useTransition } from "react"
 import { useRouter } from "next/navigation"
 import {
   FileDown,
@@ -9,11 +9,16 @@ import {
   Loader2,
   Trash2,
   CalendarRange,
+  ChevronDown,
+  ChevronRight,
+  Check,
+  X as XIcon,
+  Minus,
 } from "lucide-react"
 import { toast } from "sonner"
 
 import { apiFetch } from "@/lib/api-client"
-import { formatMonth } from "@/lib/utils"
+import { formatDate, formatMonth } from "@/lib/utils"
 import { ATTENDANCE_STATUS_LABEL } from "@/lib/constants"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -72,6 +77,12 @@ type HistoryItem = {
   reportMonth: string
   attendanceRate: number
   createdAt: string
+  lessons: {
+    date: string
+    topic: string
+    coreKnowledge: string
+    status: string
+  }[]
 }
 
 function monthOptions() {
@@ -100,6 +111,11 @@ export function ReportsClient({
 }) {
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
+  const [expanded, setExpanded] = useState<Record<string, boolean>>({})
+
+  function toggleExpand(id: string) {
+    setExpanded((p) => ({ ...p, [id]: !p[id] }))
+  }
 
   function navigate(next: { studentId?: string; month?: string }) {
     const sid = next.studentId ?? selectedStudentId
@@ -191,6 +207,7 @@ export function ReportsClient({
             <Table>
               <TableHeader>
                 <TableRow>
+                  <TableHead className="w-10" />
                   <TableHead>Học sinh</TableHead>
                   <TableHead>Lớp</TableHead>
                   <TableHead>Tháng</TableHead>
@@ -200,33 +217,60 @@ export function ReportsClient({
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {history.map((h) => (
-                  <TableRow key={h.id}>
-                    <TableCell className="font-medium">
-                      {h.studentName}
-                    </TableCell>
-                    <TableCell>{h.className}</TableCell>
-                    <TableCell>{formatMonth(h.reportMonth)}</TableCell>
-                    <TableCell>
-                      <Badge variant="secondary">{h.attendanceRate}%</Badge>
-                    </TableCell>
-                    <TableCell className="text-muted-foreground">
-                      {h.createdAt}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="text-destructive hover:text-destructive"
-                        onClick={() => deleteReport(h.id)}
-                        disabled={isPending}
-                        aria-label="Xóa báo cáo"
+                {history.map((h) => {
+                  const isOpen = !!expanded[h.id]
+                  return (
+                    <Fragment key={h.id}>
+                      <TableRow
+                        onClick={() => toggleExpand(h.id)}
+                        className="cursor-pointer"
                       >
-                        <Trash2 className="size-4" />
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                ))}
+                        <TableCell className="text-muted-foreground">
+                          {isOpen ? (
+                            <ChevronDown className="size-4" />
+                          ) : (
+                            <ChevronRight className="size-4" />
+                          )}
+                        </TableCell>
+                        <TableCell className="font-medium">
+                          {h.studentName}
+                        </TableCell>
+                        <TableCell>{h.className}</TableCell>
+                        <TableCell>{formatMonth(h.reportMonth)}</TableCell>
+                        <TableCell>
+                          <Badge variant="secondary">
+                            {h.attendanceRate}%
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="text-muted-foreground">
+                          {h.createdAt}
+                        </TableCell>
+                        <TableCell
+                          className="text-right"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="text-destructive hover:text-destructive"
+                            onClick={() => deleteReport(h.id)}
+                            disabled={isPending}
+                            aria-label="Xóa báo cáo"
+                          >
+                            <Trash2 className="size-4" />
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                      {isOpen && (
+                        <TableRow className="bg-muted/30 hover:bg-muted/30">
+                          <TableCell colSpan={7} className="p-0">
+                            <LessonHistoryTable lessons={h.lessons} />
+                          </TableCell>
+                        </TableRow>
+                      )}
+                    </Fragment>
+                  )
+                })}
               </TableBody>
             </Table>
           )}
@@ -497,5 +541,96 @@ function ReportStatsPanel({ stats }: { stats: ReportStats }) {
         </CardContent>
       </Card>
     </>
+  )
+}
+
+/**
+ * Bảng chi tiết các buổi học của học sinh trong tháng báo cáo.
+ * Cột: Buổi · Ngày học · Nội dung bài học · Ghi chú · Điểm danh.
+ */
+function LessonHistoryTable({
+  lessons,
+}: {
+  lessons: HistoryItem["lessons"]
+}) {
+  if (lessons.length === 0) {
+    return (
+      <div className="px-6 py-4 text-sm text-muted-foreground">
+        Không có buổi học nào của lớp trong tháng này.
+      </div>
+    )
+  }
+
+  return (
+    <div className="px-4 py-3">
+      <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+        Chi tiết buổi học
+      </p>
+      <div className="overflow-x-auto rounded-md border bg-background">
+        <table className="w-full border-collapse text-sm">
+          <thead>
+            <tr className="border-b bg-muted/40 text-left">
+              <th className="w-14 px-3 py-2 text-center font-semibold">Buổi</th>
+              <th className="w-32 px-3 py-2 font-semibold">Ngày học</th>
+              <th className="px-3 py-2 font-semibold">Nội dung bài học</th>
+              <th className="px-3 py-2 font-semibold">Ghi chú</th>
+              <th className="w-28 px-3 py-2 text-center font-semibold">
+                Điểm danh
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {lessons.map((l, i) => (
+              <tr
+                key={`${l.date}-${i}`}
+                className="border-b last:border-b-0 align-top"
+              >
+                <td className="px-3 py-2 text-center text-muted-foreground">
+                  {i + 1}
+                </td>
+                <td className="px-3 py-2 whitespace-nowrap">
+                  {formatDate(l.date)}
+                </td>
+                <td className="px-3 py-2">
+                  {l.topic || (
+                    <span className="text-muted-foreground italic">
+                      (chưa nhập)
+                    </span>
+                  )}
+                </td>
+                <td className="px-3 py-2 text-muted-foreground">
+                  {l.coreKnowledge || "—"}
+                </td>
+                <td className="px-3 py-2 text-center">
+                  <AttendanceBadge status={l.status} />
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  )
+}
+
+function AttendanceBadge({ status }: { status: string }) {
+  if (status === "PRESENT") {
+    return (
+      <span className="inline-flex items-center gap-1 rounded bg-emerald-500/15 px-2 py-0.5 text-xs font-medium text-emerald-700">
+        <Check className="size-3" strokeWidth={3} /> Có mặt
+      </span>
+    )
+  }
+  if (status === "ABSENT") {
+    return (
+      <span className="inline-flex items-center gap-1 rounded bg-rose-500/15 px-2 py-0.5 text-xs font-medium text-rose-700">
+        <XIcon className="size-3" strokeWidth={3} /> Vắng
+      </span>
+    )
+  }
+  return (
+    <span className="inline-flex items-center gap-1 rounded bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-500">
+      <Minus className="size-3" strokeWidth={3} /> Chưa điểm
+    </span>
   )
 }
