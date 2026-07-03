@@ -135,7 +135,7 @@ export default async function ReportsPage({
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-xl font-bold tracking-tight">
+        <h2 className="text-lg font-semibold tracking-tight text-foreground">
           Báo cáo, thống kê & xuất PDF
         </h2>
         <p className="text-sm text-muted-foreground">

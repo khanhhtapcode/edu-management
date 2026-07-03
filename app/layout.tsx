@@ -1,9 +1,9 @@
 import type { Metadata } from "next"
 import { Inter } from "next/font/google"
-import { ThemeProvider } from "next-themes"
 import "./globals.css"
 import { Toaster } from "@/components/ui/sonner"
 import { APP_LOGO } from "@/lib/constants"
+import { Providers } from "@/components/providers"
 
 const inter = Inter({
   variable: "--font-inter",
@@ -28,10 +28,10 @@ export default function RootLayout({
   return (
     <html lang="vi" className={`${inter.variable} h-full antialiased`} suppressHydrationWarning>
       <body className="min-h-full bg-background">
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+        <Providers>
           {children}
           <Toaster />
-        </ThemeProvider>
+        </Providers>
       </body>
     </html>
   )
