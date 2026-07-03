@@ -127,9 +127,9 @@ export default async function DashboardPage({
     <div className="space-y-6">
       <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
         <div>
-          <h2 className="text-xl font-bold tracking-tight">Bảng điều khiển</h2>
-          <p className="text-sm text-muted-foreground">
-            Báo cáo nhanh tình hình lớp học · {rangeLabel}
+          <h2 className="text-lg font-semibold tracking-tight text-foreground">Tổng quan</h2>
+          <p className="text-sm text-muted-foreground mt-0.5">
+            Báo cáo nhanh tình hình lớp học &middot; {rangeLabel}
           </p>
         </div>
         <DashboardFilters
@@ -203,27 +203,29 @@ export default async function DashboardPage({
         </CardHeader>
         <CardContent>
           {recentLessons.length === 0 ? (
-            <p className="py-8 text-center text-sm text-muted-foreground">
-              Không có buổi học nào trong khoảng thời gian này.
-            </p>
+            <div className="flex flex-col items-center justify-center py-10 text-center">
+              <CalendarDays className="size-8 text-muted-foreground/30 mb-3" />
+              <p className="text-sm text-muted-foreground">
+                Không có buổi học nào trong khoảng thời gian này.
+              </p>
+            </div>
           ) : (
-            <ul className="divide-y">
+            <ul className="divide-y divide-border">
               {recentLessons.map((l) => (
                 <li
                   key={l.id}
-                  className="flex items-center justify-between gap-4 py-3"
+                  className="flex items-center justify-between gap-4 py-3 first:pt-0 last:pb-0"
                 >
                   <div className="min-w-0">
-                    <p className="truncate font-medium">
+                    <p className="truncate text-sm font-medium text-card-foreground">
                       {l.class.name}
                       {l.topic ? ` · ${l.topic}` : ""}
                     </p>
-                    <p className="text-xs text-muted-foreground">
-                      {formatDate(l.date)} · {l.shift.name} (
-                      {l.shift.startTime}–{l.shift.endTime})
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      {formatDate(l.date)} &middot; {l.shift.name} ({l.shift.startTime}–{l.shift.endTime})
                     </p>
                   </div>
-                  <Badge variant="secondary">
+                  <Badge variant="secondary" className="shrink-0 text-xs">
                     {l._count.attendances} điểm danh
                   </Badge>
                 </li>

@@ -4,9 +4,8 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
 import { NAV, isNavActive } from "@/lib/nav"
-import { BrandLogo } from "@/components/brand-logo"
 import { useSidebar } from "./sidebar-context"
-import { ChevronLeft } from "lucide-react"
+import { ChevronRight } from "lucide-react"
 
 export function Sidebar() {
   const pathname = usePathname()
@@ -16,51 +15,32 @@ export function Sidebar() {
     <aside
       className={cn(
         "hidden md:flex flex-col shrink-0 relative",
-        "bg-white border-r border-slate-200 shadow-sm",
+        "bg-sidebar border-r border-sidebar-border",
         "transition-[width] duration-300 ease-in-out overflow-hidden",
-        collapsed ? "w-[72px]" : "w-64"
+        collapsed ? "w-[60px]" : "w-60"
       )}
     >
-      {/* Header */}
+      {/* Brand header */}
       <div
         className={cn(
-          "flex h-16 items-center border-b border-slate-100 shrink-0 gap-2",
-          collapsed ? "justify-center px-2" : "px-3"
+          "flex h-14 items-center border-b border-sidebar-border shrink-0",
+          collapsed ? "justify-center px-0" : "px-4 gap-2.5"
         )}
       >
-        {collapsed ? (
-          <div className="flex size-9 items-center justify-center rounded-xl bg-primary text-primary-foreground font-bold text-sm shadow-sm">
-            NY
-          </div>
-        ) : (
-          <>
-            <BrandLogo className="h-9 w-auto flex-1 min-w-0" priority />
-            <button
-              onClick={toggle}
-              aria-label="Thu nhỏ sidebar"
-              className="flex size-7 shrink-0 items-center justify-center rounded-md text-slate-400 hover:bg-slate-100 hover:text-slate-700 transition-colors duration-150 cursor-pointer"
-            >
-              <ChevronLeft className="size-4" />
-            </button>
-          </>
+        <div className="flex size-7 shrink-0 items-center justify-center rounded-md bg-primary text-primary-foreground font-bold text-xs">
+          NY
+        </div>
+        {!collapsed && (
+          <span className="flex-1 text-sm font-semibold text-sidebar-foreground tracking-tight truncate">
+            NY Math Class
+          </span>
         )}
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 py-3 px-2 space-y-0.5 overflow-hidden">
-        {/* Expand button (collapsed mode only) */}
-        {collapsed && (
-          <button
-            onClick={toggle}
-            aria-label="Mở rộng sidebar"
-            className="flex w-full items-center justify-center py-2 mb-1 rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-700 transition-colors duration-150 cursor-pointer"
-          >
-            <ChevronLeft className="size-4 rotate-180" />
-          </button>
-        )}
-        {/* Section label */}
+      <nav className="flex-1 py-4 px-2 space-y-0.5 overflow-hidden">
         {!collapsed && (
-          <p className="px-3 pb-2 text-[10px] font-semibold uppercase tracking-widest text-slate-400">
+          <p className="px-2 pb-1.5 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/60">
             Quản lý
           </p>
         )}
@@ -73,50 +53,53 @@ export function Sidebar() {
               href={item.href}
               title={collapsed ? item.label : undefined}
               className={cn(
-                "group flex items-center gap-3 rounded-lg text-sm font-medium transition-all duration-200 cursor-pointer",
-                collapsed ? "justify-center px-0 py-2.5 mx-0" : "px-3 py-2.5",
+                "group relative flex items-center gap-3 rounded-md text-sm font-medium transition-all duration-150 cursor-pointer",
+                collapsed ? "justify-center px-0 py-2.5" : "px-3 py-2",
                 active
-                  ? "bg-primary text-primary-foreground shadow-sm"
-                  : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+                  ? "bg-primary/10 text-primary dark:bg-primary/20 dark:text-primary"
+                  : "text-muted-foreground hover:bg-secondary hover:text-foreground"
               )}
             >
+              {/* Active indicator bar */}
+              {active && !collapsed && (
+                <span className="absolute left-0 top-1/2 -translate-y-1/2 h-4 w-0.5 rounded-r-full bg-primary" />
+              )}
               <Icon
                 className={cn(
-                  "shrink-0 transition-transform duration-200",
-                  collapsed ? "size-5" : "size-4",
-                  active ? "text-primary-foreground" : "text-slate-400 group-hover:text-slate-700"
+                  "shrink-0",
+                  collapsed ? "size-[18px]" : "size-4",
+                  active
+                    ? "text-primary"
+                    : "text-muted-foreground/70 group-hover:text-foreground"
                 )}
               />
               {!collapsed && (
                 <span className="flex-1 truncate">{item.label}</span>
-              )}
-              {active && !collapsed && (
-                <span className="size-1.5 rounded-full bg-primary-foreground/70 shrink-0" />
               )}
             </Link>
           )
         })}
       </nav>
 
-      {/* Footer */}
-      <div
-        className={cn(
-          "border-t border-slate-100 transition-all duration-300",
-          collapsed ? "p-2" : "p-4"
-        )}
-      >
-        {collapsed ? (
-          <div className="flex justify-center">
-            <div className="size-1.5 rounded-full bg-slate-300" />
-          </div>
-        ) : (
-          <div>
-            <p className="text-xs font-medium text-slate-500">NY Math Class</p>
-            <p className="text-[11px] text-slate-400 mt-0.5">Học Toán Thông Minh · v1.0</p>
-          </div>
-        )}
+      {/* Collapse toggle */}
+      <div className="border-t border-sidebar-border p-2">
+        <button
+          onClick={toggle}
+          aria-label={collapsed ? "Mở rộng sidebar" : "Thu nhỏ sidebar"}
+          className={cn(
+            "flex w-full items-center gap-3 rounded-md px-2 py-2 text-xs text-muted-foreground hover:bg-secondary hover:text-foreground transition-colors duration-150 cursor-pointer",
+            collapsed && "justify-center"
+          )}
+        >
+          <ChevronRight
+            className={cn(
+              "size-3.5 shrink-0 transition-transform duration-300",
+              !collapsed && "rotate-180"
+            )}
+          />
+          {!collapsed && <span>Thu nhỏ</span>}
+        </button>
       </div>
-
     </aside>
   )
 }
