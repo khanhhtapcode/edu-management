@@ -9,7 +9,7 @@ export default function DashboardLayout({
 }) {
   return (
     <SidebarProvider>
-      <div className="flex min-h-svh bg-slate-50">
+      <div className="flex min-h-svh bg-background">
         <Sidebar />
         <div className="flex min-w-10 flex-1 flex-col">
           <Topbar />
