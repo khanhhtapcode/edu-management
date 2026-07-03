@@ -32,7 +32,7 @@ export default async function StudentsPage() {
     <div className="space-y-6">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h2 className="text-xl font-bold tracking-tight">Quản lý học sinh</h2>
+          <h2 className="text-lg font-semibold tracking-tight text-foreground">Quản lý học sinh</h2>
           <p className="text-sm text-muted-foreground">
             Quản lý toàn diện hồ sơ học sinh từ nhập học đến kết thúc khóa.
           </p>

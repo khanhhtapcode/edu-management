@@ -74,7 +74,7 @@ function StatusBadge({
   onClick: () => void
 }) {
   const map: Record<string, { cls: string; icon: typeof Check; title: string }> = {
-    "": { cls: "bg-slate-100 text-slate-400 hover:bg-slate-200", icon: Minus, title: "Chưa điểm" },
+    "": { cls: "bg-muted text-muted-foreground hover:bg-muted/80", icon: Minus, title: "Chưa điểm" },
     PRESENT: { cls: "bg-emerald-500 text-white hover:bg-emerald-600", icon: Check, title: "Có mặt" },
     ABSENT: { cls: "bg-rose-500 text-white hover:bg-rose-600", icon: X, title: "Vắng" },
   }
@@ -214,7 +214,7 @@ export function ScheduleClient({
       {/* Header */}
       <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
         <div>
-          <h2 className="text-xl font-bold tracking-tight">Thời khóa biểu</h2>
+          <h2 className="text-lg font-semibold tracking-tight text-foreground">Thời khóa biểu</h2>
           <p className="text-sm text-muted-foreground">
             {formatWeekRange(weekStartKey)}
           </p>
@@ -248,8 +248,8 @@ export function ScheduleClient({
         <div className="overflow-x-auto rounded-xl border bg-card">
           <table className="w-full min-w-[920px] border-collapse">
             <thead>
-              <tr className="bg-amber-50/60">
-                <th className="sticky left-0 z-10 w-28 border-b border-r bg-amber-50/60 p-2 text-xs font-semibold text-slate-500">
+              <tr className="bg-muted/40">
+                <th className="sticky left-0 z-10 w-28 border-b border-r bg-muted/40 p-2 text-xs font-semibold text-muted-foreground">
                   CA / NGÀY
                 </th>
                 {days.map((d) => (
@@ -257,11 +257,11 @@ export function ScheduleClient({
                     key={d.key}
                     className={cn(
                       "border-b border-r p-2 text-center text-xs font-semibold",
-                      d.isToday ? "bg-primary/10 text-primary" : "text-slate-600"
+                      d.isToday ? "bg-primary/10 text-primary" : "text-foreground"
                     )}
                   >
                     <div>{d.label}</div>
-                    <div className="text-[11px] font-normal text-slate-400">
+                    <div className="text-[11px] font-normal text-muted-foreground">
                       {d.dayNum}
                     </div>
                   </th>
@@ -271,11 +271,11 @@ export function ScheduleClient({
             <tbody>
               {shifts.map((shift) => (
                 <tr key={shift.id} className="group/shift align-top">
-                  <td className="sticky left-0 z-10 border-b border-r bg-white p-2">
+                  <td className="sticky left-0 z-10 border-b border-r bg-card p-2">
                     <div className="flex items-start justify-between gap-1">
                       <div className="min-w-0">
                         <div className="text-sm font-semibold">{shift.name}</div>
-                        <div className="mt-1 inline-block rounded bg-amber-100 px-1.5 py-0.5 text-[10px] font-medium text-amber-700">
+                        <div className="mt-1 inline-block rounded bg-primary/10 px-1.5 py-0.5 text-[10px] font-medium text-primary">
                           {shift.startTime}–{shift.endTime}
                         </div>
                       </div>
@@ -283,7 +283,7 @@ export function ScheduleClient({
                         <button
                           type="button"
                           onClick={() => setShiftDialog({ mode: "edit", shift })}
-                          className="rounded p-0.5 text-slate-300 transition-colors hover:bg-slate-100 hover:text-primary group-hover/shift:text-slate-400 cursor-pointer"
+                          className="rounded p-0.5 text-muted-foreground/30 transition-colors hover:bg-secondary hover:text-primary group-hover/shift:text-muted-foreground cursor-pointer"
                           aria-label="Sửa ca học"
                         >
                           <Pencil className="size-3.5" />
@@ -292,7 +292,7 @@ export function ScheduleClient({
                           type="button"
                           onClick={() => setDeletingShift(shift)}
                           disabled={isPending}
-                          className="rounded p-0.5 text-slate-300 transition-colors hover:bg-rose-50 hover:text-rose-500 group-hover/shift:text-slate-400 cursor-pointer disabled:opacity-50"
+                          className="rounded p-0.5 text-muted-foreground/30 transition-colors hover:bg-destructive/10 hover:text-destructive group-hover/shift:text-muted-foreground cursor-pointer disabled:opacity-50"
                           aria-label="Xóa ca học"
                         >
                           <Trash2 className="size-3.5" />
@@ -328,7 +328,7 @@ export function ScheduleClient({
                             onClick={() =>
                               setCreateCtx({ shiftId: shift.id, dateKey: d.key })
                             }
-                            className="flex h-8 items-center justify-center rounded-md border border-dashed border-slate-200 text-slate-300 transition-colors hover:border-primary/40 hover:text-primary cursor-pointer"
+                            className="flex h-8 items-center justify-center rounded-md border border-dashed border-border text-muted-foreground/40 transition-colors hover:border-primary/40 hover:text-primary cursor-pointer"
                             aria-label="Thêm buổi học"
                           >
                             <Plus className="size-4" />
@@ -346,7 +346,7 @@ export function ScheduleClient({
 
       {/* Legend */}
       <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
-        <span className="font-medium text-slate-600">Trạng thái điểm danh:</span>
+        <span className="font-medium text-foreground">Trạng thái điểm danh:</span>
         <span className="inline-flex items-center gap-1">
           <span className="flex size-4 items-center justify-center rounded bg-emerald-500 text-white">
             <Check className="size-3" strokeWidth={3} />
@@ -360,12 +360,12 @@ export function ScheduleClient({
           Vắng
         </span>
         <span className="inline-flex items-center gap-1">
-          <span className="flex size-4 items-center justify-center rounded bg-slate-100 text-slate-400">
+          <span className="flex size-4 items-center justify-center rounded bg-muted text-muted-foreground">
             <Minus className="size-3" strokeWidth={3} />
           </span>
           Chưa điểm
         </span>
-        <span className="text-slate-400">— Bấm trạng thái để thay đổi</span>
+        <span className="text-muted-foreground/60">— Bấm trạng thái để thay đổi</span>
       </div>
 
       {createCtx && (
@@ -441,7 +441,7 @@ function LessonCard({
   disabled: boolean
 }) {
   return (
-    <div className="group rounded-md border border-slate-200 bg-white p-1.5 shadow-sm">
+    <div className="group rounded-md border border-border bg-card p-1.5 shadow-sm">
       <div className="mb-1 flex items-center justify-between gap-1">
         <span className="truncate text-xs font-semibold text-primary">
           {lesson.className}
@@ -450,7 +450,7 @@ function LessonCard({
           type="button"
           onClick={onDelete}
           disabled={disabled}
-          className="hidden shrink-0 text-slate-300 hover:text-rose-500 group-hover:block cursor-pointer"
+          className="hidden shrink-0 text-muted-foreground/30 hover:text-destructive group-hover:block cursor-pointer"
           aria-label="Xóa buổi học"
         >
           <Trash2 className="size-3.5" />
@@ -465,13 +465,13 @@ function LessonCard({
               className="flex items-center justify-between gap-1"
             >
               <span className="group/stu flex min-w-0 items-center gap-1">
-                <span className="truncate text-[11px] text-slate-600">
+                <span className="truncate text-[11px] text-foreground">
                   {s.fullName}
                 </span>
                 <button
                   type="button"
                   onClick={() => onRemoveStudent(lesson.id, s.studentId)}
-                  className="hidden text-slate-300 hover:text-rose-500 group-hover/stu:inline cursor-pointer"
+                  className="hidden text-muted-foreground/30 hover:text-destructive group-hover/stu:inline cursor-pointer"
                   aria-label="Bỏ học sinh"
                 >
                   <X className="size-3" />
@@ -487,7 +487,7 @@ function LessonCard({
         <button
           type="button"
           onClick={onAddStudent}
-          className="mt-0.5 inline-flex items-center gap-1 text-[11px] text-slate-400 hover:text-primary cursor-pointer"
+          className="mt-0.5 inline-flex items-center gap-1 text-[11px] text-muted-foreground hover:text-primary cursor-pointer"
         >
           <UserPlus className="size-3" /> Thêm HS
         </button>

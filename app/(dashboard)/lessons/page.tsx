@@ -89,7 +89,7 @@ export default async function LessonsPage({
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-xl font-bold tracking-tight">
+        <h2 className="text-lg font-semibold tracking-tight text-foreground">
           Nhật ký bài học & nhận xét
         </h2>
         <p className="text-sm text-muted-foreground">
