@@ -1,6 +1,7 @@
 import { db } from "@/lib/db"
 import { MEMBER_STATUS } from "@/lib/constants"
 import { toDateInputValue } from "@/lib/utils"
+import { generateLessonsForWeek } from "@/lib/services/class-schedule-service"
 import { ScheduleClient } from "./_components/schedule-client"
 
 export const dynamic = "force-dynamic"
@@ -30,6 +31,8 @@ export default async function SchedulePage({
   const weekEnd = addDays(weekStart, 7)
   const todayKey = toDateInputValue(new Date())
 
+  await generateLessonsForWeek(weekStart)
+
   const days = Array.from({ length: 7 }).map((_, i) => {
     const date = addDays(weekStart, i)
     const key = toDateInputValue(date)
@@ -41,7 +44,7 @@ export default async function SchedulePage({
     }
   })
 
-  const [shifts, lessons, classes, students] = await Promise.all([
+  const [shifts, lessons, classes, students, classSchedules] = await Promise.all([
     db.shift.findMany({ orderBy: { startTime: "asc" } }),
     db.lesson.findMany({
       where: { date: { gte: weekStart, lt: weekEnd } },
@@ -60,6 +63,7 @@ export default async function SchedulePage({
       include: { class: true },
       orderBy: { fullName: "asc" },
     }),
+    db.classSchedule.findMany(),
   ])
 
   const cellLessons = lessons.map((l) => ({
@@ -96,6 +100,11 @@ export default async function SchedulePage({
         fullName: s.fullName,
         classId: s.classId,
         className: s.class.name,
+      }))}
+      classSchedules={classSchedules.map((cs) => ({
+        classId: cs.classId,
+        shiftId: cs.shiftId,
+        dayOfWeek: cs.dayOfWeek,
       }))}
     />
   )

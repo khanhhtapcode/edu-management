@@ -14,13 +14,14 @@ generator client {
 
 // 1. Quản lý Lớp học chính quy
 model Class {
-  id          String    @id @default(cuid())
-  name        String
-  description String?
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  students    Student[]
-  lessons     Lesson[]
+  id              String           @id @default(cuid())
+  name            String
+  description     String?
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  students        Student[]
+  lessons         Lesson[]
+  classSchedules  ClassSchedule[]
 }
 
 // 2. Quản lý Ca học cố định
@@ -31,7 +32,21 @@ model Shift {
   endTime   String // "10:30"
   createdAt DateTime @default(now())
 
-  lessons  Lesson[]
+  lessons        Lesson[]
+  classSchedules ClassSchedule[]
+}
+
+// 2b. Lịch cố định hàng tuần của một lớp: lớp học vào (thứ, ca) nào lặp lại mỗi tuần
+model ClassSchedule {
+  id        String   @id @default(cuid())
+  classId   String
+  class     Class    @relation(fields: [classId], references: [id], onDelete: Cascade)
+  shiftId   String
+  shift     Shift    @relation(fields: [shiftId], references: [id], onDelete: Cascade)
+  dayOfWeek Int // 1=Thứ 2 ... 7=Chủ nhật
+  createdAt DateTime @default(now())
+
+  @@unique([classId, shiftId, dayOfWeek])
 }
 
 // 3. Quản lý Học sinh

@@ -32,6 +32,16 @@ export const shiftSchema = z.object({
     .regex(/^([01]\d|2[0-3]):([0-5]\d)$/, "Giờ kết thúc sai định dạng HH:mm"),
 })
 
+export const classScheduleSetSchema = z.object({
+  classId: z.string().min(1, "Vui lòng chọn lớp"),
+  items: z.array(
+    z.object({
+      shiftId: z.string().min(1),
+      dayOfWeek: z.number().int().min(1).max(7),
+    })
+  ),
+})
+
 export const lessonSchema = z.object({
   date: z.string().min(1, "Vui lòng chọn ngày"),
   shiftId: z.string().min(1, "Vui lòng chọn ca học"),

@@ -15,6 +15,7 @@ import {
   UserPlus,
   Search,
   Clock,
+  CalendarClock,
 } from "lucide-react"
 import { toast } from "sonner"
 
@@ -24,6 +25,7 @@ import { ATTENDANCE_STATUS, ATTENDANCE_UNMARKED } from "@/lib/constants"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { Checkbox } from "@/components/ui/checkbox"
 import {
   Select,
   SelectContent,
@@ -59,6 +61,9 @@ type Student = {
   classId: string
   className: string
 }
+type ClassSchedule = { classId: string; shiftId: string; dayOfWeek: number }
+
+const WEEKDAY_LABELS = ["Thứ 2", "Thứ 3", "Thứ 4", "Thứ 5", "Thứ 6", "Thứ 7", "Chủ nhật"]
 
 const STATUS_CYCLE = [
   ATTENDANCE_UNMARKED,
@@ -114,6 +119,7 @@ export function ScheduleClient({
   lessons,
   classes,
   students,
+  classSchedules,
 }: {
   weekStartKey: string
   prevWeekKey: string
@@ -124,6 +130,7 @@ export function ScheduleClient({
   lessons: CellLesson[]
   classes: Klass[]
   students: Student[]
+  classSchedules: ClassSchedule[]
 }) {
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
@@ -135,6 +142,7 @@ export function ScheduleClient({
     { mode: "add" } | { mode: "edit"; shift: Shift } | null
   >(null)
   const [deletingShift, setDeletingShift] = useState<Shift | null>(null)
+  const [fixedScheduleOpen, setFixedScheduleOpen] = useState(false)
 
   const cellMap = useMemo(() => {
     const map = new Map<string, CellLesson[]>()
@@ -235,6 +243,9 @@ export function ScheduleClient({
           </Button>
           <Button size="sm" onClick={() => setShiftDialog({ mode: "add" })}>
             <Plus className="size-4" /> Thêm ca học
+          </Button>
+          <Button variant="outline" size="sm" onClick={() => setFixedScheduleOpen(true)}>
+            <CalendarClock className="size-4" /> Lịch cố định
           </Button>
         </div>
       </div>
@@ -380,6 +391,14 @@ export function ScheduleClient({
           lesson={addCtx}
           students={students}
           onClose={() => setAddCtx(null)}
+        />
+      )}
+      {fixedScheduleOpen && (
+        <FixedScheduleDialog
+          classes={classes}
+          shifts={shifts}
+          classSchedules={classSchedules}
+          onClose={() => setFixedScheduleOpen(false)}
         />
       )}
       {shiftDialog && (
@@ -671,6 +690,156 @@ function AddStudentDialog({
               ))
             )}
           </div>
+        </div>
+      </DialogContent>
+    </Dialog>
+  )
+}
+
+function FixedScheduleDialog({
+  classes,
+  shifts,
+  classSchedules,
+  onClose,
+}: {
+  classes: Klass[]
+  shifts: Shift[]
+  classSchedules: ClassSchedule[]
+  onClose: () => void
+}) {
+  const router = useRouter()
+  const [isPending, startTransition] = useTransition()
+  const [classId, setClassId] = useState(classes[0]?.id ?? "")
+  const [checked, setChecked] = useState<Set<string>>(() => {
+    const initial = classSchedules.filter((cs) => cs.classId === classes[0]?.id)
+    return new Set(initial.map((cs) => `${cs.shiftId}|${cs.dayOfWeek}`))
+  })
+
+  function selectClass(id: string) {
+    setClassId(id)
+    const initial = classSchedules.filter((cs) => cs.classId === id)
+    setChecked(new Set(initial.map((cs) => `${cs.shiftId}|${cs.dayOfWeek}`)))
+  }
+
+  function toggle(shiftId: string, dayOfWeek: number) {
+    const key = `${shiftId}|${dayOfWeek}`
+    setChecked((prev) => {
+      const next = new Set(prev)
+      if (next.has(key)) next.delete(key)
+      else next.add(key)
+      return next
+    })
+  }
+
+  function submit() {
+    startTransition(async () => {
+      try {
+        const items = Array.from(checked).map((key) => {
+          const [shiftId, dayOfWeek] = key.split("|")
+          return { shiftId, dayOfWeek: Number(dayOfWeek) }
+        })
+        await apiFetch("/api/class-schedules", {
+          method: "POST",
+          body: { classId, items },
+        })
+        toast.success("Đã lưu lịch cố định")
+        onClose()
+        router.refresh()
+      } catch (error) {
+        toast.error(error instanceof Error ? error.message : "Có lỗi xảy ra")
+      }
+    })
+  }
+
+  return (
+    <Dialog open onOpenChange={(o) => !o && onClose()}>
+      <DialogContent className="max-w-2xl">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            <CalendarClock className="size-5 text-primary" />
+            Lịch cố định hàng tuần
+          </DialogTitle>
+          <DialogDescription>
+            Tick vào các ô (thứ + ca) mà lớp học lặp lại mỗi tuần. Hệ thống sẽ
+            tự tạo buổi học cho các tuần sau, không cần thêm tay.
+          </DialogDescription>
+        </DialogHeader>
+        <div className="space-y-4">
+          <div className="space-y-2">
+            <Label>Lớp</Label>
+            <Select value={classId} onValueChange={selectClass}>
+              <SelectTrigger>
+                <SelectValue placeholder="Chọn lớp" />
+              </SelectTrigger>
+              <SelectContent>
+                {classes.map((c) => (
+                  <SelectItem key={c.id} value={c.id}>
+                    {c.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {shifts.length === 0 ? (
+            <p className="text-sm text-muted-foreground">
+              Chưa có ca học nào để thiết lập lịch cố định.
+            </p>
+          ) : (
+            <div className="overflow-x-auto rounded-md border">
+              <table className="w-full min-w-[600px] border-collapse text-sm">
+                <thead>
+                  <tr className="bg-muted/50">
+                    <th className="border-b border-r p-2 text-left text-xs font-semibold text-slate-500">
+                      CA HỌC
+                    </th>
+                    {WEEKDAY_LABELS.map((label) => (
+                      <th
+                        key={label}
+                        className="border-b p-2 text-center text-xs font-semibold text-slate-500"
+                      >
+                        {label}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {shifts.map((shift) => (
+                    <tr key={shift.id}>
+                      <td className="border-r border-b p-2 text-xs font-medium">
+                        {shift.name}
+                        <div className="text-[11px] text-slate-400">
+                          {shift.startTime}–{shift.endTime}
+                        </div>
+                      </td>
+                      {WEEKDAY_LABELS.map((_, idx) => {
+                        const dayOfWeek = idx + 1
+                        const key = `${shift.id}|${dayOfWeek}`
+                        return (
+                          <td key={key} className="border-b p-2 text-center">
+                            <Checkbox
+                              checked={checked.has(key)}
+                              onCheckedChange={() => toggle(shift.id, dayOfWeek)}
+                            />
+                          </td>
+                        )
+                      })}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+
+          <Button
+            type="button"
+            className="w-full"
+            disabled={isPending || !classId}
+            onClick={submit}
+          >
+            {isPending && <Loader2 className="size-4 animate-spin" />}
+            Lưu lịch cố định
+          </Button>
         </div>
       </DialogContent>
     </Dialog>

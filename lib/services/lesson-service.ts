@@ -51,7 +51,7 @@ async function assertUniqueLessonSlot(
 }
 
 /** Seed điểm danh rỗng cho mọi HS đang hoạt động của lớp trong 1 buổi. */
-async function seedAttendanceForLesson(lessonId: string, classId: string) {
+export async function seedAttendanceForLesson(lessonId: string, classId: string) {
   const students = await db.student.findMany({
     where: { classId, status: MEMBER_STATUS.ACTIVE },
     select: { id: true },
