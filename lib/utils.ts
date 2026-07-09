@@ -32,6 +32,13 @@ export function formatMonth(month: string): string {
   return `Tháng ${m}/${y}`
 }
 
+/** Định dạng dung lượng file: B / KB / MB. */
+export function formatFileSize(bytes: number): string {
+  if (bytes < 1024) return `${bytes} B`
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
+}
+
 /** Parse "YYYY-MM-DD" theo giờ địa phương (tránh lệch ngày với UTC). */
 export function parseLocalDate(dateStr: string): Date {
   const [y, m, d] = dateStr.split("-").map(Number)

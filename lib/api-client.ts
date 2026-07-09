@@ -13,13 +13,23 @@ export async function apiFetch<T = unknown>(
 ): Promise<T> {
   const { method = "GET", body, headers = {} } = options
 
+  // FormData (upload file): để trình duyệt tự set Content-Type + boundary, không stringify.
+  const isFormData =
+    typeof FormData !== "undefined" && body instanceof FormData
+
   const res = await fetch(url, {
     method,
-    headers: {
-      "Content-Type": "application/json",
-      ...headers,
-    },
-    body: body !== undefined ? JSON.stringify(body) : undefined,
+    headers: isFormData
+      ? headers
+      : {
+          "Content-Type": "application/json",
+          ...headers,
+        },
+    body: isFormData
+      ? (body as FormData)
+      : body !== undefined
+        ? JSON.stringify(body)
+        : undefined,
   })
 
   const isJson = res.headers

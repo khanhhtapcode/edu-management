@@ -20,6 +20,15 @@ export async function requireAuth() {
   return session
 }
 
+/** Bắt buộc đăng nhập đúng role. Ném ApiError(403) nếu sai role. */
+export async function requireRole(role: "admin" | "student") {
+  const session = await requireAuth()
+  if (session.user.role !== role) {
+    throw new ApiError(403, "Bạn không có quyền thực hiện thao tác này")
+  }
+  return session
+}
+
 /** Trả response thành công. */
 export function ok<T>(data: T, status = 200) {
   return NextResponse.json(data, { status })

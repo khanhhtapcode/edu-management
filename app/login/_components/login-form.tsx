@@ -21,7 +21,7 @@ export function LoginForm() {
       const result = await login(username, password)
       if (result.success) {
         toast.success("Đăng nhập thành công")
-        router.replace("/")
+        router.replace(result.role === "student" ? "/student" : "/")
         router.refresh()
       } else {
         toast.error(result.message ?? "Đăng nhập thất bại")

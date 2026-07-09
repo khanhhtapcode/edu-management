@@ -24,6 +24,7 @@ export default async function StudentsPage() {
     status: s.status,
     classId: s.classId,
     className: s.class.name,
+    username: s.username,
   }))
 
   const classOptions = classes.map((c) => ({ id: c.id, name: c.name }))

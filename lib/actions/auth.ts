@@ -1,6 +1,6 @@
 "use server"
 
-import { signIn, signOut } from "@/lib/auth"
+import { signIn, signOut, auth } from "@/lib/auth"
 import { AuthError } from "next-auth"
 
 export async function login(username: string, password: string) {
@@ -10,7 +10,9 @@ export async function login(username: string, password: string) {
       password,
       redirect: false,
     })
-    return { success: true as const }
+    const session = await auth()
+    const role = session?.user.role ?? "admin"
+    return { success: true as const, role }
   } catch (error) {
     if (error instanceof AuthError) {
       return { success: false as const, message: "Sai tài khoản hoặc mật khẩu" }

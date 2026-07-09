@@ -22,6 +22,7 @@ model Class {
   students        Student[]
   lessons         Lesson[]
   classSchedules  ClassSchedule[]
+  assignments     Assignment[]
 }
 
 // 2. Quản lý Ca học cố định
@@ -56,6 +57,8 @@ model Student {
   gender      String?
   schoolName  String?
   status      String   @default("ACTIVE") // ACTIVE, RESERVED, INACTIVE
+  username    String?  @unique // tài khoản đăng nhập của HS (null = chưa cấp)
+  password    String? // bcrypt hash
   classId     String
   class       Class    @relation(fields: [classId], references: [id])
   createdAt   DateTime @default(now())
@@ -134,4 +137,28 @@ model MonthlyReport {
   updatedAt DateTime @updatedAt
 
   @@unique([studentId, reportMonth])
+}
+
+// 8. Bài tập về nhà giáo viên gửi cho từng lớp (kèm file đính kèm)
+model Assignment {
+  id          String           @id @default(cuid())
+  classId     String
+  class       Class            @relation(fields: [classId], references: [id], onDelete: Cascade)
+  title       String
+  description String?          @db.Text
+  dueDate     DateTime?
+  createdAt   DateTime         @default(now())
+  files       AssignmentFile[]
+}
+
+// 9. File đính kèm của bài tập — bytes tách riêng để không kéo blob khi liệt kê
+model AssignmentFile {
+  id           String     @id @default(cuid())
+  assignmentId String
+  assignment   Assignment @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
+  fileName     String
+  mimeType     String
+  size         Int
+  data         Bytes // nội dung file — KHÔNG select khi list
+  createdAt    DateTime   @default(now())
 }

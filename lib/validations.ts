@@ -14,6 +14,20 @@ export const studentSchema = z.object({
     MEMBER_STATUS.INACTIVE,
   ]),
   classId: z.string().min(1, "Vui lòng chọn lớp"),
+  // Tài khoản đăng nhập cho HS (tùy chọn — GV cấp). Để trống = không cấp/không đổi.
+  username: z
+    .string()
+    .trim()
+    .min(3, "Tài khoản tối thiểu 3 ký tự")
+    .optional()
+    .nullable()
+    .or(z.literal("")),
+  password: z
+    .string()
+    .min(6, "Mật khẩu tối thiểu 6 ký tự")
+    .optional()
+    .nullable()
+    .or(z.literal("")),
 })
 export type StudentInput = z.infer<typeof studentSchema>
 

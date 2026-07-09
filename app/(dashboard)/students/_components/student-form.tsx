@@ -38,6 +38,7 @@ export type StudentRow = {
   schoolName: string | null
   status: string
   classId: string
+  username: string | null
 }
 
 export function StudentForm({
@@ -66,6 +67,8 @@ export function StudentForm({
       schoolName: initial?.schoolName ?? "",
       status: (initial?.status as StudentValues["status"]) ?? MEMBER_STATUS.ACTIVE,
       classId: initial?.classId ?? "",
+      username: initial?.username ?? "",
+      password: "",
     },
   })
 
@@ -178,6 +181,39 @@ export function StudentForm({
             ))}
           </SelectContent>
         </Select>
+      </div>
+
+      <div className="space-y-3 rounded-lg border bg-muted/30 p-3">
+        <p className="text-xs font-medium text-muted-foreground">
+          Tài khoản đăng nhập cho học sinh (tùy chọn)
+        </p>
+        <div className="space-y-2">
+          <Label htmlFor="username">Tài khoản</Label>
+          <Input
+            id="username"
+            autoComplete="off"
+            {...register("username")}
+            placeholder="vd: hs.minhkhoi"
+          />
+          {errors.username && (
+            <p className="text-xs text-destructive">{errors.username.message}</p>
+          )}
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="password">
+            Mật khẩu {initial && "(để trống nếu không đổi)"}
+          </Label>
+          <Input
+            id="password"
+            type="password"
+            autoComplete="new-password"
+            {...register("password")}
+            placeholder="Tối thiểu 6 ký tự"
+          />
+          {errors.password && (
+            <p className="text-xs text-destructive">{errors.password.message}</p>
+          )}
+        </div>
       </div>
 
       <Button type="submit" className="w-full" disabled={isPending}>
