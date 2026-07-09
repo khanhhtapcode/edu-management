@@ -31,8 +31,6 @@ export default async function LessonsPage({
     className: string
     topic: string
     coreKnowledge: string
-    classWork: string
-    homework: string
   } | null = null
   let roster: {
     studentId: string
@@ -64,8 +62,6 @@ export default async function LessonsPage({
         className: lesson.class.name,
         topic: lesson.topic ?? "",
         coreKnowledge: lesson.coreKnowledge ?? "",
-        classWork: lesson.classWork ?? "",
-        homework: lesson.homework ?? "",
       }
       const cMap = new Map(lesson.comments.map((c) => [c.studentId, c]))
       roster = lesson.attendances

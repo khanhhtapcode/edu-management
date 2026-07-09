@@ -422,10 +422,6 @@ function ReportStatsPanel({ stats }: { stats: ReportStats }) {
       criterion: "Kỹ năng",
       value: Math.round((homeworkRate / 20) * 10) / 10,
     },
-    {
-      criterion: "Bài BTVN",
-      value: Math.round((homeworkRate / 20) * 10) / 10,
-    },
     { criterion: "Thái độ", value: stats.avgFocus },
   ]
 

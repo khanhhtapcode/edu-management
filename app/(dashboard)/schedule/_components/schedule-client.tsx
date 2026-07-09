@@ -134,6 +134,8 @@ export function ScheduleClient({
 }) {
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
+  const [isNavigating, startNav] = useTransition()
+  const [navKey, setNavKey] = useState<string | null>(null)
   const [overrides, setOverrides] = useState<Record<string, string>>({})
 
   const [createCtx, setCreateCtx] = useState<{ shiftId: string; dateKey: string } | null>(null)
@@ -156,7 +158,10 @@ export function ScheduleClient({
   }, [lessons])
 
   function goWeek(key: string) {
-    router.push(`/schedule?week=${key}`)
+    setNavKey(key)
+    startNav(() => {
+      router.push(`/schedule?week=${key}`)
+    })
   }
 
   function cycleStatus(lessonId: string, studentId: string, current: string) {
@@ -228,18 +233,42 @@ export function ScheduleClient({
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          <Button variant="outline" size="sm" onClick={() => goWeek(prevWeekKey)}>
-            <ChevronLeft className="size-4" /> Tuần trước
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => goWeek(prevWeekKey)}
+            disabled={isNavigating}
+          >
+            {isNavigating && navKey === prevWeekKey ? (
+              <Loader2 className="size-4 animate-spin" />
+            ) : (
+              <ChevronLeft className="size-4" />
+            )}{" "}
+            Tuần trước
           </Button>
           <Button
             variant={weekStartKey === thisWeekKey ? "default" : "outline"}
             size="sm"
             onClick={() => goWeek(thisWeekKey)}
+            disabled={isNavigating}
           >
+            {isNavigating && navKey === thisWeekKey && (
+              <Loader2 className="size-4 animate-spin" />
+            )}
             Tuần này
           </Button>
-          <Button variant="outline" size="sm" onClick={() => goWeek(nextWeekKey)}>
-            Tuần sau <ChevronRight className="size-4" />
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => goWeek(nextWeekKey)}
+            disabled={isNavigating}
+          >
+            Tuần sau{" "}
+            {isNavigating && navKey === nextWeekKey ? (
+              <Loader2 className="size-4 animate-spin" />
+            ) : (
+              <ChevronRight className="size-4" />
+            )}
           </Button>
           <Button size="sm" onClick={() => setShiftDialog({ mode: "add" })}>
             <Plus className="size-4" /> Thêm ca học

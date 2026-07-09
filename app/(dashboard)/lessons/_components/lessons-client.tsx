@@ -51,8 +51,6 @@ type Detail = {
   className: string
   topic: string
   coreKnowledge: string
-  classWork: string
-  homework: string
 } | null
 type RosterRow = {
   studentId: string
@@ -144,8 +142,6 @@ function LessonDetailEditor({
   const [content, setContent] = useState({
     topic: detail.topic,
     coreKnowledge: detail.coreKnowledge,
-    classWork: detail.classWork,
-    homework: detail.homework,
   })
   const [comments, setComments] = useState<Record<string, RosterRow>>(() => {
     const map: Record<string, RosterRow> = {}
@@ -245,26 +241,6 @@ function LessonDetailEditor({
                   onChange={(e) =>
                     setContent((c) => ({ ...c, coreKnowledge: e.target.value }))
                   }
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>Bài tập luyện tại lớp</Label>
-                <Textarea
-                  value={content.classWork}
-                  onChange={(e) =>
-                    setContent((c) => ({ ...c, classWork: e.target.value }))
-                  }
-                  rows={3}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>Bài tập về nhà</Label>
-                <Textarea
-                  value={content.homework}
-                  onChange={(e) =>
-                    setContent((c) => ({ ...c, homework: e.target.value }))
-                  }
-                  rows={3}
                 />
               </div>
               <div className="sm:col-span-2 flex justify-end">
