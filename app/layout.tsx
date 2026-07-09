@@ -3,6 +3,7 @@ import { Inter } from "next/font/google"
 import "./globals.css"
 import { Toaster } from "@/components/ui/sonner"
 import { APP_LOGO } from "@/lib/constants"
+import { Providers } from "@/components/providers"
 
 const inter = Inter({
   variable: "--font-inter",
@@ -25,10 +26,12 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="vi" className={`${inter.variable} h-full antialiased`}>
-      <body className="min-h-full">
-        {children}
-        <Toaster />
+    <html lang="vi" className={`${inter.variable} h-full antialiased`} suppressHydrationWarning>
+      <body className="min-h-full bg-background">
+        <Providers>
+          {children}
+          <Toaster />
+        </Providers>
       </body>
     </html>
   )

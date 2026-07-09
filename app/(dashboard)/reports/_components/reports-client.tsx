@@ -650,7 +650,7 @@ function AttendanceBadge({ status }: { status: string }) {
     )
   }
   return (
-    <span className="inline-flex items-center gap-1 rounded bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-500">
+                <span className="inline-flex items-center gap-1 rounded bg-muted px-2 py-0.5 text-xs font-medium text-muted-foreground">
       <Minus className="size-3" strokeWidth={3} /> Chưa điểm
     </span>
   )
