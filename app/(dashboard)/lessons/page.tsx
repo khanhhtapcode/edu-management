@@ -3,14 +3,14 @@ import { LessonsClient } from "./_components/lessons-client"
 
 export const dynamic = "force-dynamic"
 
-type SP = Promise<{ lessonId?: string }>
+type SP = Promise<{ lessonId?: string; classId?: string }>
 
 export default async function LessonsPage({
   searchParams,
 }: {
   searchParams: SP
 }) {
-  const { lessonId } = await searchParams
+  const { lessonId, classId } = await searchParams
 
   const [lessons, shifts, classes] = await Promise.all([
     db.lesson.findMany({
@@ -22,7 +22,11 @@ export default async function LessonsPage({
     db.class.findMany({ orderBy: { name: "asc" } }),
   ])
 
-  const selectedId = lessonId ?? lessons[0]?.id
+  // Lớp đang xem: ưu tiên param classId, sau đó lớp của buổi đầu tiên.
+  const activeClassId = classId ?? lessons[0]?.classId ?? classes[0]?.id ?? ""
+  // Buổi được chọn phải nằm trong lớp đang xem (không rơi sang lớp khác).
+  const selectedId =
+    lessonId ?? lessons.find((l) => l.classId === activeClassId)?.id
 
   let detail: {
     id: string
@@ -106,6 +110,7 @@ export default async function LessonsPage({
         }))}
         shifts={shifts.map((s) => ({ id: s.id, name: s.name }))}
         classes={classes.map((c) => ({ id: c.id, name: c.name }))}
+        activeClassId={activeClassId}
         detail={detail}
         roster={roster}
       />

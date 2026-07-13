@@ -38,13 +38,15 @@ export async function setAttendance(input: unknown) {
   const lesson = await db.lesson.findUnique({ where: { id: lessonId } })
   if (!lesson) throw new ApiError(404, "Không tìm thấy buổi học")
 
-  const existing = await db.attendance.findUnique({
-    where: { lessonId_studentId: { lessonId, studentId } },
-  })
-  const wasPresent = existing?.status === ATTENDANCE_STATUS.PRESENT
   const isPresent = status === ATTENDANCE_STATUS.PRESENT
 
   return db.$transaction(async (tx) => {
+    // Đọc trạng thái cũ trong cùng transaction để tránh đếm sai khi có thao tác đồng thời.
+    const existing = await tx.attendance.findUnique({
+      where: { lessonId_studentId: { lessonId, studentId } },
+    })
+    const wasPresent = existing?.status === ATTENDANCE_STATUS.PRESENT
+
     const attendance = await tx.attendance.upsert({
       where: { lessonId_studentId: { lessonId, studentId } },
       create: { lessonId, studentId, status },

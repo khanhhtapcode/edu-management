@@ -68,31 +68,35 @@ export function LessonsClient({
   lessons,
   shifts,
   classes,
+  activeClassId,
   detail,
   roster,
 }: {
   lessons: LessonItem[]
   shifts: { id: string; name: string }[]
   classes: { id: string; name: string }[]
+  activeClassId: string
   detail: Detail
   roster: RosterRow[]
 }) {
   const router = useRouter()
   const [newOpen, setNewOpen] = useState(false)
   const [classFilter, setClassFilter] = useState(
-    () => detail?.classId ?? classes[0]?.id ?? ""
+    () => detail?.classId ?? activeClassId ?? classes[0]?.id ?? ""
   )
 
+  // Đồng bộ lớp đang chọn với lớp mà server xác định (từ buổi học/param).
   useEffect(() => {
-    if (detail?.classId) setClassFilter(detail.classId)
-  }, [detail?.classId])
+    setClassFilter(detail?.classId ?? activeClassId)
+  }, [detail?.classId, activeClassId])
 
   const classLessons = lessons.filter((l) => l.classId === classFilter)
 
   function selectClass(id: string) {
     setClassFilter(id)
     const first = lessons.find((l) => l.classId === id)
-    router.push(first ? `/lessons?lessonId=${first.id}` : "/lessons")
+    // Lớp có buổi -> mở buổi đầu tiên; lớp rỗng -> giữ nguyên lớp qua param classId.
+    router.push(first ? `/lessons?lessonId=${first.id}` : `/lessons?classId=${id}`)
   }
 
   function selectLesson(id: string) {
