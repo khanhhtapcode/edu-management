@@ -1,6 +1,6 @@
 "use client"
 
-import { useMemo, useState, useTransition, useEffect } from "react"
+import { useMemo, useState, useTransition, useEffect, useRef } from "react"
 import { useRouter } from "next/navigation"
 import {
   Plus,
@@ -8,6 +8,7 @@ import {
   Pencil,
   Trash2,
   Loader2,
+  RotateCcw,
 } from "lucide-react"
 import { toast } from "sonner"
 
@@ -16,6 +17,7 @@ import {
   MEMBER_STATUS,
   STUDENT_STATUS_LABEL,
   GENDER_LABEL,
+  SESSION_NOTIFY_THRESHOLD,
 } from "@/lib/constants"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -67,11 +69,12 @@ export function StudentsClient({
   students,
   classes,
 }: {
-  students: (StudentRow & { className: string })[]
+  students: (StudentRow & { className: string; sessionCount: number })[]
   classes: Option[]
 }) {
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
+  const [resettingId, setResettingId] = useState<string | null>(null)
 
   const [rawSearch, setRawSearch] = useState("")
   const [search, setSearch] = useState("")
@@ -88,6 +91,38 @@ export function StudentsClient({
     const t = setTimeout(() => setSearch(rawSearch), 300)
     return () => clearTimeout(t)
   }, [rawSearch])
+
+  // Thông báo 1 lần khi có học sinh đã đến buổi thứ 10 (hoặc bội số)
+  const notified = useRef(false)
+  useEffect(() => {
+    if (notified.current) return
+    notified.current = true
+    const due = students.filter(
+      (s) => s.sessionCount >= SESSION_NOTIFY_THRESHOLD
+    )
+    for (const s of due) {
+      toast.warning(
+        `${s.fullName} đã học đủ ${s.sessionCount} buổi — nhắc thu học phí đợt mới`
+      )
+    }
+  }, [students])
+
+  function resetSessionCount(s: StudentRow) {
+    setResettingId(s.id)
+    startTransition(async () => {
+      try {
+        await apiFetch(`/api/students/${s.id}/session-count`, {
+          method: "POST",
+        })
+        toast.success(`Đã reset số buổi học của ${s.fullName}`)
+        router.refresh()
+      } catch (error) {
+        toast.error(error instanceof Error ? error.message : "Có lỗi xảy ra")
+      } finally {
+        setResettingId(null)
+      }
+    })
+  }
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase()
@@ -198,13 +233,14 @@ export function StudentsClient({
               <TableHead>Họ và tên</TableHead>
               <TableHead>Lớp</TableHead>
               <TableHead>Trạng thái</TableHead>
+              <TableHead>Số buổi học</TableHead>
               <TableHead className="text-right">Thao tác</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {pageRows.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={4} className="h-32 text-center text-muted-foreground">
+                <TableCell colSpan={5} className="h-32 text-center text-muted-foreground">
                   Không tìm thấy học sinh nào.
                 </TableCell>
               </TableRow>
@@ -223,6 +259,34 @@ export function StudentsClient({
                     <Badge variant={statusVariant(s.status)}>
                       {STUDENT_STATUS_LABEL[s.status]}
                     </Badge>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex items-center gap-2">
+                      <Badge
+                        variant={
+                          s.sessionCount >= SESSION_NOTIFY_THRESHOLD
+                            ? "warning"
+                            : "secondary"
+                        }
+                      >
+                        {s.sessionCount}/{SESSION_NOTIFY_THRESHOLD}
+                      </Badge>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="size-7"
+                        disabled={isPending && resettingId === s.id}
+                        onClick={() => resetSessionCount(s)}
+                        aria-label="Reset số buổi học"
+                        title="Reset số buổi học"
+                      >
+                        {isPending && resettingId === s.id ? (
+                          <Loader2 className="size-3.5 animate-spin" />
+                        ) : (
+                          <RotateCcw className="size-3.5" />
+                        )}
+                      </Button>
+                    </div>
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-1">

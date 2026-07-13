@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useTransition } from "react"
+import { useEffect, useState, useTransition } from "react"
 import { useRouter } from "next/navigation"
 import { Plus, Save, Loader2, Trash2, NotebookPen } from "lucide-react"
 import { toast } from "sonner"
@@ -41,6 +41,7 @@ type LessonItem = {
   id: string
   date: string
   topic: string
+  classId: string
   className: string
   shiftName: string
 }
@@ -48,6 +49,7 @@ type Detail = {
   id: string
   date: string
   shiftName: string
+  classId: string
   className: string
   topic: string
   coreKnowledge: string
@@ -77,6 +79,21 @@ export function LessonsClient({
 }) {
   const router = useRouter()
   const [newOpen, setNewOpen] = useState(false)
+  const [classFilter, setClassFilter] = useState(
+    () => detail?.classId ?? classes[0]?.id ?? ""
+  )
+
+  useEffect(() => {
+    if (detail?.classId) setClassFilter(detail.classId)
+  }, [detail?.classId])
+
+  const classLessons = lessons.filter((l) => l.classId === classFilter)
+
+  function selectClass(id: string) {
+    setClassFilter(id)
+    const first = lessons.find((l) => l.classId === id)
+    router.push(first ? `/lessons?lessonId=${first.id}` : "/lessons")
+  }
 
   function selectLesson(id: string) {
     router.push(`/lessons?lessonId=${id}`)
@@ -85,21 +102,44 @@ export function LessonsClient({
   return (
     <div className="space-y-4">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-        <div className="w-full sm:w-96 space-y-2">
-          <Label>Chọn buổi học</Label>
-          <Select value={detail?.id ?? ""} onValueChange={selectLesson}>
-            <SelectTrigger>
-              <SelectValue placeholder="Chọn buổi học" />
-            </SelectTrigger>
-            <SelectContent>
-              {lessons.map((l) => (
-                <SelectItem key={l.id} value={l.id}>
-                  {formatDate(l.date)} · {l.className}
-                  {l.topic ? ` · ${l.topic}` : ""}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+        <div className="flex w-full flex-col gap-3 sm:flex-row">
+          <div className="w-full sm:w-56 space-y-2">
+            <Label>Lớp</Label>
+            <Select value={classFilter} onValueChange={selectClass}>
+              <SelectTrigger>
+                <SelectValue placeholder="Chọn lớp" />
+              </SelectTrigger>
+              <SelectContent>
+                {classes.map((c) => (
+                  <SelectItem key={c.id} value={c.id}>
+                    {c.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="w-full sm:w-96 space-y-2">
+            <Label>Chọn buổi học</Label>
+            <Select value={detail?.id ?? ""} onValueChange={selectLesson}>
+              <SelectTrigger>
+                <SelectValue placeholder="Chọn buổi học" />
+              </SelectTrigger>
+              <SelectContent>
+                {classLessons.length === 0 ? (
+                  <div className="px-2 py-1.5 text-sm text-muted-foreground">
+                    Lớp này chưa có buổi học nào.
+                  </div>
+                ) : (
+                  classLessons.map((l) => (
+                    <SelectItem key={l.id} value={l.id}>
+                      {formatDate(l.date)} · {l.shiftName}
+                      {l.topic ? ` · ${l.topic}` : ""}
+                    </SelectItem>
+                  ))
+                )}
+              </SelectContent>
+            </Select>
+          </div>
         </div>
         <Button variant="outline" onClick={() => setNewOpen(true)}>
           <Plus className="size-4" /> Buổi học mới

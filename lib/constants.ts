@@ -45,6 +45,9 @@ export const GENDER_LABEL: Record<string, string> = {
 
 export const FOCUS_SCALE = [1, 2, 3, 4, 5] as const
 
+/** Số buổi học để nhắc giáo viên (vd. thu học phí đợt mới) */
+export const SESSION_NOTIFY_THRESHOLD = 10
+
 // Ca học mẫu (gợi ý seed)
 export const DEFAULT_SHIFTS = [
   { name: "Ca 1", startTime: "07:30", endTime: "10:30" },

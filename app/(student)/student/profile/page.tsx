@@ -24,7 +24,11 @@ export default async function StudentProfilePage() {
         }),
         db.studentComment.findMany({
           where: { studentId },
-          include: { lesson: { select: { date: true, topic: true } } },
+          select: {
+            id: true,
+            focusScore: true,
+            lesson: { select: { date: true, topic: true } },
+          },
           orderBy: { lesson: { date: "desc" } },
           take: 30,
         }),
@@ -48,7 +52,7 @@ export default async function StudentProfilePage() {
           Thông tin học tập
         </h2>
         <p className="text-sm text-muted-foreground">
-          Điểm danh, nhận xét và báo cáo tháng của bạn.
+          Điểm danh, điểm tập trung và báo cáo tháng của bạn.
         </p>
       </div>
 
@@ -61,7 +65,7 @@ export default async function StudentProfilePage() {
       <Tabs defaultValue="attendance">
         <TabsList>
           <TabsTrigger value="attendance">Điểm danh</TabsTrigger>
-          <TabsTrigger value="comments">Nhận xét</TabsTrigger>
+          <TabsTrigger value="comments">Điểm tập trung</TabsTrigger>
           <TabsTrigger value="reports">Báo cáo tháng</TabsTrigger>
         </TabsList>
 
@@ -92,29 +96,15 @@ export default async function StudentProfilePage() {
 
         <TabsContent value="comments" className="space-y-2">
           {comments.length === 0 ? (
-            <Empty>Chưa có nhận xét nào.</Empty>
+            <Empty>Chưa có điểm tập trung nào.</Empty>
           ) : (
             comments.map((c) => (
-              <div key={c.id} className="rounded-lg border bg-card p-3 text-sm">
-                <div className="flex items-center justify-between">
-                  <span className="font-medium text-foreground">
-                    {formatDate(c.lesson.date)}
-                  </span>
-                  <Badge variant="secondary">Tập trung {c.focusScore}/5</Badge>
-                </div>
-                {c.lesson.topic && (
-                  <p className="mt-1 text-xs text-muted-foreground">
-                    {c.lesson.topic}
-                  </p>
-                )}
-                <dl className="mt-2 space-y-1 text-sm">
-                  <CommentLine label="Thái độ" value={c.attitude} />
-                  <CommentLine label="Tiếp thu" value={c.reception} />
-                  {c.improvement && (
-                    <CommentLine label="Cần cải thiện" value={c.improvement} />
-                  )}
-                </dl>
-              </div>
+              <Row
+                key={c.id}
+                left={formatDate(c.lesson.date)}
+                middle={c.lesson.topic || "—"}
+                right={<Badge variant="secondary">Tập trung {c.focusScore}/5</Badge>}
+              />
             ))
           )}
         </TabsContent>
@@ -176,17 +166,6 @@ function Row({
         {middle}
       </span>
       {right}
-    </div>
-  )
-}
-
-function CommentLine({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="flex gap-2">
-      <dt className="w-24 shrink-0 text-muted-foreground">{label}</dt>
-      <dd className="min-w-0 flex-1 whitespace-pre-wrap text-foreground">
-        {value || "—"}
-      </dd>
     </div>
   )
 }

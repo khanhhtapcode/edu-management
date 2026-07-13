@@ -25,6 +25,7 @@ export default async function StudentsPage() {
     classId: s.classId,
     className: s.class.name,
     username: s.username,
+    sessionCount: s.sessionCount,
   }))
 
   const classOptions = classes.map((c) => ({ id: c.id, name: c.name }))

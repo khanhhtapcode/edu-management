@@ -61,6 +61,7 @@ model Student {
   password    String? // bcrypt hash
   classId     String
   class       Class    @relation(fields: [classId], references: [id])
+  sessionCount Int     @default(0) // Số buổi đã học kể từ lần reset gần nhất (mốc thông báo: 10)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 

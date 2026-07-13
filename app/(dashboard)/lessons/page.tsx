@@ -28,6 +28,7 @@ export default async function LessonsPage({
     id: string
     date: string
     shiftName: string
+    classId: string
     className: string
     topic: string
     coreKnowledge: string
@@ -59,6 +60,7 @@ export default async function LessonsPage({
         id: lesson.id,
         date: lesson.date.toISOString(),
         shiftName: lesson.shift.name,
+        classId: lesson.classId,
         className: lesson.class.name,
         topic: lesson.topic ?? "",
         coreKnowledge: lesson.coreKnowledge ?? "",
@@ -98,6 +100,7 @@ export default async function LessonsPage({
           id: l.id,
           date: l.date.toISOString(),
           topic: l.topic ?? "",
+          classId: l.classId,
           className: l.class.name,
           shiftName: l.shift.name,
         }))}
