@@ -2,7 +2,7 @@ import type { NextAuthConfig } from "next-auth"
 
 /**
  * Cấu hình NextAuth dùng chung, KHÔNG import Prisma/bcrypt để an toàn ở edge
- * runtime (proxy.ts). Provider có `authorize` truy vấn DB được thêm ở lib/auth.ts
+ * runtime (middleware.ts). Provider có `authorize` truy vấn DB được thêm ở lib/auth.ts
  * (chạy trên Node runtime khi xử lý /api/auth).
  */
 export const authConfig = {
