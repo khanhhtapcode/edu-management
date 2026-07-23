@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState, useTransition } from "react"
+import { useState, useTransition } from "react"
 import { useRouter } from "next/navigation"
 import { Plus, Save, Loader2, Trash2, NotebookPen } from "lucide-react"
 import { toast } from "sonner"
@@ -85,11 +85,6 @@ export function LessonsClient({
     () => detail?.classId ?? activeClassId ?? classes[0]?.id ?? ""
   )
 
-  // Đồng bộ lớp đang chọn với lớp mà server xác định (từ buổi học/param).
-  useEffect(() => {
-    setClassFilter(detail?.classId ?? activeClassId)
-  }, [detail?.classId, activeClassId])
-
   const classLessons = lessons.filter((l) => l.classId === classFilter)
 
   function selectClass(id: string) {
@@ -105,7 +100,7 @@ export function LessonsClient({
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+      <div className="flex flex-col gap-3 rounded-2xl border border-border/70 bg-card/70 p-4 shadow-sm sm:flex-row sm:items-end sm:justify-between">
         <div className="flex w-full flex-col gap-3 sm:flex-row">
           <div className="w-full sm:w-56 space-y-2">
             <Label>Lớp</Label>
@@ -151,7 +146,7 @@ export function LessonsClient({
       </div>
 
       {!detail ? (
-        <div className="rounded-xl border border-dashed bg-card p-10 text-center text-sm text-muted-foreground">
+        <div className="rounded-2xl border border-dashed bg-card/70 p-10 text-center text-sm text-muted-foreground shadow-sm">
           Chưa có buổi học. Tạo buổi học mới để ghi nhật ký.
         </div>
       ) : (

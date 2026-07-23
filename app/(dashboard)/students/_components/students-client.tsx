@@ -167,7 +167,7 @@ export function StudentsClient({
   return (
     <div className="space-y-4">
       {/* Toolbar */}
-      <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+      <div className="flex flex-col gap-3 rounded-2xl border border-border/70 bg-card/70 p-3 shadow-sm md:flex-row md:items-center md:justify-between">
         <div className="flex flex-1 flex-wrap items-center gap-2">
           <div className="relative w-full sm:w-64">
             <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
@@ -226,7 +226,7 @@ export function StudentsClient({
       </div>
 
       {/* Table */}
-      <div className="rounded-xl border bg-card">
+      <div className="overflow-hidden rounded-2xl border border-border/70 bg-card/80 shadow-sm">
         <Table>
           <TableHeader>
             <TableRow>
@@ -246,7 +246,7 @@ export function StudentsClient({
               </TableRow>
             ) : (
               pageRows.map((s) => (
-                <TableRow key={s.id}>
+                <TableRow key={s.id} className="transition-colors hover:bg-secondary/40">
                   <TableCell>
                     <div className="font-medium">{s.fullName}</div>
                     <div className="text-xs text-muted-foreground">
@@ -317,7 +317,7 @@ export function StudentsClient({
       </div>
 
       {/* Pagination */}
-      <div className="flex items-center justify-between text-sm text-muted-foreground">
+      <div className="flex items-center justify-between rounded-xl border border-border/60 bg-card/60 px-4 py-3 text-sm text-muted-foreground">
         <span>
           {filtered.length} học sinh · Trang {current}/{totalPages}
         </span>

@@ -3,6 +3,8 @@ import { MEMBER_STATUS } from "@/lib/constants"
 import { computeMonthlyStats } from "@/lib/services/report-service"
 import { formatDate } from "@/lib/utils"
 import { ReportsClient, type ReportStats } from "./_components/reports-client"
+import { PageHeading } from "@/components/page-heading"
+import { ChartNoAxesCombined } from "lucide-react"
 
 export const dynamic = "force-dynamic"
 
@@ -134,15 +136,12 @@ export default async function ReportsPage({
 
   return (
     <div className="space-y-6">
-      <div>
-        <h2 className="text-lg font-semibold tracking-tight text-foreground">
-          Báo cáo, thống kê & xuất PDF
-        </h2>
-        <p className="text-sm text-muted-foreground">
-          Tổng kết chuyên cần, đánh giá và xuất phiếu báo cáo tháng cho phụ
-          huynh.
-        </p>
-      </div>
+      <PageHeading
+        icon={ChartNoAxesCombined}
+        eyebrow="Phân tích"
+        title="Báo cáo, thống kê & xuất PDF"
+        description="Tổng kết chuyên cần, đánh giá và xuất báo cáo tháng gửi phụ huynh."
+      />
 
       <ReportsClient
         students={students.map((s) => ({

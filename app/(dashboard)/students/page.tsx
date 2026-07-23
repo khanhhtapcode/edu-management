@@ -1,6 +1,8 @@
 import { db } from "@/lib/db"
 import { StudentsClient } from "./_components/students-client"
 import { ClassManager } from "./_components/class-manager"
+import { PageHeading } from "@/components/page-heading"
+import { UsersRound } from "lucide-react"
 
 export const dynamic = "force-dynamic"
 
@@ -32,13 +34,12 @@ export default async function StudentsPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h2 className="text-lg font-semibold tracking-tight text-foreground">Quản lý học sinh</h2>
-          <p className="text-sm text-muted-foreground">
-            Quản lý toàn diện hồ sơ học sinh từ nhập học đến kết thúc khóa.
-          </p>
-        </div>
+      <PageHeading
+        icon={UsersRound}
+        eyebrow="Học viên"
+        title="Quản lý học sinh"
+        description="Quản lý hồ sơ, lớp học và tiến độ từng học viên trong một nơi."
+      >
         <ClassManager
           classes={classes.map((c) => ({
             id: c.id,
@@ -47,10 +48,10 @@ export default async function StudentsPage() {
             studentCount: c._count.students,
           }))}
         />
-      </div>
+      </PageHeading>
 
       {classOptions.length === 0 ? (
-        <div className="rounded-xl border border-dashed bg-card p-10 text-center">
+        <div className="rounded-2xl border border-dashed bg-card/70 p-10 text-center shadow-sm">
           <p className="font-medium">Chưa có lớp học nào</p>
           <p className="mt-1 text-sm text-muted-foreground">
             Hãy tạo lớp học trước khi thêm học sinh (nút “Quản lý lớp” ở trên).

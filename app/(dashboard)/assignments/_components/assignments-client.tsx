@@ -16,6 +16,7 @@ import { toast } from "sonner"
 import { apiFetch } from "@/lib/api-client"
 import { formatDate, formatFileSize } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
+import { PageHeading } from "@/components/page-heading"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
@@ -80,16 +81,12 @@ export function AssignmentsClient({
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-        <div>
-          <h2 className="text-lg font-semibold tracking-tight text-foreground">
-            Bài tập về nhà
-          </h2>
-          <p className="text-sm text-muted-foreground">
-            Gửi file bài tập cho từng lớp. Học sinh đăng nhập để tải về.
-          </p>
-        </div>
-        <div className="flex flex-wrap items-center gap-2">
+      <PageHeading
+        icon={FileText}
+        eyebrow="Học tập"
+        title="Bài tập về nhà"
+        description="Gửi tài liệu, theo dõi hạn nộp và chia sẻ bài tập đến từng lớp."
+      >
           <Select value={classId} onValueChange={setClassId}>
             <SelectTrigger className="w-48">
               <SelectValue placeholder="Chọn lớp" />
@@ -105,15 +102,14 @@ export function AssignmentsClient({
           <Button size="sm" disabled={!classId} onClick={() => setCreateOpen(true)}>
             <Plus className="size-4" /> Tạo bài tập
           </Button>
-        </div>
-      </div>
+      </PageHeading>
 
       {classes.length === 0 ? (
-        <div className="rounded-xl border border-dashed bg-card p-10 text-center text-sm text-muted-foreground">
+        <div className="rounded-2xl border border-dashed bg-card/70 p-10 text-center text-sm text-muted-foreground shadow-sm">
           Chưa có lớp nào. Tạo lớp trước khi gửi bài tập.
         </div>
       ) : classAssignments.length === 0 ? (
-        <div className="rounded-xl border border-dashed bg-card p-10 text-center text-sm text-muted-foreground">
+        <div className="rounded-2xl border border-dashed bg-card/70 p-10 text-center text-sm text-muted-foreground shadow-sm">
           Lớp này chưa có bài tập nào. Bấm “Tạo bài tập” để gửi bài đầu tiên.
         </div>
       ) : (
@@ -121,7 +117,7 @@ export function AssignmentsClient({
           {classAssignments.map((a) => (
             <div
               key={a.id}
-              className="flex flex-col gap-3 rounded-xl border bg-card p-4 shadow-sm"
+              className="group flex flex-col gap-3 rounded-2xl border border-border/70 bg-card/80 p-5 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-primary/25 hover:shadow-md"
             >
               <div className="flex items-start justify-between gap-2">
                 <div className="min-w-0">

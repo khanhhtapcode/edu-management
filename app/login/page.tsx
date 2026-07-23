@@ -1,4 +1,4 @@
-import { BookOpen, CheckCircle2 } from "lucide-react"
+import { BookOpen, CheckCircle2, Sparkles } from "lucide-react"
 import { LoginForm } from "./_components/login-form"
 
 export const metadata = { title: "Đăng nhập — NY MATH CLASS" }
@@ -14,21 +14,29 @@ export default function LoginPage() {
   return (
     <div className="grid min-h-svh lg:grid-cols-2">
       {/* Left: form */}
-      <div className="flex flex-col bg-background">
+      <div className="relative flex flex-col bg-background">
         {/* Top brand */}
         <div className="flex h-16 items-center border-b border-border px-8">
-          <div className="flex items-center gap-2.5">
-            <div className="flex size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground font-bold text-sm">
+          <div className="flex items-center gap-3">
+            <div className="relative flex size-9 items-center justify-center rounded-xl bg-gradient-to-tr from-indigo-600 via-violet-600 to-purple-500 text-sm font-extrabold text-white shadow-md shadow-indigo-500/25 ring-1 ring-white/20">
               NY
+              <Sparkles className="absolute -right-1 -top-1 size-3 text-amber-400" />
             </div>
-            <span className="font-semibold text-foreground tracking-tight">NY Math Class</span>
+            <div className="leading-tight">
+              <p className="font-bold tracking-tight text-foreground">NY Math Class</p>
+              <p className="mt-0.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Edu Management</p>
+            </div>
           </div>
         </div>
 
         {/* Form area */}
         <div className="flex flex-1 items-center justify-center px-8 py-12">
-          <div className="w-full max-w-[360px]">
+          <div className="w-full max-w-[380px] rounded-2xl border border-border/70 bg-card/70 p-6 shadow-xl shadow-primary/5 backdrop-blur-sm sm:p-8">
             <div className="mb-8">
+              <div className="mb-4 inline-flex items-center gap-1.5 rounded-full border border-primary/15 bg-primary/10 px-3 py-1 text-[11px] font-semibold text-primary">
+                <Sparkles className="size-3" />
+                Cổng quản trị lớp học
+              </div>
               <h1 className="text-2xl font-bold tracking-tight text-foreground">
                 Đăng nhập hệ thống
               </h1>
@@ -49,7 +57,7 @@ export default function LoginPage() {
       </div>
 
       {/* Right: hero panel */}
-      <div className="relative hidden lg:flex flex-col overflow-hidden bg-primary">
+      <div className="relative hidden lg:flex flex-col overflow-hidden bg-gradient-to-br from-indigo-700 via-violet-700 to-purple-700">
         {/* Grid pattern */}
         <svg
           className="absolute inset-0 h-full w-full opacity-[0.06]"
@@ -70,7 +78,7 @@ export default function LoginPage() {
         {/* Content */}
         <div className="relative flex flex-1 flex-col justify-between p-12">
           {/* Top icon */}
-          <div className="flex size-12 items-center justify-center rounded-2xl bg-white/15 backdrop-blur-sm">
+          <div className="flex size-12 items-center justify-center rounded-2xl border border-white/15 bg-white/15 backdrop-blur-sm shadow-lg shadow-indigo-950/20">
             <BookOpen className="size-6 text-white" />
           </div>
 

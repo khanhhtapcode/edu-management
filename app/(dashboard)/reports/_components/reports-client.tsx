@@ -147,7 +147,7 @@ export function ReportsClient({
   return (
     <div className="space-y-6">
       {/* Selectors */}
-      <Card>
+      <Card className="border-border/70 bg-card/80 shadow-sm">
         <CardContent className="flex flex-col gap-3 p-4 sm:flex-row sm:items-end">
           <div className="flex-1 space-y-2">
             <Label>Học sinh</Label>
@@ -186,7 +186,7 @@ export function ReportsClient({
       </Card>
 
       {!stats ? (
-        <div className="rounded-xl border border-dashed bg-card p-10 text-center text-sm text-muted-foreground">
+        <div className="rounded-2xl border border-dashed bg-card/70 p-10 text-center text-sm text-muted-foreground shadow-sm">
           Chọn học sinh để xem thống kê và tạo phiếu báo cáo tháng.
         </div>
       ) : (
@@ -197,8 +197,8 @@ export function ReportsClient({
       )}
 
       {/* Lịch sử báo cáo */}
-      <Card>
-        <CardHeader>
+      <Card className="overflow-hidden border-border/70 bg-card/80 shadow-sm">
+        <CardHeader className="border-b border-border/50 pb-4">
           <CardTitle className="flex items-center gap-2 text-base">
             <CalendarRange className="size-5 text-primary" />
             Nhật ký báo cáo đã lưu

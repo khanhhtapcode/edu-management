@@ -140,11 +140,18 @@
 }
 
 body {
-  background: var(--background);
+  background:
+    radial-gradient(circle at 85% -15%, color-mix(in oklab, var(--primary) 8%, transparent), transparent 30rem),
+    var(--background);
   color: var(--foreground);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+::selection {
+  background: color-mix(in oklab, var(--primary) 22%, transparent);
+  color: var(--foreground);
 }
 
 /* Smooth scrollbar */

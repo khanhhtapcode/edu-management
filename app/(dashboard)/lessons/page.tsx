@@ -1,5 +1,7 @@
 import { db } from "@/lib/db"
 import { LessonsClient } from "./_components/lessons-client"
+import { PageHeading } from "@/components/page-heading"
+import { NotebookPen } from "lucide-react"
 
 export const dynamic = "force-dynamic"
 
@@ -90,16 +92,15 @@ export default async function LessonsPage({
 
   return (
     <div className="space-y-6">
-      <div>
-        <h2 className="text-lg font-semibold tracking-tight text-foreground">
-          Nhật ký bài học & nhận xét
-        </h2>
-        <p className="text-sm text-muted-foreground">
-          Ghi nhận nội dung giảng dạy và đánh giá chi tiết từng học sinh.
-        </p>
-      </div>
+      <PageHeading
+        icon={NotebookPen}
+        eyebrow="Giảng dạy"
+        title="Nhật ký bài học & nhận xét"
+        description="Ghi lại nội dung giảng dạy và theo dõi tiến bộ của từng học sinh."
+      />
 
       <LessonsClient
+        key={detail?.id ?? activeClassId}
         lessons={lessons.map((l) => ({
           id: l.id,
           date: l.date.toISOString(),

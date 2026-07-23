@@ -23,6 +23,7 @@ import { apiFetch } from "@/lib/api-client"
 import { cn } from "@/lib/utils"
 import { ATTENDANCE_STATUS, ATTENDANCE_UNMARKED } from "@/lib/constants"
 import { Button } from "@/components/ui/button"
+import { PageHeading } from "@/components/page-heading"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -225,14 +226,12 @@ export function ScheduleClient({
   return (
     <div className="space-y-4">
       {/* Header */}
-      <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-        <div>
-          <h2 className="text-lg font-semibold tracking-tight text-foreground">Thời khóa biểu</h2>
-          <p className="text-sm text-muted-foreground">
-            {formatWeekRange(weekStartKey)}
-          </p>
-        </div>
-        <div className="flex flex-wrap items-center gap-2">
+      <PageHeading
+        icon={CalendarClock}
+        eyebrow="Vận hành lớp học"
+        title="Thời khóa biểu"
+        description={formatWeekRange(weekStartKey)}
+      >
           <Button
             variant="outline"
             size="sm"
@@ -276,16 +275,15 @@ export function ScheduleClient({
           <Button variant="outline" size="sm" onClick={() => setFixedScheduleOpen(true)}>
             <CalendarClock className="size-4" /> Lịch cố định
           </Button>
-        </div>
-      </div>
+      </PageHeading>
 
       {/* Grid */}
       {shifts.length === 0 ? (
-        <div className="rounded-xl border border-dashed bg-card p-10 text-center text-sm text-muted-foreground">
+        <div className="rounded-2xl border border-dashed bg-card/70 p-10 text-center text-sm text-muted-foreground shadow-sm">
           Chưa có ca học nào. Bấm “Thêm ca học” để tạo khung giờ đầu tiên.
         </div>
       ) : (
-        <div className="overflow-x-auto rounded-xl border bg-card">
+        <div className="overflow-x-auto rounded-2xl border border-border/70 bg-card/80 shadow-sm">
           <table className="w-full min-w-[920px] border-collapse">
             <thead>
               <tr className="bg-muted/40">
