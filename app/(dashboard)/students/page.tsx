@@ -51,9 +51,9 @@ export default async function StudentsPage() {
       </PageHeading>
 
       {classOptions.length === 0 ? (
-        <div className="rounded-2xl border border-dashed bg-card/70 p-10 text-center shadow-sm">
-          <p className="font-medium">Chưa có lớp học nào</p>
-          <p className="mt-1 text-sm text-muted-foreground">
+        <div className="rounded-2xl border border-dashed border-border/80 bg-card/90 backdrop-blur-xl p-12 text-center shadow-xs space-y-1">
+          <p className="font-bold text-foreground text-sm">Chưa có lớp học nào trong hệ thống</p>
+          <p className="text-xs text-muted-foreground">
             Hãy tạo lớp học trước khi thêm học sinh (nút “Quản lý lớp” ở trên).
           </p>
         </div>
