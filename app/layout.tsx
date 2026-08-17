@@ -1,5 +1,5 @@
 import type { Metadata } from "next"
-import { Inter } from "next/font/google"
+import { Inter, Plus_Jakarta_Sans } from "next/font/google"
 import "./globals.css"
 import { Toaster } from "@/components/ui/sonner"
 import { APP_LOGO } from "@/lib/constants"
@@ -7,6 +7,11 @@ import { Providers } from "@/components/providers"
 
 const inter = Inter({
   variable: "--font-inter",
+  subsets: ["latin", "vietnamese"],
+})
+
+const jakarta = Plus_Jakarta_Sans({
+  variable: "--font-jakarta",
   subsets: ["latin", "vietnamese"],
 })
 
@@ -26,8 +31,12 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="vi" className={`${inter.variable} h-full antialiased`} suppressHydrationWarning>
-      <body className="min-h-full bg-background">
+    <html
+      lang="vi"
+      className={`${inter.variable} ${jakarta.variable} h-full antialiased`}
+      suppressHydrationWarning
+    >
+      <body className="min-h-full bg-background font-sans">
         <Providers>
           {children}
           <Toaster />
@@ -36,3 +45,4 @@ export default function RootLayout({
     </html>
   )
 }
+

@@ -16,7 +16,7 @@ export function AttendancePie({ data }: { data: PieDatum[] }) {
 
   if (total === 0) {
     return (
-      <div className="flex h-64 items-center justify-center text-sm text-muted-foreground">
+      <div className="flex h-64 items-center justify-center text-sm font-semibold text-muted-foreground">
         Chưa có dữ liệu điểm danh trong khoảng thời gian này.
       </div>
     )
@@ -30,27 +30,32 @@ export function AttendancePie({ data }: { data: PieDatum[] }) {
           dataKey="value"
           nameKey="name"
           cx="50%"
-          cy="50%"
-          innerRadius={55}
-          outerRadius={90}
-          paddingAngle={2}
+          cy="48%"
+          innerRadius={58}
+          outerRadius={88}
+          paddingAngle={3}
+          cornerRadius={4}
         >
           {data.map((d) => (
             <Cell key={d.name} fill={d.color} stroke="transparent" />
           ))}
         </Pie>
         <Tooltip
-          formatter={(value, name) => [
-            `${Number(value)} lượt (${
-              total ? Math.round((Number(value) / total) * 100) : 0
-            }%)`,
-            name as string,
-          ]}
-          contentStyle={{
-            borderRadius: 8,
-            border: "1px solid var(--border)",
-            background: "var(--popover)",
-            fontSize: 12,
+          content={({ active, payload }) => {
+            if (active && payload && payload.length) {
+              const item = payload[0]
+              const val = Number(item.value)
+              const pct = total ? Math.round((val / total) * 100) : 0
+              return (
+                <div className="rounded-xl border border-border bg-card/95 p-2.5 text-xs font-semibold text-card-foreground shadow-lg backdrop-blur-md">
+                  <p className="font-extrabold text-foreground">{item.name}</p>
+                  <p className="text-xs font-bold text-primary mt-0.5">
+                    {val} lượt <span className="font-normal text-muted-foreground">({pct}%)</span>
+                  </p>
+                </div>
+              )
+            }
+            return null
           }}
         />
         <Legend
@@ -58,7 +63,7 @@ export function AttendancePie({ data }: { data: PieDatum[] }) {
           height={36}
           iconType="circle"
           formatter={(value) => (
-            <span style={{ fontSize: 12, color: "var(--muted-foreground)" }}>
+            <span className="text-xs font-bold text-muted-foreground">
               {value}
             </span>
           )}
@@ -67,3 +72,4 @@ export function AttendancePie({ data }: { data: PieDatum[] }) {
     </ResponsiveContainer>
   )
 }
+

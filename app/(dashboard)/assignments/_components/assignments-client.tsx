@@ -80,90 +80,99 @@ export function AssignmentsClient({
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
       <PageHeading
         icon={FileText}
         eyebrow="Học tập"
         title="Bài tập về nhà"
         description="Gửi tài liệu, theo dõi hạn nộp và chia sẻ bài tập đến từng lớp."
       >
-          <Select value={classId} onValueChange={setClassId}>
-            <SelectTrigger className="w-48">
-              <SelectValue placeholder="Chọn lớp" />
-            </SelectTrigger>
-            <SelectContent>
-              {classes.map((c) => (
-                <SelectItem key={c.id} value={c.id}>
-                  {c.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <Button size="sm" disabled={!classId} onClick={() => setCreateOpen(true)}>
-            <Plus className="size-4" /> Tạo bài tập
-          </Button>
+        <Select value={classId} onValueChange={setClassId}>
+          <SelectTrigger className="w-52 rounded-xl border-border/70 bg-card/80 text-xs font-bold h-10">
+            <SelectValue placeholder="Chọn lớp" />
+          </SelectTrigger>
+          <SelectContent className="rounded-xl">
+            {classes.map((c) => (
+              <SelectItem key={c.id} value={c.id}>
+                {c.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <Button
+          disabled={!classId}
+          onClick={() => setCreateOpen(true)}
+          className="rounded-xl font-bold text-xs h-10 gap-1.5 shadow-md shadow-indigo-500/20 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 border-none transition-all cursor-pointer"
+        >
+          <Plus className="size-4" /> Tạo bài tập
+        </Button>
       </PageHeading>
 
       {classes.length === 0 ? (
-        <div className="rounded-2xl border border-dashed bg-card/70 p-10 text-center text-sm text-muted-foreground shadow-sm">
-          Chưa có lớp nào. Tạo lớp trước khi gửi bài tập.
+        <div className="rounded-2xl border border-dashed border-border/80 bg-card/90 backdrop-blur-xl p-12 text-center text-sm font-semibold text-muted-foreground shadow-xs">
+          Chưa có lớp nào trong hệ thống. Vui lòng tạo lớp trước khi gửi bài tập.
         </div>
       ) : classAssignments.length === 0 ? (
-        <div className="rounded-2xl border border-dashed bg-card/70 p-10 text-center text-sm text-muted-foreground shadow-sm">
-          Lớp này chưa có bài tập nào. Bấm “Tạo bài tập” để gửi bài đầu tiên.
+        <div className="rounded-2xl border border-dashed border-border/80 bg-card/90 backdrop-blur-xl p-12 text-center text-sm font-semibold text-muted-foreground shadow-xs">
+          Lớp này chưa có bài tập nào. Bấm “Tạo bài tập” để gửi tài liệu bài tập đầu tiên.
         </div>
       ) : (
-        <div className="grid gap-3 sm:grid-cols-2">
+        <div className="grid gap-4 sm:grid-cols-2">
           {classAssignments.map((a) => (
             <div
               key={a.id}
-              className="group flex flex-col gap-3 rounded-2xl border border-border/70 bg-card/80 p-5 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-primary/25 hover:shadow-md"
+              className="flex flex-col justify-between gap-3.5 rounded-2xl border border-border/70 bg-card/90 backdrop-blur-xl p-5 shadow-xs hover:shadow-md hover:border-primary/30 transition-all duration-200"
             >
-              <div className="flex items-start justify-between gap-2">
-                <div className="min-w-0">
-                  <h3 className="truncate font-semibold text-foreground">
-                    {a.title}
-                  </h3>
-                  <p className="mt-0.5 text-xs text-muted-foreground">
-                    Gửi ngày {formatDate(a.createdAt)}
-                    {a.dueDate && (
-                      <span className="ml-2 inline-flex items-center gap-1 text-amber-600">
-                        <CalendarClock className="size-3" /> Hạn {formatDate(a.dueDate)}
-                      </span>
-                    )}
-                  </p>
+              <div>
+                <div className="flex items-start justify-between gap-2">
+                  <div className="min-w-0">
+                    <h3 className="truncate font-extrabold text-base text-foreground tracking-tight">
+                      {a.title}
+                    </h3>
+                    <p className="mt-1 text-xs font-semibold text-muted-foreground flex items-center gap-2">
+                      <span>Gửi ngày {formatDate(a.createdAt)}</span>
+                      {a.dueDate && (
+                        <>
+                          <span>&middot;</span>
+                          <span className="inline-flex items-center gap-1 font-bold text-amber-600 dark:text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded-md border border-amber-500/20">
+                            <CalendarClock className="size-3" /> Hạn nộp {formatDate(a.dueDate)}
+                          </span>
+                        </>
+                      )}
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setDeleting(a)}
+                    disabled={isPending}
+                    className="shrink-0 rounded-lg p-1.5 text-muted-foreground/40 transition-colors hover:bg-destructive/10 hover:text-destructive cursor-pointer disabled:opacity-50"
+                    aria-label="Xóa bài tập"
+                  >
+                    <Trash2 className="size-4" />
+                  </button>
                 </div>
-                <button
-                  type="button"
-                  onClick={() => setDeleting(a)}
-                  disabled={isPending}
-                  className="shrink-0 rounded p-1 text-muted-foreground transition-colors hover:bg-rose-50 hover:text-rose-500 disabled:opacity-50"
-                  aria-label="Xóa bài tập"
-                >
-                  <Trash2 className="size-4" />
-                </button>
+
+                {a.description && (
+                  <p className="mt-3 whitespace-pre-wrap text-xs font-medium text-muted-foreground leading-relaxed">
+                    {a.description}
+                  </p>
+                )}
               </div>
 
-              {a.description && (
-                <p className="whitespace-pre-wrap text-sm text-muted-foreground">
-                  {a.description}
-                </p>
-              )}
-
-              <div className="space-y-1">
+              <div className="space-y-1.5 pt-2 border-t border-border/50">
                 {a.files.map((f) => (
                   <a
                     key={f.id}
                     href={`/api/assignments/files/${f.id}`}
-                    className="flex items-center justify-between gap-2 rounded-md border bg-background px-3 py-2 text-sm transition-colors hover:bg-accent"
+                    className="group flex items-center justify-between gap-2 rounded-xl border border-border/60 bg-background/50 px-3.5 py-2.5 text-xs font-semibold transition-all hover:bg-secondary/80 hover:border-primary/30"
                   >
-                    <span className="flex min-w-0 items-center gap-2">
-                      <FileText className="size-4 shrink-0 text-primary" />
-                      <span className="truncate">{f.fileName}</span>
+                    <span className="flex min-w-0 items-center gap-2.5">
+                      <FileText className="size-4 shrink-0 text-primary transition-transform group-hover:scale-110" />
+                      <span className="truncate text-foreground font-bold">{f.fileName}</span>
                     </span>
-                    <span className="flex shrink-0 items-center gap-2 text-xs text-muted-foreground">
+                    <span className="flex shrink-0 items-center gap-2 text-[11px] font-bold text-muted-foreground group-hover:text-primary">
                       {formatFileSize(f.size)}
-                      <Download className="size-4" />
+                      <Download className="size-3.5" />
                     </span>
                   </a>
                 ))}
@@ -182,20 +191,21 @@ export function AssignmentsClient({
       )}
 
       <Dialog open={!!deleting} onOpenChange={(o) => !o && setDeleting(null)}>
-        <DialogContent>
+        <DialogContent className="rounded-2xl border border-border bg-card/95 backdrop-blur-xl">
           <DialogHeader>
-            <DialogTitle>Xác nhận xóa bài tập</DialogTitle>
-            <DialogDescription>
-              Bài tập <strong>{deleting?.title}</strong> và các file đính kèm sẽ
-              bị xóa vĩnh viễn.
+            <DialogTitle className="text-lg font-extrabold text-destructive">Xác nhận xóa bài tập</DialogTitle>
+            <DialogDescription className="text-xs font-medium leading-relaxed">
+              Bài tập <strong className="text-foreground">{deleting?.title}</strong> và các file đính kèm sẽ
+              bị xóa vĩnh viễn khỏi hệ thống.
             </DialogDescription>
           </DialogHeader>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setDeleting(null)}>
+          <DialogFooter className="gap-2 sm:gap-0">
+            <Button variant="outline" className="rounded-xl font-semibold cursor-pointer" onClick={() => setDeleting(null)}>
               Hủy
             </Button>
             <Button
               variant="destructive"
+              className="rounded-xl font-bold cursor-pointer gap-2"
               disabled={isPending}
               onClick={() => deleting && deleteAssignment(deleting.id)}
             >
@@ -253,57 +263,67 @@ function CreateAssignmentDialog({
 
   return (
     <Dialog open onOpenChange={(o) => !o && onClose()}>
-      <DialogContent>
+      <DialogContent className="rounded-2xl border border-border bg-card/95 backdrop-blur-xl">
         <DialogHeader>
-          <DialogTitle>Tạo bài tập · {className}</DialogTitle>
-          <DialogDescription>
+          <DialogTitle className="text-lg font-extrabold">Tạo bài tập &middot; {className}</DialogTitle>
+          <DialogDescription className="text-xs font-semibold">
             File đính kèm sẽ được gửi tới toàn bộ học sinh của lớp để tải về.
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={submit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="atitle">Tiêu đề</Label>
+            <Label htmlFor="atitle" className="text-xs font-bold text-foreground">Tiêu đề bài tập</Label>
             <Input
               id="atitle"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder="Ví dụ: Bài tập Hàm số bậc hai"
+              placeholder="Ví dụ: Bài tập Hàm số bậc hai và Ứng dụng"
+              className="rounded-xl border-border/80 bg-background/50 text-xs font-semibold h-10"
+              required
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="adesc">Mô tả (tùy chọn)</Label>
+            <Label htmlFor="adesc" className="text-xs font-bold text-foreground">Mô tả / Hướng dẫn (tùy chọn)</Label>
             <Textarea
               id="adesc"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="Hướng dẫn làm bài, ghi chú..."
+              placeholder="Hướng dẫn làm bài, ghi chú nộp bài..."
+              className="rounded-xl border-border/80 bg-background/50 text-xs font-medium"
               rows={3}
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="adue">Hạn nộp (tùy chọn)</Label>
+            <Label htmlFor="adue" className="text-xs font-bold text-foreground">Hạn nộp bài (tùy chọn)</Label>
             <Input
               id="adue"
               type="date"
               value={dueDate}
               onChange={(e) => setDueDate(e.target.value)}
+              className="rounded-xl border-border/80 bg-background/50 text-xs font-semibold h-10"
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="afiles">
-              <span className="inline-flex items-center gap-1">
-                <Paperclip className="size-4" /> File đính kèm
+            <Label htmlFor="afiles" className="text-xs font-bold text-foreground">
+              <span className="inline-flex items-center gap-1.5">
+                <Paperclip className="size-4 text-primary" /> File đính kèm (PDF, DOCX, Hình ảnh...)
               </span>
             </Label>
-            <Input id="afiles" ref={fileRef} type="file" multiple />
+            <Input
+              id="afiles"
+              ref={fileRef}
+              type="file"
+              multiple
+              className="rounded-xl border-border/80 bg-background/50 text-xs font-semibold h-10 file:mr-3 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-primary/10 file:text-primary cursor-pointer"
+            />
           </div>
           <Button
             type="submit"
-            className="w-full"
+            className="w-full h-10.5 rounded-xl font-bold gap-2 text-xs shadow-md shadow-indigo-500/25 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 border-none transition-all cursor-pointer"
             disabled={isPending || !title.trim()}
           >
             {isPending && <Loader2 className="size-4 animate-spin" />}
-            Gửi bài tập
+            Gửi bài tập cho lớp
           </Button>
         </form>
       </DialogContent>

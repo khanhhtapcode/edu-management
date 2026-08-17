@@ -147,33 +147,33 @@ export function ReportsClient({
   return (
     <div className="space-y-6">
       {/* Selectors */}
-      <Card className="border-border/70 bg-card/80 shadow-sm">
-        <CardContent className="flex flex-col gap-3 p-4 sm:flex-row sm:items-end">
-          <div className="flex-1 space-y-2">
-            <Label>Học sinh</Label>
+      <Card className="rounded-2xl border border-border/70 bg-card/90 backdrop-blur-xl shadow-xs overflow-hidden">
+        <CardContent className="flex flex-col gap-3.5 p-5 sm:flex-row sm:items-end">
+          <div className="flex-1 space-y-1.5">
+            <Label className="text-xs font-bold text-foreground">Học sinh</Label>
             <Select
               value={selectedStudentId}
               onValueChange={(v) => navigate({ studentId: v })}
             >
-              <SelectTrigger>
-                <SelectValue placeholder="Chọn học sinh" />
+              <SelectTrigger className="rounded-xl border-border/70 bg-background/50 text-xs font-semibold h-10">
+                <SelectValue placeholder="Chọn học sinh để xem báo cáo" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="rounded-xl">
                 {students.map((s) => (
                   <SelectItem key={s.id} value={s.id}>
-                    {s.name} · {s.className}
+                    {s.name} &middot; {s.className}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
           </div>
-          <div className="w-full space-y-2 sm:w-56">
-            <Label>Tháng tổng kết</Label>
+          <div className="w-full space-y-1.5 sm:w-60">
+            <Label className="text-xs font-bold text-foreground">Tháng tổng kết</Label>
             <Select value={month} onValueChange={(v) => navigate({ month: v })}>
-              <SelectTrigger>
+              <SelectTrigger className="rounded-xl border-border/70 bg-background/50 text-xs font-semibold h-10">
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="rounded-xl">
                 {monthOptions().map((m) => (
                   <SelectItem key={m.value} value={m.value}>
                     {m.label}
@@ -186,8 +186,8 @@ export function ReportsClient({
       </Card>
 
       {!stats ? (
-        <div className="rounded-2xl border border-dashed bg-card/70 p-10 text-center text-sm text-muted-foreground shadow-sm">
-          Chọn học sinh để xem thống kê và tạo phiếu báo cáo tháng.
+        <div className="rounded-2xl border border-dashed border-border/80 bg-card/90 backdrop-blur-xl p-12 text-center text-sm font-semibold text-muted-foreground shadow-xs">
+          Chọn học sinh từ danh sách bên trên để xem thống kê chuyên cần và tạo phiếu báo cáo tháng.
         </div>
       ) : (
         <ReportStatsPanel
@@ -197,88 +197,94 @@ export function ReportsClient({
       )}
 
       {/* Lịch sử báo cáo */}
-      <Card className="overflow-hidden border-border/70 bg-card/80 shadow-sm">
-        <CardHeader className="border-b border-border/50 pb-4">
-          <CardTitle className="flex items-center gap-2 text-base">
+      <Card className="rounded-2xl border border-border/70 bg-card/90 backdrop-blur-xl shadow-xs overflow-hidden">
+        <CardHeader className="border-b border-border/40 pb-4">
+          <CardTitle className="flex items-center gap-2.5 text-base font-extrabold text-foreground">
             <CalendarRange className="size-5 text-primary" />
-            Nhật ký báo cáo đã lưu
+            <span>Nhật ký báo cáo đã lưu</span>
           </CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="pt-4">
           {history.length === 0 ? (
-            <p className="py-6 text-center text-sm text-muted-foreground">
-              Chưa có báo cáo nào được lưu.
+            <p className="py-8 text-center text-xs font-semibold text-muted-foreground">
+              Chưa có báo cáo nào được lưu trong hệ thống.
             </p>
           ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="w-10" />
-                  <TableHead>Học sinh</TableHead>
-                  <TableHead>Lớp</TableHead>
-                  <TableHead>Tháng</TableHead>
-                  <TableHead>Chuyên cần</TableHead>
-                  <TableHead>Ngày tạo</TableHead>
-                  <TableHead className="text-right">Thao tác</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {history.map((h) => {
-                  const isOpen = !!expanded[h.id]
-                  return (
-                    <Fragment key={h.id}>
-                      <TableRow
-                        onClick={() => toggleExpand(h.id)}
-                        className="cursor-pointer"
-                      >
-                        <TableCell className="text-muted-foreground">
-                          {isOpen ? (
-                            <ChevronDown className="size-4" />
-                          ) : (
-                            <ChevronRight className="size-4" />
-                          )}
-                        </TableCell>
-                        <TableCell className="font-medium">
-                          {h.studentName}
-                        </TableCell>
-                        <TableCell>{h.className}</TableCell>
-                        <TableCell>{formatMonth(h.reportMonth)}</TableCell>
-                        <TableCell>
-                          <Badge variant="secondary">
-                            {h.attendanceRate}%
-                          </Badge>
-                        </TableCell>
-                        <TableCell className="text-muted-foreground">
-                          {h.createdAt}
-                        </TableCell>
-                        <TableCell
-                          className="text-right"
-                          onClick={(e) => e.stopPropagation()}
+            <div className="overflow-x-auto rounded-xl border border-border/70">
+              <Table>
+                <TableHeader className="bg-secondary/40">
+                  <TableRow className="border-b border-border/60">
+                    <TableHead className="w-10" />
+                    <TableHead className="font-extrabold text-xs uppercase tracking-wider">Học sinh</TableHead>
+                    <TableHead className="font-extrabold text-xs uppercase tracking-wider">Lớp</TableHead>
+                    <TableHead className="font-extrabold text-xs uppercase tracking-wider">Tháng</TableHead>
+                    <TableHead className="font-extrabold text-xs uppercase tracking-wider">Chuyên cần</TableHead>
+                    <TableHead className="font-extrabold text-xs uppercase tracking-wider">Ngày tạo</TableHead>
+                    <TableHead className="text-right font-extrabold text-xs uppercase tracking-wider">Thao tác</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody className="divide-y divide-border/50">
+                  {history.map((h) => {
+                    const isOpen = !!expanded[h.id]
+                    return (
+                      <Fragment key={h.id}>
+                        <TableRow
+                          onClick={() => toggleExpand(h.id)}
+                          className="cursor-pointer hover:bg-secondary/30 transition-colors"
                         >
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="text-destructive hover:text-destructive"
-                            onClick={() => deleteReport(h.id)}
-                            disabled={isPending}
-                            aria-label="Xóa báo cáo"
+                          <TableCell className="text-muted-foreground">
+                            {isOpen ? (
+                              <ChevronDown className="size-4 text-primary" />
+                            ) : (
+                              <ChevronRight className="size-4" />
+                            )}
+                          </TableCell>
+                          <TableCell className="font-bold text-foreground">
+                            {h.studentName}
+                          </TableCell>
+                          <TableCell>
+                            <Badge variant="outline" className="font-bold text-xs bg-secondary/60 rounded-lg">
+                              {h.className}
+                            </Badge>
+                          </TableCell>
+                          <TableCell className="font-semibold text-xs text-muted-foreground">{formatMonth(h.reportMonth)}</TableCell>
+                          <TableCell>
+                            <Badge className="bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 font-bold text-xs rounded-lg px-2.5 py-0.5">
+                              {h.attendanceRate}%
+                            </Badge>
+                          </TableCell>
+                          <TableCell className="text-xs font-medium text-muted-foreground">
+                            {h.createdAt}
+                          </TableCell>
+                          <TableCell
+                            className="text-right"
+                            onClick={(e) => e.stopPropagation()}
                           >
-                            <Trash2 className="size-4" />
-                          </Button>
-                        </TableCell>
-                      </TableRow>
-                      {isOpen && (
-                        <TableRow className="bg-muted/30 hover:bg-muted/30">
-                          <TableCell colSpan={7} className="p-0">
-                            <LessonHistoryTable lessons={h.lessons} />
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="size-8 rounded-lg text-muted-foreground hover:text-destructive hover:bg-destructive/10 cursor-pointer transition-colors"
+                              onClick={() => deleteReport(h.id)}
+                              disabled={isPending}
+                              aria-label="Xóa báo cáo"
+                            >
+                              <Trash2 className="size-4" />
+                            </Button>
                           </TableCell>
                         </TableRow>
-                      )}
-                    </Fragment>
-                  )
-                })}
-              </TableBody>
-            </Table>
+                        {isOpen && (
+                          <TableRow className="bg-muted/30 hover:bg-muted/30">
+                            <TableCell colSpan={7} className="p-0">
+                              <LessonHistoryTable lessons={h.lessons} />
+                            </TableCell>
+                          </TableRow>
+                        )}
+                      </Fragment>
+                    )
+                  })}
+                </TableBody>
+              </Table>
+            </div>
           )}
         </CardContent>
       </Card>
@@ -427,53 +433,53 @@ function ReportStatsPanel({ stats }: { stats: ReportStats }) {
 
   return (
     <>
-      <div className="grid gap-4 lg:grid-cols-2">
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">Phân bố chuyên cần</CardTitle>
-            <CardDescription>
-              {stats.studentName} · {formatMonth(stats.reportMonth)}
+      <div className="grid gap-6 lg:grid-cols-2">
+        <Card className="rounded-2xl border border-border/70 bg-card/90 backdrop-blur-xl shadow-xs overflow-hidden">
+          <CardHeader className="border-b border-border/40 pb-4">
+            <CardTitle className="text-base font-extrabold text-foreground">Phân bố chuyên cần</CardTitle>
+            <CardDescription className="text-xs font-semibold">
+              {stats.studentName} &middot; {formatMonth(stats.reportMonth)}
             </CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardContent className="pt-4">
             <AttendancePie data={pieData} />
-            <div className="mt-3 grid grid-cols-3 gap-2 text-center text-sm">
-              <div className="rounded-lg bg-muted p-2">
-                <p className="text-lg font-bold">{stats.totalLessons}</p>
-                <p className="text-xs text-muted-foreground">Tổng buổi</p>
+            <div className="mt-4 grid grid-cols-3 gap-2.5 text-center">
+              <div className="rounded-xl bg-secondary/70 border border-border/60 p-2.5">
+                <p className="text-xl font-black text-foreground">{stats.totalLessons}</p>
+                <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mt-0.5">Tổng buổi</p>
               </div>
-              <div className="rounded-lg bg-muted p-2">
-                <p className="text-lg font-bold text-success">
+              <div className="rounded-xl bg-emerald-500/10 border border-emerald-500/20 p-2.5">
+                <p className="text-xl font-black text-emerald-600 dark:text-emerald-400">
                   {stats.attendanceRate}%
                 </p>
-                <p className="text-xs text-muted-foreground">Chuyên cần</p>
+                <p className="text-[10px] font-bold text-emerald-600/80 dark:text-emerald-400/80 uppercase tracking-wider mt-0.5">Chuyên cần</p>
               </div>
-              <div className="rounded-lg bg-muted p-2">
-                <p className="text-lg font-bold">{stats.avgFocus}/5</p>
-                <p className="text-xs text-muted-foreground">Tập trung</p>
+              <div className="rounded-xl bg-indigo-500/10 border border-indigo-500/20 p-2.5">
+                <p className="text-xl font-black text-indigo-600 dark:text-indigo-400">{stats.avgFocus}/5</p>
+                <p className="text-[10px] font-bold text-indigo-600/80 dark:text-indigo-400/80 uppercase tracking-wider mt-0.5">Tập trung</p>
               </div>
             </div>
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">Biểu đồ đánh giá</CardTitle>
-            <CardDescription>Thang điểm 0–5</CardDescription>
+        <Card className="rounded-2xl border border-border/70 bg-card/90 backdrop-blur-xl shadow-xs overflow-hidden">
+          <CardHeader className="border-b border-border/40 pb-4">
+            <CardTitle className="text-base font-extrabold text-foreground">Biểu đồ năng lực học tập</CardTitle>
+            <CardDescription className="text-xs font-semibold">Đánh giá 5 chiều theo thang điểm 0–5</CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardContent className="pt-4">
             <EvaluationRadar data={radarData} />
           </CardContent>
         </Card>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">
-            Chi tiết buổi học trong tháng
+      <Card className="rounded-2xl border border-border/70 bg-card/90 backdrop-blur-xl shadow-xs overflow-hidden">
+        <CardHeader className="border-b border-border/40 pb-4">
+          <CardTitle className="text-base font-extrabold text-foreground">
+            Chi tiết các buổi học trong tháng
           </CardTitle>
-          <CardDescription>
-            Nội dung đã học theo từng buổi của {stats.studentName} ·{" "}
+          <CardDescription className="text-xs font-semibold">
+            Nội dung đã học theo từng buổi của {stats.studentName} &middot;{" "}
             {formatMonth(stats.reportMonth)}
           </CardDescription>
         </CardHeader>
@@ -482,17 +488,17 @@ function ReportStatsPanel({ stats }: { stats: ReportStats }) {
         </CardContent>
       </Card>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">Hoàn thiện phiếu báo cáo</CardTitle>
-          <CardDescription>
-            Nhập tỷ lệ bài tập, nhận xét rồi lưu / xuất file.
+      <Card className="rounded-2xl border border-border/70 bg-card/90 backdrop-blur-xl shadow-xs overflow-hidden">
+        <CardHeader className="border-b border-border/40 pb-4">
+          <CardTitle className="text-base font-extrabold text-foreground">Hoàn thiện phiếu báo cáo tháng</CardTitle>
+          <CardDescription className="text-xs font-semibold">
+            Nhập tỷ lệ bài tập, nhận xét rồi bấm lưu hoặc xuất file gửi phụ huynh.
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-4 pt-5">
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-2">
-              <Label htmlFor="hwrate">Tỷ lệ hoàn thành BTVN (%)</Label>
+              <Label htmlFor="hwrate" className="text-xs font-bold text-foreground">Tỷ lệ hoàn thành BTVN (%)</Label>
               <Input
                 id="hwrate"
                 type="number"
@@ -500,37 +506,45 @@ function ReportStatsPanel({ stats }: { stats: ReportStats }) {
                 max={100}
                 value={homeworkRate}
                 onChange={(e) => setHomeworkRate(Number(e.target.value))}
+                className="rounded-xl border-border/80 bg-background/50 text-xs font-semibold h-10"
               />
             </div>
             <div className="space-y-2">
-              <Label>Logo trung tâm (PDF)</Label>
-              <div className="flex h-14 items-center rounded-lg border bg-muted/40 px-4">
-                <BrandLogo className="h-10" />
+              <Label className="text-xs font-bold text-foreground">Logo trung tâm (PDF Header)</Label>
+              <div className="flex h-10 items-center rounded-xl border border-border/70 bg-background/40 px-4">
+                <BrandLogo className="h-7" />
               </div>
             </div>
           </div>
           <div className="space-y-2">
-            <Label htmlFor="hwcomment">Nhận xét chất lượng bài tập</Label>
+            <Label htmlFor="hwcomment" className="text-xs font-bold text-foreground">Nhận xét chất lượng bài tập</Label>
             <Textarea
               id="hwcomment"
               value={homeworkComment}
               onChange={(e) => setHomeworkComment(e.target.value)}
+              placeholder="Đánh giá mức độ hoàn thành và độ chính xác..."
+              className="rounded-xl border-border/80 bg-background/50 text-xs font-medium"
               rows={2}
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="review">Nhận xét tổng kết của giáo viên</Label>
+            <Label htmlFor="review" className="text-xs font-bold text-foreground">Nhận xét tổng kết của giáo viên</Label>
             <Textarea
               id="review"
               value={teacherReview}
               onChange={(e) => setTeacherReview(e.target.value)}
-              rows={4}
-              placeholder="Lời khuyên, tổng kết cuối tháng..."
+              rows={3}
+              placeholder="Lời khuyên, ưu điểm nổi bật và mục tiêu tháng tiếp theo..."
+              className="rounded-xl border-border/80 bg-background/50 text-xs font-medium"
             />
           </div>
 
-          <div className="flex flex-wrap gap-2">
-            <Button onClick={saveReport} disabled={isPending}>
+          <div className="flex flex-wrap gap-2.5 pt-2">
+            <Button
+              onClick={saveReport}
+              disabled={isPending}
+              className="rounded-xl font-bold text-xs h-10 gap-2 shadow-md shadow-indigo-500/20 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 border-none transition-all cursor-pointer"
+            >
               {isPending ? (
                 <Loader2 className="size-4 animate-spin" />
               ) : (
@@ -542,16 +556,21 @@ function ReportStatsPanel({ stats }: { stats: ReportStats }) {
               variant="outline"
               onClick={exportPdf}
               disabled={generating}
+              className="rounded-xl font-bold text-xs h-10 gap-2 cursor-pointer bg-card/80 border-border/80 hover:bg-secondary"
             >
               {generating ? (
-                <Loader2 className="size-4 animate-spin" />
+                <Loader2 className="size-4 animate-spin text-primary" />
               ) : (
-                <FileDown className="size-4" />
+                <FileDown className="size-4 text-primary" />
               )}
-              Xuất PDF
+              Xuất PDF gửi phụ huynh
             </Button>
-            <Button variant="outline" onClick={exportExcel}>
-              <FileSpreadsheet className="size-4" />
+            <Button
+              variant="outline"
+              onClick={exportExcel}
+              className="rounded-xl font-bold text-xs h-10 gap-2 cursor-pointer bg-card/80 border-border/80 hover:bg-secondary"
+            >
+              <FileSpreadsheet className="size-4 text-emerald-600" />
               Xuất Excel
             </Button>
           </div>
@@ -563,7 +582,6 @@ function ReportStatsPanel({ stats }: { stats: ReportStats }) {
 
 /**
  * Bảng chi tiết các buổi học của học sinh trong tháng báo cáo.
- * Cột: Buổi · Ngày học · Nội dung bài học · Ghi chú · Điểm danh.
  */
 function LessonHistoryTable({
   lessons,
@@ -572,53 +590,50 @@ function LessonHistoryTable({
 }) {
   if (lessons.length === 0) {
     return (
-      <div className="px-6 py-4 text-sm text-muted-foreground">
+      <div className="px-6 py-6 text-center text-xs font-semibold text-muted-foreground">
         Không có buổi học nào của lớp trong tháng này.
       </div>
     )
   }
 
   return (
-    <div className="px-4 py-3">
-      <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-        Chi tiết buổi học
-      </p>
-      <div className="overflow-x-auto rounded-md border bg-background">
-        <table className="w-full border-collapse text-sm">
+    <div className="px-5 py-4">
+      <div className="overflow-x-auto rounded-xl border border-border/70">
+        <table className="w-full border-collapse text-xs">
           <thead>
-            <tr className="border-b bg-muted/40 text-left">
-              <th className="w-14 px-3 py-2 text-center font-semibold">Buổi</th>
-              <th className="w-32 px-3 py-2 font-semibold">Ngày học</th>
-              <th className="px-3 py-2 font-semibold">Nội dung bài học</th>
-              <th className="px-3 py-2 font-semibold">Ghi chú</th>
-              <th className="w-28 px-3 py-2 text-center font-semibold">
+            <tr className="border-b border-border/60 bg-secondary/40 text-left">
+              <th className="w-14 px-3.5 py-2.5 text-center font-extrabold uppercase tracking-wider text-muted-foreground">Buổi</th>
+              <th className="w-32 px-3.5 py-2.5 font-extrabold uppercase tracking-wider text-muted-foreground">Ngày học</th>
+              <th className="px-3.5 py-2.5 font-extrabold uppercase tracking-wider text-muted-foreground">Nội dung bài học</th>
+              <th className="px-3.5 py-2.5 font-extrabold uppercase tracking-wider text-muted-foreground">Kiến thức trọng tâm</th>
+              <th className="w-28 px-3.5 py-2.5 text-center font-extrabold uppercase tracking-wider text-muted-foreground">
                 Điểm danh
               </th>
             </tr>
           </thead>
-          <tbody>
+          <tbody className="divide-y divide-border/50">
             {lessons.map((l, i) => (
               <tr
                 key={`${l.date}-${i}`}
-                className="border-b last:border-b-0 align-top"
+                className="align-top hover:bg-secondary/20 transition-colors"
               >
-                <td className="px-3 py-2 text-center text-muted-foreground">
+                <td className="px-3.5 py-2.5 text-center font-bold text-muted-foreground">
                   {i + 1}
                 </td>
-                <td className="px-3 py-2 whitespace-nowrap">
+                <td className="px-3.5 py-2.5 font-semibold whitespace-nowrap text-foreground">
                   {formatDate(l.date)}
                 </td>
-                <td className="px-3 py-2">
+                <td className="px-3.5 py-2.5 font-bold text-foreground">
                   {l.topic || (
-                    <span className="text-muted-foreground italic">
-                      (chưa nhập)
+                    <span className="text-muted-foreground/60 italic font-normal">
+                      (chưa nhập chủ đề)
                     </span>
                   )}
                 </td>
-                <td className="px-3 py-2 text-muted-foreground">
+                <td className="px-3.5 py-2.5 text-muted-foreground font-medium">
                   {l.coreKnowledge || "—"}
                 </td>
-                <td className="px-3 py-2 text-center">
+                <td className="px-3.5 py-2.5 text-center">
                   <AttendanceBadge status={l.status} />
                 </td>
               </tr>
@@ -633,21 +648,21 @@ function LessonHistoryTable({
 function AttendanceBadge({ status }: { status: string }) {
   if (status === "PRESENT") {
     return (
-      <span className="inline-flex items-center gap-1 rounded bg-emerald-500/15 px-2 py-0.5 text-xs font-medium text-emerald-700">
-        <Check className="size-3" strokeWidth={3} /> Có mặt
-      </span>
+      <Badge className="bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 font-bold text-xs rounded-lg px-2.5 py-0.5">
+        <Check className="size-3 mr-1" strokeWidth={3} /> Có mặt
+      </Badge>
     )
   }
   if (status === "ABSENT") {
     return (
-      <span className="inline-flex items-center gap-1 rounded bg-rose-500/15 px-2 py-0.5 text-xs font-medium text-rose-700">
-        <XIcon className="size-3" strokeWidth={3} /> Vắng
-      </span>
+      <Badge className="bg-rose-500/15 text-rose-600 dark:text-rose-400 border border-rose-500/30 font-bold text-xs rounded-lg px-2.5 py-0.5">
+        <XIcon className="size-3 mr-1" strokeWidth={3} /> Vắng
+      </Badge>
     )
   }
   return (
-                <span className="inline-flex items-center gap-1 rounded bg-muted px-2 py-0.5 text-xs font-medium text-muted-foreground">
-      <Minus className="size-3" strokeWidth={3} /> Chưa điểm
-    </span>
+    <Badge variant="secondary" className="font-semibold text-xs rounded-lg px-2.5 py-0.5">
+      <Minus className="size-3 mr-1" strokeWidth={3} /> Chưa điểm
+    </Badge>
   )
 }

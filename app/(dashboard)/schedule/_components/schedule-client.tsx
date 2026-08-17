@@ -224,7 +224,7 @@ export function ScheduleClient({
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
       {/* Header */}
       <PageHeading
         icon={CalendarClock}
@@ -232,88 +232,110 @@ export function ScheduleClient({
         title="Thời khóa biểu"
         description={formatWeekRange(weekStartKey)}
       >
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => goWeek(prevWeekKey)}
-            disabled={isNavigating}
-          >
-            {isNavigating && navKey === prevWeekKey ? (
-              <Loader2 className="size-4 animate-spin" />
-            ) : (
-              <ChevronLeft className="size-4" />
-            )}{" "}
-            Tuần trước
-          </Button>
-          <Button
-            variant={weekStartKey === thisWeekKey ? "default" : "outline"}
-            size="sm"
-            onClick={() => goWeek(thisWeekKey)}
-            disabled={isNavigating}
-          >
-            {isNavigating && navKey === thisWeekKey && (
-              <Loader2 className="size-4 animate-spin" />
-            )}
-            Tuần này
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => goWeek(nextWeekKey)}
-            disabled={isNavigating}
-          >
-            Tuần sau{" "}
-            {isNavigating && navKey === nextWeekKey ? (
-              <Loader2 className="size-4 animate-spin" />
-            ) : (
-              <ChevronRight className="size-4" />
-            )}
-          </Button>
-          <Button size="sm" onClick={() => setShiftDialog({ mode: "add" })}>
-            <Plus className="size-4" /> Thêm ca học
-          </Button>
-          <Button variant="outline" size="sm" onClick={() => setFixedScheduleOpen(true)}>
-            <CalendarClock className="size-4" /> Lịch cố định
-          </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => goWeek(prevWeekKey)}
+          disabled={isNavigating}
+          className="rounded-xl font-semibold text-xs h-8.5 cursor-pointer bg-card/80 border-border/70"
+        >
+          {isNavigating && navKey === prevWeekKey ? (
+            <Loader2 className="size-3.5 animate-spin" />
+          ) : (
+            <ChevronLeft className="size-3.5" />
+          )}{" "}
+          Tuần trước
+        </Button>
+        <Button
+          variant={weekStartKey === thisWeekKey ? "default" : "outline"}
+          size="sm"
+          onClick={() => goWeek(thisWeekKey)}
+          disabled={isNavigating}
+          className={cn(
+            "rounded-xl font-bold text-xs h-8.5 cursor-pointer transition-all",
+            weekStartKey === thisWeekKey
+              ? "bg-primary text-primary-foreground shadow-xs"
+              : "bg-card/80 border-border/70"
+          )}
+        >
+          {isNavigating && navKey === thisWeekKey && (
+            <Loader2 className="size-3.5 animate-spin" />
+          )}
+          Tuần này
+        </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => goWeek(nextWeekKey)}
+          disabled={isNavigating}
+          className="rounded-xl font-semibold text-xs h-8.5 cursor-pointer bg-card/80 border-border/70"
+        >
+          Tuần sau{" "}
+          {isNavigating && navKey === nextWeekKey ? (
+            <Loader2 className="size-3.5 animate-spin" />
+          ) : (
+            <ChevronRight className="size-3.5" />
+          )}
+        </Button>
+        <Button
+          size="sm"
+          onClick={() => setShiftDialog({ mode: "add" })}
+          className="rounded-xl font-bold text-xs h-8.5 gap-1.5 shadow-md shadow-indigo-500/20 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 border-none transition-all cursor-pointer"
+        >
+          <Plus className="size-3.5" /> Thêm ca học
+        </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => setFixedScheduleOpen(true)}
+          className="rounded-xl font-semibold text-xs h-8.5 gap-1.5 cursor-pointer bg-card/80 border-border/70 hover:bg-secondary"
+        >
+          <CalendarClock className="size-3.5 text-primary" /> Lịch cố định
+        </Button>
       </PageHeading>
 
-      {/* Grid */}
+      {/* Grid Table */}
       {shifts.length === 0 ? (
-        <div className="rounded-2xl border border-dashed bg-card/70 p-10 text-center text-sm text-muted-foreground shadow-sm">
+        <div className="rounded-2xl border border-dashed border-border/80 bg-card/90 backdrop-blur-xl p-12 text-center text-sm font-semibold text-muted-foreground shadow-xs">
           Chưa có ca học nào. Bấm “Thêm ca học” để tạo khung giờ đầu tiên.
         </div>
       ) : (
-        <div className="overflow-x-auto rounded-2xl border border-border/70 bg-card/80 shadow-sm">
+        <div className="overflow-x-auto rounded-2xl border border-border/70 bg-card/90 backdrop-blur-xl shadow-xs">
           <table className="w-full min-w-[920px] border-collapse">
             <thead>
-              <tr className="bg-muted/40">
-                <th className="sticky left-0 z-10 w-28 border-b border-r bg-muted/40 p-2 text-xs font-semibold text-muted-foreground">
+              <tr className="bg-secondary/40 border-b border-border/60">
+                <th className="sticky left-0 z-10 w-32 border-r border-border/60 bg-secondary/60 backdrop-blur-md p-3 text-xs font-extrabold text-muted-foreground tracking-wider uppercase">
                   CA / NGÀY
                 </th>
                 {days.map((d) => (
                   <th
                     key={d.key}
                     className={cn(
-                      "border-b border-r p-2 text-center text-xs font-semibold",
-                      d.isToday ? "bg-primary/10 text-primary" : "text-foreground"
+                      "border-r border-border/60 p-2.5 text-center text-xs font-bold transition-colors",
+                      d.isToday
+                        ? "bg-primary/15 text-primary ring-inset ring-1 ring-primary/30"
+                        : "text-foreground"
                     )}
                   >
-                    <div>{d.label}</div>
-                    <div className="text-[11px] font-normal text-muted-foreground">
+                    <div className="font-extrabold text-sm">{d.label}</div>
+                    <div className={cn(
+                      "text-[11px] font-semibold mt-0.5",
+                      d.isToday ? "text-primary font-bold" : "text-muted-foreground"
+                    )}>
                       {d.dayNum}
                     </div>
                   </th>
                 ))}
               </tr>
             </thead>
-            <tbody>
+            <tbody className="divide-y divide-border/60">
               {shifts.map((shift) => (
-                <tr key={shift.id} className="group/shift align-top">
-                  <td className="sticky left-0 z-10 border-b border-r bg-card p-2">
-                    <div className="flex items-start justify-between gap-1">
+                <tr key={shift.id} className="group/shift align-top hover:bg-secondary/20 transition-colors">
+                  <td className="sticky left-0 z-10 border-r border-border/60 bg-card/95 backdrop-blur-md p-3">
+                    <div className="flex items-start justify-between gap-1.5">
                       <div className="min-w-0">
-                        <div className="text-sm font-semibold">{shift.name}</div>
-                        <div className="mt-1 inline-block rounded bg-primary/10 px-1.5 py-0.5 text-[10px] font-medium text-primary">
+                        <div className="text-xs font-black text-foreground tracking-tight">{shift.name}</div>
+                        <div className="mt-1.5 inline-flex items-center rounded-lg bg-primary/10 px-2 py-0.5 text-[10px] font-extrabold text-primary border border-primary/20">
                           {shift.startTime}–{shift.endTime}
                         </div>
                       </div>
@@ -321,7 +343,7 @@ export function ScheduleClient({
                         <button
                           type="button"
                           onClick={() => setShiftDialog({ mode: "edit", shift })}
-                          className="rounded p-0.5 text-muted-foreground/30 transition-colors hover:bg-secondary hover:text-primary group-hover/shift:text-muted-foreground cursor-pointer"
+                          className="rounded-lg p-1 text-muted-foreground/40 transition-colors hover:bg-secondary hover:text-primary group-hover/shift:text-muted-foreground cursor-pointer"
                           aria-label="Sửa ca học"
                         >
                           <Pencil className="size-3.5" />
@@ -330,7 +352,7 @@ export function ScheduleClient({
                           type="button"
                           onClick={() => setDeletingShift(shift)}
                           disabled={isPending}
-                          className="rounded p-0.5 text-muted-foreground/30 transition-colors hover:bg-destructive/10 hover:text-destructive group-hover/shift:text-muted-foreground cursor-pointer disabled:opacity-50"
+                          className="rounded-lg p-1 text-muted-foreground/40 transition-colors hover:bg-destructive/10 hover:text-destructive group-hover/shift:text-muted-foreground cursor-pointer disabled:opacity-50"
                           aria-label="Xóa ca học"
                         >
                           <Trash2 className="size-3.5" />
@@ -344,11 +366,11 @@ export function ScheduleClient({
                       <td
                         key={d.key}
                         className={cn(
-                          "border-b border-r p-1.5 align-top",
+                          "border-r border-border/60 p-2 align-top",
                           d.isToday && "bg-primary/[0.03]"
                         )}
                       >
-                        <div className="flex min-h-[88px] flex-col gap-1.5">
+                        <div className="flex min-h-[92px] flex-col gap-2">
                           {cell.map((lesson) => (
                             <LessonCard
                               key={lesson.id}
@@ -366,7 +388,7 @@ export function ScheduleClient({
                             onClick={() =>
                               setCreateCtx({ shiftId: shift.id, dateKey: d.key })
                             }
-                            className="flex h-8 items-center justify-center rounded-md border border-dashed border-border text-muted-foreground/40 transition-colors hover:border-primary/40 hover:text-primary cursor-pointer"
+                            className="flex h-8 items-center justify-center rounded-xl border border-dashed border-border/70 text-muted-foreground/50 transition-all hover:border-primary hover:bg-primary/5 hover:text-primary cursor-pointer"
                             aria-label="Thêm buổi học"
                           >
                             <Plus className="size-4" />
@@ -383,27 +405,27 @@ export function ScheduleClient({
       )}
 
       {/* Legend */}
-      <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
-        <span className="font-medium text-foreground">Trạng thái điểm danh:</span>
-        <span className="inline-flex items-center gap-1">
-          <span className="flex size-4 items-center justify-center rounded bg-emerald-500 text-white">
+      <div className="flex flex-wrap items-center gap-4 text-xs font-semibold text-muted-foreground bg-card/60 rounded-xl p-3 border border-border/50">
+        <span className="font-extrabold text-foreground">Trạng thái điểm danh:</span>
+        <span className="inline-flex items-center gap-1.5">
+          <span className="flex size-4.5 items-center justify-center rounded-md bg-emerald-500 text-white shadow-2xs">
             <Check className="size-3" strokeWidth={3} />
           </span>
           Có mặt
         </span>
-        <span className="inline-flex items-center gap-1">
-          <span className="flex size-4 items-center justify-center rounded bg-rose-500 text-white">
+        <span className="inline-flex items-center gap-1.5">
+          <span className="flex size-4.5 items-center justify-center rounded-md bg-rose-500 text-white shadow-2xs">
             <X className="size-3" strokeWidth={3} />
           </span>
           Vắng
         </span>
-        <span className="inline-flex items-center gap-1">
-          <span className="flex size-4 items-center justify-center rounded bg-muted text-muted-foreground">
+        <span className="inline-flex items-center gap-1.5">
+          <span className="flex size-4.5 items-center justify-center rounded-md bg-secondary border border-border text-muted-foreground">
             <Minus className="size-3" strokeWidth={3} />
           </span>
           Chưa điểm
         </span>
-        <span className="text-muted-foreground/60">— Bấm trạng thái để thay đổi</span>
+        <span className="text-muted-foreground/70 font-normal">&middot; Bấm vào icon trạng thái để đổi nhanh</span>
       </div>
 
       {createCtx && (
@@ -441,21 +463,22 @@ export function ScheduleClient({
         open={!!deletingShift}
         onOpenChange={(o) => !o && setDeletingShift(null)}
       >
-        <DialogContent>
+        <DialogContent className="rounded-2xl border border-border bg-card/95 backdrop-blur-xl">
           <DialogHeader>
-            <DialogTitle>Xác nhận xóa ca học</DialogTitle>
-            <DialogDescription>
-              Ca <strong>{deletingShift?.name}</strong> (
+            <DialogTitle className="text-lg font-extrabold text-destructive">Xác nhận xóa ca học</DialogTitle>
+            <DialogDescription className="text-xs font-medium leading-relaxed">
+              Ca <strong className="text-foreground">{deletingShift?.name}</strong> (
               {deletingShift?.startTime}–{deletingShift?.endTime}) sẽ bị xóa
               vĩnh viễn. Chỉ xóa được khi ca chưa có buổi học nào.
             </DialogDescription>
           </DialogHeader>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setDeletingShift(null)}>
+          <DialogFooter className="gap-2 sm:gap-0">
+            <Button variant="outline" className="rounded-xl font-semibold cursor-pointer" onClick={() => setDeletingShift(null)}>
               Hủy
             </Button>
             <Button
               variant="destructive"
+              className="rounded-xl font-bold cursor-pointer gap-2"
               onClick={() => deletingShift && deleteShift(deletingShift.id)}
               disabled={isPending}
             >
@@ -487,37 +510,37 @@ function LessonCard({
   disabled: boolean
 }) {
   return (
-    <div className="group rounded-md border border-border bg-card p-1.5 shadow-sm">
-      <div className="mb-1 flex items-center justify-between gap-1">
-        <span className="truncate text-xs font-semibold text-primary">
+    <div className="group/card rounded-xl border border-border/80 bg-card/95 p-2 shadow-2xs hover:shadow-md transition-all duration-200">
+      <div className="mb-1.5 flex items-center justify-between gap-1">
+        <span className="truncate text-xs font-black text-primary tracking-tight">
           {lesson.className}
         </span>
         <button
           type="button"
           onClick={onDelete}
           disabled={disabled}
-          className="hidden shrink-0 text-muted-foreground/30 hover:text-destructive group-hover:block cursor-pointer"
+          className="hidden shrink-0 text-muted-foreground/40 hover:text-destructive group-hover/card:block cursor-pointer transition-colors"
           aria-label="Xóa buổi học"
         >
           <Trash2 className="size-3.5" />
         </button>
       </div>
-      <div className="space-y-1">
+      <div className="space-y-1.5">
         {lesson.students.map((s) => {
           const status = overrides[`${lesson.id}|${s.studentId}`] ?? s.status
           return (
             <div
               key={s.studentId}
-              className="flex items-center justify-between gap-1"
+              className="flex items-center justify-between gap-1 py-0.5"
             >
               <span className="group/stu flex min-w-0 items-center gap-1">
-                <span className="truncate text-[11px] text-foreground">
+                <span className="truncate text-[11px] font-semibold text-foreground">
                   {s.fullName}
                 </span>
                 <button
                   type="button"
                   onClick={() => onRemoveStudent(lesson.id, s.studentId)}
-                  className="hidden text-muted-foreground/30 hover:text-destructive group-hover/stu:inline cursor-pointer"
+                  className="hidden text-muted-foreground/40 hover:text-destructive group-hover/stu:inline cursor-pointer"
                   aria-label="Bỏ học sinh"
                 >
                   <X className="size-3" />
@@ -533,7 +556,7 @@ function LessonCard({
         <button
           type="button"
           onClick={onAddStudent}
-          className="mt-0.5 inline-flex items-center gap-1 text-[11px] text-muted-foreground hover:text-primary cursor-pointer"
+          className="mt-1 inline-flex items-center gap-1 text-[11px] font-bold text-muted-foreground hover:text-primary transition-colors cursor-pointer"
         >
           <UserPlus className="size-3" /> Thêm HS
         </button>
@@ -580,22 +603,22 @@ function CreateLessonDialog({
 
   return (
     <Dialog open onOpenChange={(o) => !o && onClose()}>
-      <DialogContent>
+      <DialogContent className="rounded-2xl border border-border bg-card/95 backdrop-blur-xl">
         <DialogHeader>
-          <DialogTitle>Thêm buổi học</DialogTitle>
-          <DialogDescription>
+          <DialogTitle className="text-lg font-extrabold">Thêm buổi học</DialogTitle>
+          <DialogDescription className="text-xs font-semibold">
             Chọn lớp cho ô này. Danh sách học sinh của lớp sẽ tự được thêm để
             điểm danh.
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={submit} className="space-y-4">
           <div className="space-y-2">
-            <Label>Lớp</Label>
+            <Label className="text-xs font-bold text-foreground">Lớp</Label>
             <Select value={classId} onValueChange={setClassId}>
-              <SelectTrigger>
+              <SelectTrigger className="rounded-xl border-border/80 bg-background/50 text-xs font-semibold h-10">
                 <SelectValue placeholder="Chọn lớp" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="rounded-xl">
                 {classes.map((c) => (
                   <SelectItem key={c.id} value={c.id}>
                     {c.name}
@@ -605,17 +628,18 @@ function CreateLessonDialog({
             </Select>
           </div>
           <div className="space-y-2">
-            <Label htmlFor="ctopic">Chủ đề (tùy chọn)</Label>
+            <Label htmlFor="ctopic" className="text-xs font-bold text-foreground">Chủ đề (tùy chọn)</Label>
             <Input
               id="ctopic"
               value={topic}
               onChange={(e) => setTopic(e.target.value)}
               placeholder="Ví dụ: Hàm số bậc hai"
+              className="rounded-xl border-border/80 bg-background/50 text-xs font-semibold h-10"
             />
           </div>
           <Button
             type="submit"
-            className="w-full"
+            className="w-full h-10.5 rounded-xl font-bold gap-2 text-xs shadow-md shadow-indigo-500/25 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 border-none transition-all cursor-pointer"
             disabled={isPending || !classId}
           >
             {isPending && <Loader2 className="size-4 animate-spin" />}
@@ -652,7 +676,6 @@ function AddStudentDialog({
           s.className.toLowerCase().includes(q)
       )
       .sort((a, b) => {
-        // ưu tiên cùng lớp với buổi học
         const aSame = a.classId === lesson.classId ? 0 : 1
         const bSame = b.classId === lesson.classId ? 0 : 1
         return aSame - bSame
@@ -677,26 +700,26 @@ function AddStudentDialog({
 
   return (
     <Dialog open onOpenChange={(o) => !o && onClose()}>
-      <DialogContent>
+      <DialogContent className="rounded-2xl border border-border bg-card/95 backdrop-blur-xl">
         <DialogHeader>
-          <DialogTitle>Thêm học sinh vào buổi · {lesson.className}</DialogTitle>
-          <DialogDescription>
+          <DialogTitle className="text-lg font-extrabold">Thêm học sinh vào buổi · {lesson.className}</DialogTitle>
+          <DialogDescription className="text-xs font-semibold">
             Bấm vào học sinh để thêm vào danh sách điểm danh của buổi.
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-3">
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+            <Search className="absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
             <Input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Tìm học sinh..."
-              className="pl-9"
+              className="pl-9.5 rounded-xl border-border/80 bg-background/50 text-xs font-semibold h-10"
             />
           </div>
-          <div className="max-h-72 space-y-1 overflow-y-auto">
+          <div className="max-h-72 space-y-1.5 overflow-y-auto pr-1">
             {candidates.length === 0 ? (
-              <p className="py-6 text-center text-sm text-muted-foreground">
+              <p className="py-8 text-center text-xs font-semibold text-muted-foreground">
                 Không còn học sinh phù hợp.
               </p>
             ) : (
@@ -706,11 +729,11 @@ function AddStudentDialog({
                   type="button"
                   disabled={isPending}
                   onClick={() => add(s.id)}
-                  className="flex w-full items-center justify-between rounded-md border px-3 py-2 text-left text-sm transition-colors hover:bg-accent cursor-pointer disabled:opacity-50"
+                  className="flex w-full items-center justify-between rounded-xl border border-border/70 px-3.5 py-2.5 text-left text-xs font-semibold transition-all hover:bg-secondary/80 hover:border-primary/30 cursor-pointer disabled:opacity-50"
                 >
-                  <span>
+                  <span className="font-bold text-foreground">
                     {s.fullName}{" "}
-                    <span className="text-muted-foreground">· {s.className}</span>
+                    <span className="text-muted-foreground font-normal">· {s.className}</span>
                   </span>
                   <UserPlus className="size-4 text-primary" />
                 </button>
@@ -780,25 +803,25 @@ function FixedScheduleDialog({
 
   return (
     <Dialog open onOpenChange={(o) => !o && onClose()}>
-      <DialogContent className="max-w-2xl">
+      <DialogContent className="max-w-2xl rounded-2xl border border-border bg-card/95 backdrop-blur-xl">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
+          <DialogTitle className="flex items-center gap-2 text-lg font-extrabold">
             <CalendarClock className="size-5 text-primary" />
             Lịch cố định hàng tuần
           </DialogTitle>
-          <DialogDescription>
+          <DialogDescription className="text-xs font-semibold">
             Tick vào các ô (thứ + ca) mà lớp học lặp lại mỗi tuần. Hệ thống sẽ
             tự tạo buổi học cho các tuần sau, không cần thêm tay.
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-4">
           <div className="space-y-2">
-            <Label>Lớp</Label>
+            <Label className="text-xs font-bold text-foreground">Lớp</Label>
             <Select value={classId} onValueChange={selectClass}>
-              <SelectTrigger>
+              <SelectTrigger className="rounded-xl border-border/80 bg-background/50 text-xs font-semibold h-10">
                 <SelectValue placeholder="Chọn lớp" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="rounded-xl">
                 {classes.map((c) => (
                   <SelectItem key={c.id} value={c.id}>
                     {c.name}
@@ -809,33 +832,33 @@ function FixedScheduleDialog({
           </div>
 
           {shifts.length === 0 ? (
-            <p className="text-sm text-muted-foreground">
+            <p className="text-xs font-semibold text-muted-foreground py-4 text-center">
               Chưa có ca học nào để thiết lập lịch cố định.
             </p>
           ) : (
-            <div className="overflow-x-auto rounded-md border">
-              <table className="w-full min-w-[600px] border-collapse text-sm">
+            <div className="overflow-x-auto rounded-xl border border-border/70 bg-card/90">
+              <table className="w-full min-w-[600px] border-collapse text-xs">
                 <thead>
-                  <tr className="bg-muted/50">
-                    <th className="border-b border-r p-2 text-left text-xs font-semibold text-slate-500">
+                  <tr className="bg-secondary/50 border-b border-border/60">
+                    <th className="border-r border-border/60 p-2.5 text-left text-xs font-extrabold text-muted-foreground uppercase tracking-wider">
                       CA HỌC
                     </th>
                     {WEEKDAY_LABELS.map((label) => (
                       <th
                         key={label}
-                        className="border-b p-2 text-center text-xs font-semibold text-slate-500"
+                        className="p-2.5 text-center text-xs font-extrabold text-foreground"
                       >
                         {label}
                       </th>
                     ))}
                   </tr>
                 </thead>
-                <tbody>
+                <tbody className="divide-y divide-border/50">
                   {shifts.map((shift) => (
-                    <tr key={shift.id}>
-                      <td className="border-r border-b p-2 text-xs font-medium">
-                        {shift.name}
-                        <div className="text-[11px] text-slate-400">
+                    <tr key={shift.id} className="hover:bg-secondary/30 transition-colors">
+                      <td className="border-r border-border/60 p-2.5 text-xs font-bold">
+                        <span className="font-extrabold text-foreground">{shift.name}</span>
+                        <div className="text-[10px] font-semibold text-primary mt-0.5">
                           {shift.startTime}–{shift.endTime}
                         </div>
                       </td>
@@ -843,10 +866,11 @@ function FixedScheduleDialog({
                         const dayOfWeek = idx + 1
                         const key = `${shift.id}|${dayOfWeek}`
                         return (
-                          <td key={key} className="border-b p-2 text-center">
+                          <td key={key} className="p-2 text-center">
                             <Checkbox
                               checked={checked.has(key)}
                               onCheckedChange={() => toggle(shift.id, dayOfWeek)}
+                              className="size-4.5 rounded-md"
                             />
                           </td>
                         )
@@ -860,7 +884,7 @@ function FixedScheduleDialog({
 
           <Button
             type="button"
-            className="w-full"
+            className="w-full h-10.5 rounded-xl font-bold gap-2 text-xs shadow-md shadow-indigo-500/25 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 border-none transition-all cursor-pointer"
             disabled={isPending || !classId}
             onClick={submit}
           >
@@ -915,45 +939,52 @@ function ShiftFormDialog({
 
   return (
     <Dialog open onOpenChange={(o) => !o && onClose()}>
-      <DialogContent>
+      <DialogContent className="rounded-2xl border border-border bg-card/95 backdrop-blur-xl">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
+          <DialogTitle className="flex items-center gap-2 text-lg font-extrabold">
             <Clock className="size-5 text-primary" />
             {mode === "edit" ? "Sửa ca học" : "Thêm ca học"}
           </DialogTitle>
-          <DialogDescription>Định dạng giờ HH:mm (vd 07:30).</DialogDescription>
+          <DialogDescription className="text-xs font-semibold">Định dạng giờ HH:mm (ví dụ 07:30).</DialogDescription>
         </DialogHeader>
         <form onSubmit={submit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="sname">Tên ca</Label>
+            <Label htmlFor="sname" className="text-xs font-bold text-foreground">Tên ca</Label>
             <Input
               id="sname"
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="Ca 1"
+              className="rounded-xl border-border/80 bg-background/50 text-xs font-semibold h-10"
             />
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-2">
-              <Label htmlFor="sstart">Giờ bắt đầu</Label>
+              <Label htmlFor="sstart" className="text-xs font-bold text-foreground">Giờ bắt đầu</Label>
               <Input
                 id="sstart"
                 type="time"
                 value={startTime}
                 onChange={(e) => setStartTime(e.target.value)}
+                className="rounded-xl border-border/80 bg-background/50 text-xs font-semibold h-10"
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="send">Giờ kết thúc</Label>
+              <Label htmlFor="send" className="text-xs font-bold text-foreground">Giờ kết thúc</Label>
               <Input
                 id="send"
                 type="time"
                 value={endTime}
                 onChange={(e) => setEndTime(e.target.value)}
+                className="rounded-xl border-border/80 bg-background/50 text-xs font-semibold h-10"
               />
             </div>
           </div>
-          <Button type="submit" className="w-full" disabled={isPending}>
+          <Button
+            type="submit"
+            className="w-full h-10.5 rounded-xl font-bold gap-2 text-xs shadow-md shadow-indigo-500/25 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 border-none transition-all cursor-pointer"
+            disabled={isPending}
+          >
             {isPending && <Loader2 className="size-4 animate-spin" />}
             {mode === "edit" ? "Lưu thay đổi" : "Thêm ca học"}
           </Button>

@@ -99,16 +99,17 @@ export function LessonsClient({
   }
 
   return (
-    <div className="space-y-4">
-      <div className="flex flex-col gap-3 rounded-2xl border border-border/70 bg-card/70 p-4 shadow-sm sm:flex-row sm:items-end sm:justify-between">
+    <div className="space-y-5">
+      {/* Selector & Actions Toolbar */}
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between border-b border-border/60 pb-4">
         <div className="flex w-full flex-col gap-3 sm:flex-row">
-          <div className="w-full sm:w-56 space-y-2">
-            <Label>Lớp</Label>
+          <div className="w-full sm:w-60 space-y-1.5">
+            <Label className="text-xs font-bold text-foreground">Lớp học</Label>
             <Select value={classFilter} onValueChange={selectClass}>
-              <SelectTrigger>
+              <SelectTrigger className="rounded-xl border-border/70 bg-card/80 text-xs font-semibold h-10">
                 <SelectValue placeholder="Chọn lớp" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="rounded-xl">
                 {classes.map((c) => (
                   <SelectItem key={c.id} value={c.id}>
                     {c.name}
@@ -117,15 +118,15 @@ export function LessonsClient({
               </SelectContent>
             </Select>
           </div>
-          <div className="w-full sm:w-96 space-y-2">
-            <Label>Chọn buổi học</Label>
+          <div className="w-full sm:w-96 space-y-1.5">
+            <Label className="text-xs font-bold text-foreground">Chọn buổi học</Label>
             <Select value={detail?.id ?? ""} onValueChange={selectLesson}>
-              <SelectTrigger>
+              <SelectTrigger className="rounded-xl border-border/70 bg-card/80 text-xs font-semibold h-10">
                 <SelectValue placeholder="Chọn buổi học" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="rounded-xl">
                 {classLessons.length === 0 ? (
-                  <div className="px-2 py-1.5 text-sm text-muted-foreground">
+                  <div className="px-2 py-2 text-xs font-medium text-muted-foreground">
                     Lớp này chưa có buổi học nào.
                   </div>
                 ) : (
@@ -140,14 +141,17 @@ export function LessonsClient({
             </Select>
           </div>
         </div>
-        <Button variant="outline" onClick={() => setNewOpen(true)}>
+        <Button
+          onClick={() => setNewOpen(true)}
+          className="rounded-xl font-bold text-xs h-10 gap-1.5 shadow-md shadow-indigo-500/20 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 border-none transition-all cursor-pointer shrink-0"
+        >
           <Plus className="size-4" /> Buổi học mới
         </Button>
       </div>
 
       {!detail ? (
-        <div className="rounded-2xl border border-dashed bg-card/70 p-10 text-center text-sm text-muted-foreground shadow-sm">
-          Chưa có buổi học. Tạo buổi học mới để ghi nhật ký.
+        <div className="rounded-2xl border border-dashed border-border/80 bg-card/90 backdrop-blur-xl p-12 text-center text-sm font-semibold text-muted-foreground shadow-xs">
+          Chưa có buổi học nào được chọn. Bấm “Buổi học mới” để tạo bài học và ghi nhật ký.
         </div>
       ) : (
         <LessonDetailEditor
@@ -248,178 +252,193 @@ function LessonDetailEditor({
   return (
     <>
       {/* Nội dung bài học */}
-      <Card>
-            <CardHeader className="flex-row items-center justify-between space-y-0">
-              <CardTitle className="flex items-center gap-2 text-base">
-                <NotebookPen className="size-5 text-primary" />
-                {detail.className} · {formatDate(detail.date)} · {detail.shiftName}
-              </CardTitle>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="text-destructive hover:text-destructive"
-                onClick={() => setDeleting(true)}
-              >
-                <Trash2 className="size-4" /> Xóa buổi
-              </Button>
-            </CardHeader>
-            <CardContent className="grid gap-4 sm:grid-cols-2">
-              <div className="space-y-2">
-                <Label>Chủ đề bài học</Label>
-                <Input
-                  value={content.topic}
-                  onChange={(e) =>
-                    setContent((c) => ({ ...c, topic: e.target.value }))
-                  }
-                />
+      <Card className="rounded-2xl border border-border/70 bg-card/90 backdrop-blur-xl shadow-xs overflow-hidden">
+        <CardHeader className="flex-row items-center justify-between space-y-0 border-b border-border/40 pb-4">
+          <CardTitle className="flex items-center gap-2.5 text-base font-extrabold text-foreground">
+            <NotebookPen className="size-5 text-primary" />
+            <span>{detail.className} &middot; {formatDate(detail.date)} &middot; {detail.shiftName}</span>
+          </CardTitle>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-xl font-semibold text-xs h-8.5 gap-1.5 cursor-pointer"
+            onClick={() => setDeleting(true)}
+          >
+            <Trash2 className="size-3.5" /> Xóa buổi
+          </Button>
+        </CardHeader>
+        <CardContent className="grid gap-4 sm:grid-cols-2 pt-5">
+          <div className="space-y-2">
+            <Label className="text-xs font-bold text-foreground">Chủ đề bài học</Label>
+            <Input
+              value={content.topic}
+              onChange={(e) =>
+                setContent((c) => ({ ...c, topic: e.target.value }))
+              }
+              placeholder="Nhập chủ đề bài học..."
+              className="rounded-xl border-border/80 bg-background/50 text-xs font-semibold h-10"
+            />
+          </div>
+          <div className="space-y-2">
+            <Label className="text-xs font-bold text-foreground">Kiến thức trọng tâm</Label>
+            <Input
+              value={content.coreKnowledge}
+              onChange={(e) =>
+                setContent((c) => ({ ...c, coreKnowledge: e.target.value }))
+              }
+              placeholder="Nhập kiến thức trọng tâm..."
+              className="rounded-xl border-border/80 bg-background/50 text-xs font-semibold h-10"
+            />
+          </div>
+          <div className="sm:col-span-2 flex justify-end">
+            <Button
+              onClick={saveContent}
+              disabled={isPending}
+              className="rounded-xl font-bold text-xs h-9.5 gap-2 shadow-md shadow-indigo-500/20 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 border-none transition-all cursor-pointer"
+            >
+              {isPending ? (
+                <Loader2 className="size-4 animate-spin" />
+              ) : (
+                <Save className="size-4" />
+              )}
+              Lưu nội dung
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Bảng đánh giá cá nhân */}
+      <Card className="rounded-2xl border border-border/70 bg-card/90 backdrop-blur-xl shadow-xs overflow-hidden">
+        <CardHeader className="border-b border-border/40 pb-4">
+          <CardTitle className="text-base font-extrabold text-foreground">Đánh giá cá nhân từng học sinh</CardTitle>
+        </CardHeader>
+        <CardContent className="pt-4">
+          {roster.length === 0 ? (
+            <p className="py-8 text-center text-xs font-semibold text-muted-foreground">
+              Buổi học chưa có học sinh nào.
+            </p>
+          ) : (
+            <>
+              <div className="overflow-x-auto rounded-xl border border-border/70">
+                <Table>
+                  <TableHeader className="bg-secondary/40">
+                    <TableRow className="border-b border-border/60">
+                      <TableHead className="min-w-44 font-extrabold text-xs uppercase tracking-wider">Học sinh</TableHead>
+                      <TableHead className="w-32 font-extrabold text-xs uppercase tracking-wider">Tập trung</TableHead>
+                      <TableHead className="min-w-44 font-extrabold text-xs uppercase tracking-wider">Thái độ</TableHead>
+                      <TableHead className="min-w-44 font-extrabold text-xs uppercase tracking-wider">Tiếp thu</TableHead>
+                      <TableHead className="min-w-44 font-extrabold text-xs uppercase tracking-wider">Cần cải thiện</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody className="divide-y divide-border/50">
+                    {Object.values(comments).map((c) => (
+                      <TableRow key={c.studentId} className="hover:bg-secondary/30 transition-colors">
+                        <TableCell>
+                          <div className="font-bold text-sm text-foreground">{c.fullName}</div>
+                          <div className="text-xs font-semibold text-muted-foreground mt-0.5">
+                            {c.className}
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <Select
+                            value={String(c.focusScore)}
+                            onValueChange={(v) =>
+                              setComment(c.studentId, "focusScore", Number(v))
+                            }
+                          >
+                            <SelectTrigger className="h-8.5 rounded-xl border-border/70 bg-background/60 text-xs font-bold">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent className="rounded-xl">
+                              {FOCUS_SCALE.map((n) => (
+                                <SelectItem key={n} value={String(n)}>
+                                  {n} / 5
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </TableCell>
+                        <TableCell>
+                          <Textarea
+                            value={c.attitude}
+                            onChange={(e) =>
+                              setComment(c.studentId, "attitude", e.target.value)
+                            }
+                            className="min-h-[64px] resize-y rounded-xl border-border/70 bg-background/50 text-xs font-medium"
+                            placeholder="Ghi nhận thái độ..."
+                            rows={3}
+                          />
+                        </TableCell>
+                        <TableCell>
+                          <Textarea
+                            value={c.reception}
+                            onChange={(e) =>
+                              setComment(
+                                c.studentId,
+                                "reception",
+                                e.target.value
+                              )
+                            }
+                            className="min-h-[64px] resize-y rounded-xl border-border/70 bg-background/50 text-xs font-medium"
+                            placeholder="Khả năng tiếp thu..."
+                            rows={3}
+                          />
+                        </TableCell>
+                        <TableCell>
+                          <Textarea
+                            value={c.improvement}
+                            onChange={(e) =>
+                              setComment(
+                                c.studentId,
+                                "improvement",
+                                e.target.value
+                              )
+                            }
+                            className="min-h-[64px] resize-y rounded-xl border-border/70 bg-background/50 text-xs font-medium"
+                            placeholder="Điểm cần cải thiện..."
+                            rows={3}
+                          />
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
               </div>
-              <div className="space-y-2">
-                <Label>Kiến thức trọng tâm</Label>
-                <Input
-                  value={content.coreKnowledge}
-                  onChange={(e) =>
-                    setContent((c) => ({ ...c, coreKnowledge: e.target.value }))
-                  }
-                />
-              </div>
-              <div className="sm:col-span-2 flex justify-end">
-                <Button onClick={saveContent} disabled={isPending}>
+              <div className="mt-4 flex justify-end">
+                <Button
+                  onClick={saveComments}
+                  disabled={isPending}
+                  className="rounded-xl font-bold text-xs h-9.5 gap-2 shadow-md shadow-indigo-500/20 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 border-none transition-all cursor-pointer"
+                >
                   {isPending ? (
                     <Loader2 className="size-4 animate-spin" />
                   ) : (
                     <Save className="size-4" />
                   )}
-                  Lưu nội dung
+                  Lưu nhận xét
                 </Button>
               </div>
-            </CardContent>
-          </Card>
-
-          {/* Bảng đánh giá cá nhân */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base">Đánh giá cá nhân</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {roster.length === 0 ? (
-                <p className="py-8 text-center text-sm text-muted-foreground">
-                  Buổi học chưa có học sinh nào.
-                </p>
-              ) : (
-                <>
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead className="min-w-40">Học sinh</TableHead>
-                        <TableHead className="w-28">Tập trung</TableHead>
-                        <TableHead className="min-w-44">Thái độ</TableHead>
-                        <TableHead className="min-w-44">Tiếp thu</TableHead>
-                        <TableHead className="min-w-44">Cần cải thiện</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {Object.values(comments).map((c) => (
-                        <TableRow key={c.studentId}>
-                          <TableCell>
-                            <div className="font-medium">{c.fullName}</div>
-                            <div className="text-xs text-muted-foreground">
-                              {c.className}
-                            </div>
-                          </TableCell>
-                          <TableCell>
-                            <Select
-                              value={String(c.focusScore)}
-                              onValueChange={(v) =>
-                                setComment(c.studentId, "focusScore", Number(v))
-                              }
-                            >
-                              <SelectTrigger className="h-8">
-                                <SelectValue />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {FOCUS_SCALE.map((n) => (
-                                  <SelectItem key={n} value={String(n)}>
-                                    {n} / 5
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                          </TableCell>
-                          <TableCell>
-                            <Textarea
-                              value={c.attitude}
-                              onChange={(e) =>
-                                setComment(c.studentId, "attitude", e.target.value)
-                              }
-                              className="min-h-[60px] resize-y text-sm"
-                              placeholder="..."
-                              rows={4}
-                            />
-                          </TableCell>
-                          <TableCell>
-                            <Textarea
-                              value={c.reception}
-                              onChange={(e) =>
-                                setComment(
-                                  c.studentId,
-                                  "reception",
-                                  e.target.value
-                                )
-                              }
-                              className="min-h-[60px] resize-y text-sm"
-                              placeholder="..."
-                              rows={4}
-                            />
-                          </TableCell>
-                          <TableCell>
-                            <Textarea
-                              value={c.improvement}
-                              onChange={(e) =>
-                                setComment(
-                                  c.studentId,
-                                  "improvement",
-                                  e.target.value
-                                )
-                              }
-                              className="min-h-[60px] resize-y text-sm"
-                              placeholder="..."
-                              rows={4}
-                            />
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                  <div className="mt-4 flex justify-end">
-                    <Button onClick={saveComments} disabled={isPending}>
-                      {isPending ? (
-                        <Loader2 className="size-4 animate-spin" />
-                      ) : (
-                        <Save className="size-4" />
-                      )}
-                      Lưu nhận xét
-                    </Button>
-                  </div>
-                </>
-              )}
-            </CardContent>
-          </Card>
+            </>
+          )}
+        </CardContent>
+      </Card>
 
       <Dialog open={deleting} onOpenChange={setDeleting}>
-        <DialogContent>
+        <DialogContent className="rounded-2xl border border-border bg-card/95 backdrop-blur-xl">
           <DialogHeader>
-            <DialogTitle>Xóa buổi học</DialogTitle>
-            <DialogDescription>
-              Toàn bộ điểm danh và nhận xét của buổi học này sẽ bị xóa. Hành
+            <DialogTitle className="text-lg font-extrabold text-destructive">Xác nhận xóa buổi học</DialogTitle>
+            <DialogDescription className="text-xs font-medium leading-relaxed">
+              Toàn bộ điểm danh và nhận xét của buổi học này sẽ bị xóa vĩnh viễn. Hành
               động không thể hoàn tác.
             </DialogDescription>
           </DialogHeader>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setDeleting(false)}>
+          <DialogFooter className="gap-2 sm:gap-0">
+            <Button variant="outline" className="rounded-xl font-semibold cursor-pointer" onClick={() => setDeleting(false)}>
               Hủy
             </Button>
             <Button
               variant="destructive"
+              className="rounded-xl font-bold cursor-pointer gap-2"
               onClick={deleteLesson}
               disabled={isPending}
             >
@@ -473,31 +492,32 @@ function NewLessonDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
+      <DialogContent className="rounded-2xl border border-border bg-card/95 backdrop-blur-xl">
         <DialogHeader>
-          <DialogTitle>Tạo buổi học mới</DialogTitle>
-          <DialogDescription>
+          <DialogTitle className="text-lg font-extrabold">Tạo buổi học mới</DialogTitle>
+          <DialogDescription className="text-xs font-semibold">
             Nhập thông tin cơ bản, có thể bổ sung chi tiết sau khi tạo.
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={submit} className="space-y-4">
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-2">
-              <Label htmlFor="ldate">Ngày học</Label>
+              <Label htmlFor="ldate" className="text-xs font-bold text-foreground">Ngày học</Label>
               <Input
                 id="ldate"
                 type="date"
                 value={date}
                 onChange={(e) => setDate(e.target.value)}
+                className="rounded-xl border-border/80 bg-background/50 text-xs font-semibold h-10"
               />
             </div>
             <div className="space-y-2">
-              <Label>Ca học</Label>
+              <Label className="text-xs font-bold text-foreground">Ca học</Label>
               <Select value={shiftId} onValueChange={setShiftId}>
-                <SelectTrigger>
+                <SelectTrigger className="rounded-xl border-border/80 bg-background/50 text-xs font-semibold h-10">
                   <SelectValue placeholder="Chọn ca" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="rounded-xl">
                   {shifts.map((s) => (
                     <SelectItem key={s.id} value={s.id}>
                       {s.name}
@@ -508,12 +528,12 @@ function NewLessonDialog({
             </div>
           </div>
           <div className="space-y-2">
-            <Label>Lớp</Label>
+            <Label className="text-xs font-bold text-foreground">Lớp</Label>
             <Select value={classId} onValueChange={setClassId}>
-              <SelectTrigger>
+              <SelectTrigger className="rounded-xl border-border/80 bg-background/50 text-xs font-semibold h-10">
                 <SelectValue placeholder="Chọn lớp" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="rounded-xl">
                 {classes.map((c) => (
                   <SelectItem key={c.id} value={c.id}>
                     {c.name}
@@ -523,24 +543,28 @@ function NewLessonDialog({
             </Select>
           </div>
           <div className="space-y-2">
-            <Label htmlFor="ltopic">Chủ đề bài học</Label>
+            <Label htmlFor="ltopic" className="text-xs font-bold text-foreground">Chủ đề bài học</Label>
             <Input
               id="ltopic"
               value={topic}
               onChange={(e) => setTopic(e.target.value)}
+              placeholder="Ví dụ: Phương trình lượng giác"
+              className="rounded-xl border-border/80 bg-background/50 text-xs font-semibold h-10"
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="lcore">Kiến thức trọng tâm</Label>
+            <Label htmlFor="lcore" className="text-xs font-bold text-foreground">Kiến thức trọng tâm</Label>
             <Input
               id="lcore"
               value={coreKnowledge}
               onChange={(e) => setCoreKnowledge(e.target.value)}
+              placeholder="Ví dụ: Công thức nhân đôi, cộng lượng giác"
+              className="rounded-xl border-border/80 bg-background/50 text-xs font-semibold h-10"
             />
           </div>
           <Button
             type="submit"
-            className="w-full"
+            className="w-full h-10.5 rounded-xl font-bold gap-2 text-xs shadow-md shadow-indigo-500/25 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 border-none transition-all cursor-pointer"
             disabled={isPending || !shiftId || !classId}
           >
             {isPending && <Loader2 className="size-4 animate-spin" />}

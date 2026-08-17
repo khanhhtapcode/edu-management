@@ -9,6 +9,8 @@ import {
   Trash2,
   Loader2,
   RotateCcw,
+  UserCheck,
+  GraduationCap,
 } from "lucide-react"
 import { toast } from "sonner"
 
@@ -22,6 +24,7 @@ import {
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
+import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import {
   Table,
   TableBody,
@@ -59,10 +62,30 @@ type Option = { id: string; name: string }
 const ALL = "__all__"
 const PAGE_SIZE = 8
 
-function statusVariant(status: string) {
-  if (status === MEMBER_STATUS.ACTIVE) return "success" as const
-  if (status === MEMBER_STATUS.RESERVED) return "warning" as const
-  return "secondary" as const
+const AVATAR_GRADIENTS = [
+  "from-indigo-500 to-purple-600",
+  "from-blue-500 to-cyan-500",
+  "from-emerald-500 to-teal-600",
+  "from-rose-500 to-pink-600",
+  "from-amber-500 to-orange-600",
+  "from-violet-600 to-fuchsia-600",
+]
+
+function getAvatarGradient(name: string) {
+  let hash = 0
+  for (let i = 0; i < name.length; i++) {
+    hash = name.charCodeAt(i) + ((hash << 5) - hash)
+  }
+  const index = Math.abs(hash) % AVATAR_GRADIENTS.length
+  return AVATAR_GRADIENTS[index]
+}
+
+function getInitials(name: string) {
+  const parts = name.trim().split(" ")
+  if (parts.length >= 2) {
+    return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase()
+  }
+  return name.slice(0, 2).toUpperCase()
 }
 
 export function StudentsClient({
@@ -167,18 +190,18 @@ export function StudentsClient({
   return (
     <div className="space-y-4">
       {/* Toolbar */}
-      <div className="flex flex-col gap-3 rounded-2xl border border-border/70 bg-card/70 p-3 shadow-sm md:flex-row md:items-center md:justify-between">
-        <div className="flex flex-1 flex-wrap items-center gap-2">
-          <div className="relative w-full sm:w-64">
-            <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+      <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+        <div className="flex flex-1 flex-wrap items-center gap-2.5">
+          <div className="relative w-full sm:w-72">
+            <Search className="absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
             <Input
               value={rawSearch}
               onChange={(e) => {
                 setRawSearch(e.target.value)
                 setPage(1)
               }}
-              placeholder="Tìm theo tên hoặc lớp..."
-              className="pl-9"
+              placeholder="Tìm tên học sinh hoặc lớp..."
+              className="pl-9.5 rounded-xl border-border/70 bg-card/80 backdrop-blur-md font-medium text-xs focus:ring-2 focus:ring-primary/20"
             />
           </div>
           <Select
@@ -188,10 +211,10 @@ export function StudentsClient({
               setPage(1)
             }}
           >
-            <SelectTrigger className="w-[150px]">
+            <SelectTrigger className="w-[160px] rounded-xl border-border/70 bg-card/80 text-xs font-semibold">
               <SelectValue placeholder="Tất cả lớp" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="rounded-xl">
               <SelectItem value={ALL}>Tất cả lớp</SelectItem>
               {classes.map((c) => (
                 <SelectItem key={c.id} value={c.id}>
@@ -207,10 +230,10 @@ export function StudentsClient({
               setPage(1)
             }}
           >
-            <SelectTrigger className="w-[140px]">
+            <SelectTrigger className="w-[150px] rounded-xl border-border/70 bg-card/80 text-xs font-semibold">
               <SelectValue placeholder="Trạng thái" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="rounded-xl">
               <SelectItem value={ALL}>Mọi trạng thái</SelectItem>
               {Object.values(MEMBER_STATUS).map((s) => (
                 <SelectItem key={s} value={s}>
@@ -220,70 +243,121 @@ export function StudentsClient({
             </SelectContent>
           </Select>
         </div>
-        <Button onClick={openAdd} className="shrink-0">
+        <Button onClick={openAdd} className="shrink-0 rounded-xl font-bold gap-2 shadow-md shadow-indigo-500/20 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 border-none transition-all cursor-pointer">
           <Plus className="size-4" /> Thêm học sinh
         </Button>
       </div>
 
-      {/* Table */}
-      <div className="overflow-hidden rounded-2xl border border-border/70 bg-card/80 shadow-sm">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Họ và tên</TableHead>
-              <TableHead>Lớp</TableHead>
-              <TableHead>Trạng thái</TableHead>
-              <TableHead>Số buổi học</TableHead>
-              <TableHead className="text-right">Thao tác</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {pageRows.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={5} className="h-32 text-center text-muted-foreground">
-                  Không tìm thấy học sinh nào.
-                </TableCell>
+      {/* Empty State */}
+      {pageRows.length === 0 && (
+        <div className="rounded-2xl border border-border/70 bg-card/90 backdrop-blur-xl p-10 text-center shadow-xs flex flex-col items-center justify-center gap-3">
+          <div className="size-14 rounded-2xl bg-secondary/80 flex items-center justify-center text-muted-foreground/50 border border-border/60">
+            <GraduationCap className="size-7" />
+          </div>
+          <div className="space-y-1 max-w-sm">
+            <p className="text-sm font-bold text-foreground">Không tìm thấy học sinh nào phù hợp</p>
+            <p className="text-xs text-muted-foreground">
+              Thử thay đổi từ khóa tìm kiếm hoặc bỏ chọn bộ lọc lớp / trạng thái.
+            </p>
+          </div>
+          {(rawSearch || classFilter !== ALL || statusFilter !== ALL) && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                setRawSearch("")
+                setSearch("")
+                setClassFilter(ALL)
+                setStatusFilter(ALL)
+                setPage(1)
+              }}
+              className="mt-1 rounded-xl text-xs font-bold gap-1.5 cursor-pointer"
+            >
+              <RotateCcw className="size-3.5" /> Xóa bộ lọc
+            </Button>
+          )}
+        </div>
+      )}
+
+      {/* Desktop Table View */}
+      {pageRows.length > 0 && (
+        <div className="hidden md:block rounded-2xl border border-border/70 bg-card/90 backdrop-blur-xl shadow-xs overflow-hidden">
+          <Table>
+            <TableHeader className="bg-secondary/40">
+              <TableRow className="border-b border-border/60">
+                <TableHead className="font-extrabold text-xs uppercase tracking-wider">Họ và tên</TableHead>
+                <TableHead className="font-extrabold text-xs uppercase tracking-wider">Lớp học</TableHead>
+                <TableHead className="font-extrabold text-xs uppercase tracking-wider">Trạng thái</TableHead>
+                <TableHead className="font-extrabold text-xs uppercase tracking-wider">Số buổi học</TableHead>
+                <TableHead className="text-right font-extrabold text-xs uppercase tracking-wider">Thao tác</TableHead>
               </TableRow>
-            ) : (
-              pageRows.map((s) => (
-                <TableRow key={s.id} className="transition-colors hover:bg-secondary/40">
+            </TableHeader>
+            <TableBody>
+              {pageRows.map((s) => (
+                <TableRow key={s.id} className="hover:bg-secondary/40 transition-colors">
                   <TableCell>
-                    <div className="font-medium">{s.fullName}</div>
-                    <div className="text-xs text-muted-foreground">
-                      {s.gender ? GENDER_LABEL[s.gender] : "—"}
-                      {s.schoolName ? ` · ${s.schoolName}` : ""}
+                    <div className="flex items-center gap-3">
+                      <Avatar className="size-9 ring-2 ring-background shadow-xs shrink-0">
+                        <AvatarFallback className={`bg-gradient-to-tr ${getAvatarGradient(s.fullName)} text-white font-extrabold text-xs`}>
+                          {getInitials(s.fullName)}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div>
+                        <div className="font-bold text-sm text-foreground">{s.fullName}</div>
+                        <div className="text-xs font-semibold text-muted-foreground">
+                          {s.gender ? GENDER_LABEL[s.gender] : "—"}
+                          {s.schoolName ? ` · ${s.schoolName}` : ""}
+                        </div>
+                      </div>
                     </div>
                   </TableCell>
-                  <TableCell>{s.className}</TableCell>
                   <TableCell>
-                    <Badge variant={statusVariant(s.status)}>
-                      {STUDENT_STATUS_LABEL[s.status]}
+                    <Badge variant="outline" className="font-bold text-xs bg-secondary/60 rounded-lg border-border/80">
+                      {s.className}
                     </Badge>
+                  </TableCell>
+                  <TableCell>
+                    {s.status === MEMBER_STATUS.ACTIVE ? (
+                      <Badge className="bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 font-bold text-xs rounded-lg px-2.5 py-0.5">
+                        <span className="size-1.5 rounded-full bg-emerald-500 mr-1.5 animate-pulse" />
+                        {STUDENT_STATUS_LABEL[s.status]}
+                      </Badge>
+                    ) : s.status === MEMBER_STATUS.RESERVED ? (
+                      <Badge className="bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/30 font-bold text-xs rounded-lg px-2.5 py-0.5">
+                        <span className="size-1.5 rounded-full bg-amber-500 mr-1.5" />
+                        {STUDENT_STATUS_LABEL[s.status]}
+                      </Badge>
+                    ) : (
+                      <Badge variant="secondary" className="font-bold text-xs rounded-lg px-2.5 py-0.5">
+                        {STUDENT_STATUS_LABEL[s.status]}
+                      </Badge>
+                    )}
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center gap-2">
                       <Badge
-                        variant={
+                        variant="outline"
+                        className={
                           s.sessionCount >= SESSION_NOTIFY_THRESHOLD
-                            ? "warning"
-                            : "secondary"
+                            ? "bg-amber-500/15 text-amber-600 dark:text-amber-400 border-amber-500/40 font-extrabold text-xs rounded-lg"
+                            : "bg-primary/10 text-primary border-primary/20 font-bold text-xs rounded-lg"
                         }
                       >
-                        {s.sessionCount}/{SESSION_NOTIFY_THRESHOLD}
+                        {s.sessionCount}/{SESSION_NOTIFY_THRESHOLD} buổi
                       </Badge>
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="size-7"
+                        className="size-7 rounded-lg hover:bg-secondary cursor-pointer"
                         disabled={isPending && resettingId === s.id}
                         onClick={() => resetSessionCount(s)}
                         aria-label="Reset số buổi học"
-                        title="Reset số buổi học"
+                        title="Reset số buổi học về 0"
                       >
                         {isPending && resettingId === s.id ? (
                           <Loader2 className="size-3.5 animate-spin" />
                         ) : (
-                          <RotateCcw className="size-3.5" />
+                          <RotateCcw className="size-3.5 text-muted-foreground hover:text-foreground" />
                         )}
                       </Button>
                     </div>
@@ -295,6 +369,7 @@ export function StudentsClient({
                         size="icon"
                         onClick={() => openEdit(s)}
                         aria-label="Sửa"
+                        className="size-8 rounded-lg hover:bg-primary/10 hover:text-primary cursor-pointer transition-colors"
                       >
                         <Pencil className="size-4" />
                       </Button>
@@ -303,28 +378,128 @@ export function StudentsClient({
                         size="icon"
                         onClick={() => setDeleting(s)}
                         aria-label="Xóa"
-                        className="text-destructive hover:text-destructive"
+                        className="size-8 rounded-lg text-muted-foreground hover:text-destructive hover:bg-destructive/10 cursor-pointer transition-colors"
                       >
                         <Trash2 className="size-4" />
                       </Button>
                     </div>
                   </TableCell>
                 </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
-      </div>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+      )}
+
+      {/* Mobile Card Grid View */}
+      {pageRows.length > 0 && (
+        <div className="grid grid-cols-1 gap-3 md:hidden">
+          {pageRows.map((s) => (
+            <div
+              key={s.id}
+              className="rounded-2xl border border-border/70 bg-card/90 backdrop-blur-xl p-4 shadow-2xs space-y-3"
+            >
+              <div className="flex items-start justify-between gap-2">
+                <div className="flex items-center gap-3">
+                  <Avatar className="size-10 ring-2 ring-background shadow-xs shrink-0">
+                    <AvatarFallback className={`bg-gradient-to-tr ${getAvatarGradient(s.fullName)} text-white font-extrabold text-xs`}>
+                      {getInitials(s.fullName)}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div>
+                    <div className="font-bold text-sm text-foreground">{s.fullName}</div>
+                    <div className="text-xs font-medium text-muted-foreground">
+                      {s.gender ? GENDER_LABEL[s.gender] : "—"}
+                      {s.schoolName ? ` · ${s.schoolName}` : ""}
+                    </div>
+                  </div>
+                </div>
+                <Badge variant="outline" className="font-bold text-xs bg-secondary/60 rounded-lg border-border/80">
+                  {s.className}
+                </Badge>
+              </div>
+
+              <div className="flex items-center justify-between pt-2 border-t border-border/50">
+                <div className="flex items-center gap-2">
+                  {s.status === MEMBER_STATUS.ACTIVE ? (
+                    <Badge className="bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 font-bold text-xs rounded-lg px-2 py-0.5">
+                      <span className="size-1.5 rounded-full bg-emerald-500 mr-1 animate-pulse" />
+                      {STUDENT_STATUS_LABEL[s.status]}
+                    </Badge>
+                  ) : s.status === MEMBER_STATUS.RESERVED ? (
+                    <Badge className="bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/30 font-bold text-xs rounded-lg px-2 py-0.5">
+                      <span className="size-1.5 rounded-full bg-amber-500 mr-1" />
+                      {STUDENT_STATUS_LABEL[s.status]}
+                    </Badge>
+                  ) : (
+                    <Badge variant="secondary" className="font-bold text-xs rounded-lg px-2 py-0.5">
+                      {STUDENT_STATUS_LABEL[s.status]}
+                    </Badge>
+                  )}
+
+                  <Badge
+                    variant="outline"
+                    className={
+                      s.sessionCount >= SESSION_NOTIFY_THRESHOLD
+                        ? "bg-amber-500/15 text-amber-600 dark:text-amber-400 border-amber-500/40 font-extrabold text-xs rounded-lg"
+                        : "bg-primary/10 text-primary border-primary/20 font-bold text-xs rounded-lg"
+                    }
+                  >
+                    {s.sessionCount}/{SESSION_NOTIFY_THRESHOLD} buổi
+                  </Badge>
+                </div>
+
+                <div className="flex items-center gap-1">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="size-8 rounded-lg hover:bg-secondary cursor-pointer"
+                    disabled={isPending && resettingId === s.id}
+                    onClick={() => resetSessionCount(s)}
+                    aria-label="Reset số buổi học"
+                    title="Reset số buổi học về 0"
+                  >
+                    {isPending && resettingId === s.id ? (
+                      <Loader2 className="size-3.5 animate-spin" />
+                    ) : (
+                      <RotateCcw className="size-3.5 text-muted-foreground" />
+                    )}
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => openEdit(s)}
+                    aria-label="Sửa"
+                    className="size-8 rounded-lg hover:bg-primary/10 hover:text-primary cursor-pointer"
+                  >
+                    <Pencil className="size-3.5" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => setDeleting(s)}
+                    aria-label="Xóa"
+                    className="size-8 rounded-lg text-muted-foreground hover:text-destructive hover:bg-destructive/10 cursor-pointer"
+                  >
+                    <Trash2 className="size-3.5" />
+                  </Button>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
 
       {/* Pagination */}
-      <div className="flex items-center justify-between rounded-xl border border-border/60 bg-card/60 px-4 py-3 text-sm text-muted-foreground">
+      <div className="flex items-center justify-between text-xs font-semibold text-muted-foreground px-1">
         <span>
-          {filtered.length} học sinh · Trang {current}/{totalPages}
+          Hiển thị {filtered.length} học sinh &middot; Trang {current}/{totalPages}
         </span>
         <div className="flex gap-2">
           <Button
             variant="outline"
             size="sm"
+            className="rounded-xl font-semibold text-xs h-8 cursor-pointer"
             disabled={current <= 1}
             onClick={() => setPage((p) => p - 1)}
           >
@@ -333,6 +508,7 @@ export function StudentsClient({
           <Button
             variant="outline"
             size="sm"
+            className="rounded-xl font-semibold text-xs h-8 cursor-pointer"
             disabled={current >= totalPages}
             onClick={() => setPage((p) => p + 1)}
           >
@@ -343,15 +519,15 @@ export function StudentsClient({
 
       {/* Add/Edit Sheet */}
       <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
-        <SheetContent>
+        <SheetContent className="sm:max-w-md rounded-l-3xl border-l border-border bg-sidebar/95 backdrop-blur-xl">
           <SheetHeader>
-            <SheetTitle>
+            <SheetTitle className="text-lg font-extrabold">
               {editing ? "Chỉnh sửa học sinh" : "Thêm học sinh mới"}
             </SheetTitle>
-            <SheetDescription>
+            <SheetDescription className="text-xs font-semibold">
               {editing
-                ? "Cập nhật thông tin và lưu lại."
-                : "Điền thông tin học sinh để thêm vào hệ thống."}
+                ? "Cập nhật thông tin học sinh và lưu lại."
+                : "Điền thông tin học sinh để lưu vào danh sách lớp."}
             </SheetDescription>
           </SheetHeader>
           <div className="mt-6">
@@ -364,31 +540,31 @@ export function StudentsClient({
         </SheetContent>
       </Sheet>
 
-      {/* Delete confirm */}
+      {/* Delete confirm Dialog */}
       <Dialog
         open={!!deleting}
         onOpenChange={(o) => !o && setDeleting(undefined)}
       >
-        <DialogContent>
+        <DialogContent className="rounded-2xl border border-border bg-card/95 backdrop-blur-xl">
           <DialogHeader>
-            <DialogTitle>Xác nhận xóa học sinh</DialogTitle>
-            <DialogDescription>
-              Học sinh <strong>{deleting?.fullName}</strong> sẽ bị{" "}
-              <strong>xóa vĩnh viễn</strong> khỏi hệ thống, kèm toàn bộ lịch sử
-              điểm danh, nhận xét và báo cáo. Hành động không thể hoàn tác.
+            <DialogTitle className="text-lg font-extrabold text-destructive">Xác nhận xóa học sinh</DialogTitle>
+            <DialogDescription className="text-xs font-medium leading-relaxed">
+              Học sinh <strong className="text-foreground">{deleting?.fullName}</strong> sẽ bị{" "}
+              <strong>xóa vĩnh viễn</strong> khỏi hệ thống. Thao tác không thể hoàn tác.
             </DialogDescription>
           </DialogHeader>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setDeleting(undefined)}>
+          <DialogFooter className="gap-2 sm:gap-0">
+            <Button variant="outline" className="rounded-xl font-semibold cursor-pointer" onClick={() => setDeleting(undefined)}>
               Hủy
             </Button>
             <Button
               variant="destructive"
+              className="rounded-xl font-bold cursor-pointer gap-2"
               onClick={confirmDelete}
               disabled={isPending}
             >
               {isPending && <Loader2 className="size-4 animate-spin" />}
-              Xác nhận
+              Xác nhận xóa
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -396,3 +572,4 @@ export function StudentsClient({
     </div>
   )
 }
+
