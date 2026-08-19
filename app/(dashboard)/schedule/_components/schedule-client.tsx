@@ -1,6 +1,6 @@
 "use client"
 
-import { useMemo, useState, useTransition } from "react"
+import { useMemo, useState, useTransition, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import {
   ChevronLeft,
@@ -16,6 +16,7 @@ import {
   Search,
   Clock,
   CalendarClock,
+  BookOpen,
 } from "lucide-react"
 import { toast } from "sonner"
 
@@ -165,6 +166,32 @@ export function ScheduleClient({
     })
   }
 
+  // Phím tắt mũi tên Trái / Phải để chuyển tuần nhanh
+  useEffect(() => {
+    function onKeyDown(e: KeyboardEvent) {
+      const target = e.target as HTMLElement | null
+      if (
+        target?.tagName === "INPUT" ||
+        target?.tagName === "TEXTAREA" ||
+        target?.tagName === "SELECT" ||
+        createCtx ||
+        addCtx ||
+        shiftDialog ||
+        deletingShift ||
+        fixedScheduleOpen
+      ) {
+        return
+      }
+      if (e.key === "ArrowLeft") {
+        goWeek(prevWeekKey)
+      } else if (e.key === "ArrowRight") {
+        goWeek(nextWeekKey)
+      }
+    }
+    window.addEventListener("keydown", onKeyDown)
+    return () => window.removeEventListener("keydown", onKeyDown)
+  }, [prevWeekKey, nextWeekKey, createCtx, addCtx, shiftDialog, deletingShift, fixedScheduleOpen])
+
   function cycleStatus(lessonId: string, studentId: string, current: string) {
     const idx = STATUS_CYCLE.indexOf(current)
     const next = STATUS_CYCLE[(idx + 1) % STATUS_CYCLE.length]
@@ -232,58 +259,6 @@ export function ScheduleClient({
         title="Thời khóa biểu"
         description={formatWeekRange(weekStartKey)}
       >
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => goWeek(prevWeekKey)}
-          disabled={isNavigating}
-          className="rounded-xl font-semibold text-xs h-8.5 cursor-pointer bg-card/80 border-border/70"
-        >
-          {isNavigating && navKey === prevWeekKey ? (
-            <Loader2 className="size-3.5 animate-spin" />
-          ) : (
-            <ChevronLeft className="size-3.5" />
-          )}{" "}
-          Tuần trước
-        </Button>
-        <Button
-          variant={weekStartKey === thisWeekKey ? "default" : "outline"}
-          size="sm"
-          onClick={() => goWeek(thisWeekKey)}
-          disabled={isNavigating}
-          className={cn(
-            "rounded-xl font-bold text-xs h-8.5 cursor-pointer transition-all",
-            weekStartKey === thisWeekKey
-              ? "bg-primary text-primary-foreground shadow-xs"
-              : "bg-card/80 border-border/70"
-          )}
-        >
-          {isNavigating && navKey === thisWeekKey && (
-            <Loader2 className="size-3.5 animate-spin" />
-          )}
-          Tuần này
-        </Button>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => goWeek(nextWeekKey)}
-          disabled={isNavigating}
-          className="rounded-xl font-semibold text-xs h-8.5 cursor-pointer bg-card/80 border-border/70"
-        >
-          Tuần sau{" "}
-          {isNavigating && navKey === nextWeekKey ? (
-            <Loader2 className="size-3.5 animate-spin" />
-          ) : (
-            <ChevronRight className="size-3.5" />
-          )}
-        </Button>
-        <Button
-          size="sm"
-          onClick={() => setShiftDialog({ mode: "add" })}
-          className="rounded-xl font-bold text-xs h-8.5 gap-1.5 shadow-md shadow-indigo-500/20 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 border-none transition-all cursor-pointer"
-        >
-          <Plus className="size-3.5" /> Thêm ca học
-        </Button>
         <Button
           variant="outline"
           size="sm"
@@ -363,13 +338,20 @@ export function ScheduleClient({
                   <th
                     key={d.key}
                     className={cn(
-                      "border-r border-border/60 p-2 text-center transition-colors",
+                      "border-r border-border/60 p-2 text-center transition-colors relative",
                       d.isToday
                         ? "bg-primary/15 text-primary border-b-2 border-b-primary"
                         : "text-foreground"
                     )}
                   >
-                    <div className="font-extrabold text-xs">{d.label}</div>
+                    <div className="flex items-center justify-center gap-1">
+                      <span className="font-extrabold text-xs">{d.label}</span>
+                      {d.isToday && (
+                        <span className="inline-flex items-center rounded-md bg-primary px-1.5 py-0.5 text-[8.5px] font-black text-primary-foreground uppercase tracking-tight shadow-xs">
+                          Hôm nay
+                        </span>
+                      )}
+                    </div>
                     <div className={cn(
                       "text-[10px] font-semibold mt-0.5",
                       d.isToday ? "text-primary font-bold" : "text-muted-foreground/80"
@@ -418,8 +400,8 @@ export function ScheduleClient({
                       <td
                         key={d.key}
                         className={cn(
-                          "border-r border-border/60 p-1.5 align-top",
-                          d.isToday && "bg-primary/[0.02]"
+                          "border-r border-border/60 p-1.5 align-top transition-colors",
+                          d.isToday && "bg-primary/[0.035]"
                         )}
                       >
                         <div className="flex min-h-[64px] flex-col gap-1.5">
@@ -561,18 +543,53 @@ function LessonCard({
   onDelete: () => void
   disabled: boolean
 }) {
+  const totalStudents = lesson.students.length
+  const presentCount = lesson.students.filter(
+    (s) => (overrides[`${lesson.id}|${s.studentId}`] ?? s.status) === ATTENDANCE_STATUS.PRESENT
+  ).length
+  const absentCount = lesson.students.filter(
+    (s) => (overrides[`${lesson.id}|${s.studentId}`] ?? s.status) === ATTENDANCE_STATUS.ABSENT
+  ).length
+  const unmarkedCount = totalStudents - presentCount - absentCount
+
   return (
-    <div className="group/card rounded-lg border border-border/70 bg-card/90 p-1.5 shadow-2xs hover:border-primary/40 hover:shadow-xs transition-all duration-150">
-      <div className="mb-1 flex items-center justify-between gap-1">
-        <span className="truncate text-[11px] font-black text-primary tracking-tight">
-          {lesson.className}
-        </span>
+    <div className="group/card rounded-xl border border-border/75 bg-card/95 p-2 shadow-2xs hover:border-primary/40 hover:shadow-xs transition-all duration-150 relative">
+      <div className="mb-1.5 flex items-start justify-between gap-1">
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center gap-1.5 flex-wrap">
+            <span className="truncate text-xs font-black text-primary tracking-tight">
+              {lesson.className}
+            </span>
+            {totalStudents > 0 && (
+              <span
+                className={cn(
+                  "inline-flex items-center rounded-md px-1.5 py-0.5 text-[9px] font-extrabold tracking-tight border",
+                  unmarkedCount === 0 && absentCount === 0
+                    ? "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border-emerald-500/25"
+                    : absentCount > 0
+                    ? "bg-amber-500/15 text-amber-600 dark:text-amber-400 border-amber-500/25"
+                    : "bg-secondary text-muted-foreground border-border/70"
+                )}
+                title={`Điểm danh: ${presentCount} có mặt, ${absentCount} vắng, ${unmarkedCount} chưa điểm`}
+              >
+                {presentCount}/{totalStudents}
+              </span>
+            )}
+          </div>
+          {lesson.topic && (
+            <div className="mt-0.5 flex items-center gap-1 text-[10px] text-muted-foreground/90 font-medium truncate" title={lesson.topic}>
+              <BookOpen className="size-2.5 shrink-0 text-primary/70" />
+              <span className="truncate">{lesson.topic}</span>
+            </div>
+          )}
+        </div>
         <button
           type="button"
           onClick={onDelete}
           disabled={disabled}
-          className="opacity-0 shrink-0 text-muted-foreground/50 hover:text-destructive group-hover/card:opacity-100 cursor-pointer transition-opacity"
+          className="opacity-0 shrink-0 text-muted-foreground/40 hover:text-destructive group-hover/card:opacity-100 cursor-pointer transition-all p-0.5 rounded"
           aria-label="Xóa buổi học"
+          title="Xóa buổi học"
         >
           <Trash2 className="size-3" />
         </button>
@@ -608,7 +625,7 @@ function LessonCard({
         <button
           type="button"
           onClick={onAddStudent}
-          className="mt-0.5 inline-flex items-center gap-1 text-[10px] font-bold text-muted-foreground/70 hover:text-primary transition-colors cursor-pointer"
+          className="mt-1 inline-flex items-center gap-1 text-[10px] font-bold text-muted-foreground/70 hover:text-primary transition-colors cursor-pointer"
         >
           <UserPlus className="size-2.5" /> Thêm HS
         </button>

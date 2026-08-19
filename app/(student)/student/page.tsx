@@ -1,9 +1,36 @@
 import { auth } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { formatDate, formatFileSize } from "@/lib/utils"
-import { FileText, Download, CalendarClock } from "lucide-react"
+import {
+  FileText,
+  FileSpreadsheet,
+  FileArchive,
+  FileImage,
+  File,
+  Download,
+} from "lucide-react"
 
 export const dynamic = "force-dynamic"
+
+function getFileIcon(fileName: string) {
+  const ext = fileName.split(".").pop()?.toLowerCase() ?? ""
+  if (["pdf"].includes(ext)) {
+    return <FileText className="size-4 shrink-0 text-rose-500 transition-transform group-hover:scale-110" />
+  }
+  if (["doc", "docx"].includes(ext)) {
+    return <FileText className="size-4 shrink-0 text-blue-500 transition-transform group-hover:scale-110" />
+  }
+  if (["xls", "xlsx", "csv"].includes(ext)) {
+    return <FileSpreadsheet className="size-4 shrink-0 text-emerald-500 transition-transform group-hover:scale-110" />
+  }
+  if (["zip", "rar", "7z", "tar", "gz"].includes(ext)) {
+    return <FileArchive className="size-4 shrink-0 text-amber-500 transition-transform group-hover:scale-110" />
+  }
+  if (["png", "jpg", "jpeg", "webp", "gif", "svg"].includes(ext)) {
+    return <FileImage className="size-4 shrink-0 text-purple-500 transition-transform group-hover:scale-110" />
+  }
+  return <File className="size-4 shrink-0 text-primary transition-transform group-hover:scale-110" />
+}
 
 export default async function StudentHomeworkPage() {
   const session = await auth()
@@ -17,7 +44,6 @@ export default async function StudentHomeworkPage() {
           id: true,
           title: true,
           description: true,
-          dueDate: true,
           createdAt: true,
           files: {
             select: { id: true, fileName: true, size: true },
@@ -49,16 +75,8 @@ export default async function StudentHomeworkPage() {
             <div key={a.id} className="rounded-2xl border border-border/70 bg-card/90 backdrop-blur-xl p-5 shadow-xs hover:shadow-md transition-all duration-200 space-y-3">
               <div>
                 <h3 className="font-extrabold text-base text-foreground tracking-tight">{a.title}</h3>
-                <p className="mt-1 text-xs font-semibold text-muted-foreground flex items-center gap-2">
-                  <span>Gửi ngày {formatDate(a.createdAt)}</span>
-                  {a.dueDate && (
-                    <>
-                      <span>&middot;</span>
-                      <span className="inline-flex items-center gap-1 font-bold text-amber-600 dark:text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded-md border border-amber-500/20">
-                        <CalendarClock className="size-3" /> Hạn {formatDate(a.dueDate)}
-                      </span>
-                    </>
-                  )}
+                <p className="mt-1 text-xs font-semibold text-muted-foreground">
+                  Gửi ngày {formatDate(a.createdAt)}
                 </p>
               </div>
 
@@ -76,7 +94,7 @@ export default async function StudentHomeworkPage() {
                     className="group flex items-center justify-between gap-2 rounded-xl border border-border/60 bg-background/50 px-3.5 py-2.5 text-xs font-semibold transition-all hover:bg-secondary/80 hover:border-primary/30"
                   >
                     <span className="flex min-w-0 items-center gap-2.5">
-                      <FileText className="size-4 shrink-0 text-primary transition-transform group-hover:scale-110" />
+                      {getFileIcon(f.fileName)}
                       <span className="truncate text-foreground font-bold">{f.fileName}</span>
                     </span>
                     <span className="flex shrink-0 items-center gap-2 text-[11px] font-bold text-muted-foreground group-hover:text-primary">

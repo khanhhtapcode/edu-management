@@ -7,9 +7,12 @@ import {
   Loader2,
   Trash2,
   FileText,
+  FileSpreadsheet,
+  FileArchive,
+  FileImage,
+  File,
   Download,
   Paperclip,
-  CalendarClock,
 } from "lucide-react"
 import { toast } from "sonner"
 
@@ -43,9 +46,28 @@ type Assignment = {
   classId: string
   title: string
   description: string | null
-  dueDate: string | null
   createdAt: string
   files: AssignmentFile[]
+}
+
+function getFileIcon(fileName: string) {
+  const ext = fileName.split(".").pop()?.toLowerCase() ?? ""
+  if (["pdf"].includes(ext)) {
+    return <FileText className="size-4 shrink-0 text-rose-500 transition-transform group-hover:scale-110" />
+  }
+  if (["doc", "docx"].includes(ext)) {
+    return <FileText className="size-4 shrink-0 text-blue-500 transition-transform group-hover:scale-110" />
+  }
+  if (["xls", "xlsx", "csv"].includes(ext)) {
+    return <FileSpreadsheet className="size-4 shrink-0 text-emerald-500 transition-transform group-hover:scale-110" />
+  }
+  if (["zip", "rar", "7z", "tar", "gz"].includes(ext)) {
+    return <FileArchive className="size-4 shrink-0 text-amber-500 transition-transform group-hover:scale-110" />
+  }
+  if (["png", "jpg", "jpeg", "webp", "gif", "svg"].includes(ext)) {
+    return <FileImage className="size-4 shrink-0 text-purple-500 transition-transform group-hover:scale-110" />
+  }
+  return <File className="size-4 shrink-0 text-primary transition-transform group-hover:scale-110" />
 }
 
 export function AssignmentsClient({
@@ -85,7 +107,7 @@ export function AssignmentsClient({
         icon={FileText}
         eyebrow="Học tập"
         title="Bài tập về nhà"
-        description="Gửi tài liệu, theo dõi hạn nộp và chia sẻ bài tập đến từng lớp."
+        description="Gửi tài liệu, chia sẻ bài tập và lưu trữ học liệu đến từng lớp."
       >
         <Select value={classId} onValueChange={setClassId}>
           <SelectTrigger className="w-52 rounded-xl border-border/70 bg-card/80 text-xs font-bold h-10">
@@ -129,16 +151,8 @@ export function AssignmentsClient({
                     <h3 className="truncate font-extrabold text-base text-foreground tracking-tight">
                       {a.title}
                     </h3>
-                    <p className="mt-1 text-xs font-semibold text-muted-foreground flex items-center gap-2">
-                      <span>Gửi ngày {formatDate(a.createdAt)}</span>
-                      {a.dueDate && (
-                        <>
-                          <span>&middot;</span>
-                          <span className="inline-flex items-center gap-1 font-bold text-amber-600 dark:text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded-md border border-amber-500/20">
-                            <CalendarClock className="size-3" /> Hạn nộp {formatDate(a.dueDate)}
-                          </span>
-                        </>
-                      )}
+                    <p className="mt-1 text-xs font-semibold text-muted-foreground">
+                      Gửi ngày {formatDate(a.createdAt)}
                     </p>
                   </div>
                   <button
@@ -167,7 +181,7 @@ export function AssignmentsClient({
                     className="group flex items-center justify-between gap-2 rounded-xl border border-border/60 bg-background/50 px-3.5 py-2.5 text-xs font-semibold transition-all hover:bg-secondary/80 hover:border-primary/30"
                   >
                     <span className="flex min-w-0 items-center gap-2.5">
-                      <FileText className="size-4 shrink-0 text-primary transition-transform group-hover:scale-110" />
+                      {getFileIcon(f.fileName)}
                       <span className="truncate text-foreground font-bold">{f.fileName}</span>
                     </span>
                     <span className="flex shrink-0 items-center gap-2 text-[11px] font-bold text-muted-foreground group-hover:text-primary">
@@ -232,7 +246,6 @@ function CreateAssignmentDialog({
   const [isPending, startTransition] = useTransition()
   const [title, setTitle] = useState("")
   const [description, setDescription] = useState("")
-  const [dueDate, setDueDate] = useState("")
   const fileRef = useRef<HTMLInputElement>(null)
 
   function submit(e: React.FormEvent) {
@@ -248,7 +261,6 @@ function CreateAssignmentDialog({
         form.set("classId", classId)
         form.set("title", title)
         if (description) form.set("description", description)
-        if (dueDate) form.set("dueDate", dueDate)
         Array.from(files).forEach((f) => form.append("files", f))
 
         await apiFetch("/api/assignments", { method: "POST", body: form })
@@ -291,16 +303,6 @@ function CreateAssignmentDialog({
               placeholder="Hướng dẫn làm bài, ghi chú nộp bài..."
               className="rounded-xl border-border/80 bg-background/50 text-xs font-medium"
               rows={3}
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="adue" className="text-xs font-bold text-foreground">Hạn nộp bài (tùy chọn)</Label>
-            <Input
-              id="adue"
-              type="date"
-              value={dueDate}
-              onChange={(e) => setDueDate(e.target.value)}
-              className="rounded-xl border-border/80 bg-background/50 text-xs font-semibold h-10"
             />
           </div>
           <div className="space-y-2">

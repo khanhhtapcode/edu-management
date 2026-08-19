@@ -15,6 +15,7 @@ import {
 import { toast } from "sonner"
 
 import { apiFetch } from "@/lib/api-client"
+import { cn } from "@/lib/utils"
 import {
   MEMBER_STATUS,
   STUDENT_STATUS_LABEL,
@@ -24,7 +25,6 @@ import {
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import {
   Table,
   TableBody,
@@ -61,32 +61,6 @@ type Option = { id: string; name: string }
 
 const ALL = "__all__"
 const PAGE_SIZE = 8
-
-const AVATAR_GRADIENTS = [
-  "from-indigo-500 to-purple-600",
-  "from-blue-500 to-cyan-500",
-  "from-emerald-500 to-teal-600",
-  "from-rose-500 to-pink-600",
-  "from-amber-500 to-orange-600",
-  "from-violet-600 to-fuchsia-600",
-]
-
-function getAvatarGradient(name: string) {
-  let hash = 0
-  for (let i = 0; i < name.length; i++) {
-    hash = name.charCodeAt(i) + ((hash << 5) - hash)
-  }
-  const index = Math.abs(hash) % AVATAR_GRADIENTS.length
-  return AVATAR_GRADIENTS[index]
-}
-
-function getInitials(name: string) {
-  const parts = name.trim().split(" ")
-  if (parts.length >= 2) {
-    return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase()
-  }
-  return name.slice(0, 2).toUpperCase()
-}
 
 export function StudentsClient({
   students,
@@ -147,6 +121,21 @@ export function StudentsClient({
     })
   }
 
+  const statusCounts = useMemo(() => {
+    const counts = {
+      [ALL]: students.length,
+      [MEMBER_STATUS.ACTIVE]: 0,
+      [MEMBER_STATUS.RESERVED]: 0,
+      [MEMBER_STATUS.INACTIVE]: 0,
+    }
+    for (const s of students) {
+      if (s.status in counts) {
+        counts[s.status as keyof typeof counts]++
+      }
+    }
+    return counts
+  }, [students])
+
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase()
     return students.filter((s) => {
@@ -189,6 +178,43 @@ export function StudentsClient({
 
   return (
     <div className="space-y-4">
+      {/* Segmented Status Tabs */}
+      <div className="flex flex-wrap items-center gap-1.5 p-1 rounded-xl bg-secondary/50 border border-border/60 w-fit">
+        {[
+          { key: ALL, label: "Tất cả" },
+          { key: MEMBER_STATUS.ACTIVE, label: STUDENT_STATUS_LABEL[MEMBER_STATUS.ACTIVE] },
+          { key: MEMBER_STATUS.RESERVED, label: STUDENT_STATUS_LABEL[MEMBER_STATUS.RESERVED] },
+          { key: MEMBER_STATUS.INACTIVE, label: STUDENT_STATUS_LABEL[MEMBER_STATUS.INACTIVE] },
+        ].map((tab) => (
+          <button
+            key={tab.key}
+            type="button"
+            onClick={() => {
+              setStatusFilter(tab.key)
+              setPage(1)
+            }}
+            className={cn(
+              "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer",
+              statusFilter === tab.key
+                ? "bg-card text-foreground shadow-xs border border-border/70"
+                : "text-muted-foreground hover:text-foreground hover:bg-secondary/70"
+            )}
+          >
+            <span>{tab.label}</span>
+            <span
+              className={cn(
+                "rounded-full px-1.5 py-0.2 text-[10px] font-extrabold",
+                statusFilter === tab.key
+                  ? "bg-primary/10 text-primary"
+                  : "bg-background/80 text-muted-foreground"
+              )}
+            >
+              {statusCounts[tab.key as keyof typeof statusCounts] ?? 0}
+            </span>
+          </button>
+        ))}
+      </div>
+
       {/* Toolbar */}
       <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
         <div className="flex flex-1 flex-wrap items-center gap-2.5">
@@ -219,25 +245,6 @@ export function StudentsClient({
               {classes.map((c) => (
                 <SelectItem key={c.id} value={c.id}>
                   {c.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <Select
-            value={statusFilter}
-            onValueChange={(v) => {
-              setStatusFilter(v)
-              setPage(1)
-            }}
-          >
-            <SelectTrigger className="w-[150px] rounded-xl border-border/70 bg-card/80 text-xs font-semibold">
-              <SelectValue placeholder="Trạng thái" />
-            </SelectTrigger>
-            <SelectContent className="rounded-xl">
-              <SelectItem value={ALL}>Mọi trạng thái</SelectItem>
-              {Object.values(MEMBER_STATUS).map((s) => (
-                <SelectItem key={s} value={s}>
-                  {STUDENT_STATUS_LABEL[s]}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -296,18 +303,11 @@ export function StudentsClient({
               {pageRows.map((s) => (
                 <TableRow key={s.id} className="hover:bg-secondary/40 transition-colors">
                   <TableCell>
-                    <div className="flex items-center gap-3">
-                      <Avatar className="size-9 ring-2 ring-background shadow-xs shrink-0">
-                        <AvatarFallback className={`bg-gradient-to-tr ${getAvatarGradient(s.fullName)} text-white font-extrabold text-xs`}>
-                          {getInitials(s.fullName)}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div>
-                        <div className="font-bold text-sm text-foreground">{s.fullName}</div>
-                        <div className="text-xs font-semibold text-muted-foreground">
-                          {s.gender ? GENDER_LABEL[s.gender] : "—"}
-                          {s.schoolName ? ` · ${s.schoolName}` : ""}
-                        </div>
+                    <div>
+                      <div className="font-bold text-sm text-foreground">{s.fullName}</div>
+                      <div className="text-xs font-semibold text-muted-foreground">
+                        {s.gender ? GENDER_LABEL[s.gender] : "—"}
+                        {s.schoolName ? ` · ${s.schoolName}` : ""}
                       </div>
                     </div>
                   </TableCell>
@@ -400,18 +400,11 @@ export function StudentsClient({
               className="rounded-2xl border border-border/70 bg-card/90 backdrop-blur-xl p-4 shadow-2xs space-y-3"
             >
               <div className="flex items-start justify-between gap-2">
-                <div className="flex items-center gap-3">
-                  <Avatar className="size-10 ring-2 ring-background shadow-xs shrink-0">
-                    <AvatarFallback className={`bg-gradient-to-tr ${getAvatarGradient(s.fullName)} text-white font-extrabold text-xs`}>
-                      {getInitials(s.fullName)}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div>
-                    <div className="font-bold text-sm text-foreground">{s.fullName}</div>
-                    <div className="text-xs font-medium text-muted-foreground">
-                      {s.gender ? GENDER_LABEL[s.gender] : "—"}
-                      {s.schoolName ? ` · ${s.schoolName}` : ""}
-                    </div>
+                <div>
+                  <div className="font-bold text-sm text-foreground">{s.fullName}</div>
+                  <div className="text-xs font-medium text-muted-foreground">
+                    {s.gender ? GENDER_LABEL[s.gender] : "—"}
+                    {s.schoolName ? ` · ${s.schoolName}` : ""}
                   </div>
                 </div>
                 <Badge variant="outline" className="font-bold text-xs bg-secondary/60 rounded-lg border-border/80">

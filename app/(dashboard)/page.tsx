@@ -122,6 +122,9 @@ export default async function DashboardPage({
     include: {
       shift: true,
       class: true,
+      attendances: {
+        select: { status: true },
+      },
       _count: { select: { attendances: true } },
     },
     orderBy: { date: "desc" },
@@ -168,6 +171,46 @@ export default async function DashboardPage({
             </Button>
           </div>
         </div>
+      </div>
+
+      {/* Quick Action Shortcuts */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <Button asChild variant="outline" className="h-auto py-3 px-4 rounded-2xl bg-card/85 border-border/70 hover:border-primary/40 hover:bg-secondary/80 flex flex-col items-start gap-1 text-left transition-all group">
+          <Link href="/schedule">
+            <span className="flex items-center gap-2 text-xs font-black text-foreground group-hover:text-primary">
+              <Clock className="size-4 text-indigo-500" />
+              Điểm danh hôm nay
+            </span>
+            <span className="text-[11px] text-muted-foreground font-medium">Vào thời khóa biểu tuần</span>
+          </Link>
+        </Button>
+        <Button asChild variant="outline" className="h-auto py-3 px-4 rounded-2xl bg-card/85 border-border/70 hover:border-primary/40 hover:bg-secondary/80 flex flex-col items-start gap-1 text-left transition-all group">
+          <Link href="/students">
+            <span className="flex items-center gap-2 text-xs font-black text-foreground group-hover:text-primary">
+              <Users className="size-4 text-emerald-500" />
+              Quản lý học sinh
+            </span>
+            <span className="text-[11px] text-muted-foreground font-medium">Hồ sơ & sĩ số lớp</span>
+          </Link>
+        </Button>
+        <Button asChild variant="outline" className="h-auto py-3 px-4 rounded-2xl bg-card/85 border-border/70 hover:border-primary/40 hover:bg-secondary/80 flex flex-col items-start gap-1 text-left transition-all group">
+          <Link href="/assignments">
+            <span className="flex items-center gap-2 text-xs font-black text-foreground group-hover:text-primary">
+              <BookOpen className="size-4 text-purple-500" />
+              Giao bài tập
+            </span>
+            <span className="text-[11px] text-muted-foreground font-medium">Gửi tài liệu cho lớp</span>
+          </Link>
+        </Button>
+        <Button asChild variant="outline" className="h-auto py-3 px-4 rounded-2xl bg-card/85 border-border/70 hover:border-primary/40 hover:bg-secondary/80 flex flex-col items-start gap-1 text-left transition-all group">
+          <Link href="/reports">
+            <span className="flex items-center gap-2 text-xs font-black text-foreground group-hover:text-primary">
+              <TrendingUp className="size-4 text-pink-500" />
+              Xuất báo cáo PDF
+            </span>
+            <span className="text-[11px] text-muted-foreground font-medium">Tổng kết & chuyên cần</span>
+          </Link>
+        </Button>
       </div>
 
       {/* Toolbar & Filters */}
@@ -270,27 +313,48 @@ export default async function DashboardPage({
             </div>
           ) : (
             <ul className="divide-y divide-border/50">
-              {recentLessons.map((l) => (
-                <li
-                  key={l.id}
-                  className="flex items-center justify-between gap-4 py-3.5 first:pt-0 last:pb-0 hover:bg-secondary/60 px-3 rounded-xl transition-all duration-200"
-                >
-                  <div className="min-w-0">
-                    <p className="truncate text-sm font-bold text-card-foreground">
-                      {l.class.name}
-                      {l.topic ? ` · ${l.topic}` : ""}
-                    </p>
-                    <p className="text-xs text-muted-foreground mt-1 flex items-center gap-2">
-                      <span className="font-semibold">{formatDate(l.date)}</span>
-                      <span>&middot;</span>
-                      <span className="font-bold text-foreground/80">{l.shift.name} ({l.shift.startTime}–{l.shift.endTime})</span>
-                    </p>
-                  </div>
-                  <Badge variant="secondary" className="shrink-0 text-xs font-extrabold px-3 py-1 bg-primary/10 text-primary border border-primary/20 rounded-lg shadow-2xs">
-                    {l._count.attendances} lượt điểm danh
-                  </Badge>
-                </li>
-              ))}
+              {recentLessons.map((l) => {
+                const totalAtt = l.attendances.length
+                const presentAtt = l.attendances.filter((a) => a.status === ATTENDANCE_STATUS.PRESENT).length
+                const absentAtt = l.attendances.filter((a) => a.status === ATTENDANCE_STATUS.ABSENT).length
+
+                return (
+                  <li
+                    key={l.id}
+                    className="flex items-center justify-between gap-4 py-3.5 first:pt-0 last:pb-0 hover:bg-secondary/60 px-3 rounded-xl transition-all duration-200"
+                  >
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-bold text-card-foreground">
+                        {l.class.name}
+                        {l.topic ? ` · ${l.topic}` : ""}
+                      </p>
+                      <p className="text-xs text-muted-foreground mt-1 flex items-center gap-2">
+                        <span className="font-semibold">{formatDate(l.date)}</span>
+                        <span>&middot;</span>
+                        <span className="font-bold text-foreground/80">{l.shift.name} ({l.shift.startTime}–{l.shift.endTime})</span>
+                      </p>
+                    </div>
+                    <div className="shrink-0 flex items-center gap-2">
+                      {totalAtt > 0 ? (
+                        <Badge
+                          variant="secondary"
+                          className={
+                            absentAtt === 0
+                              ? "text-xs font-extrabold px-2.5 py-1 bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/25 rounded-lg"
+                              : "text-xs font-extrabold px-2.5 py-1 bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/25 rounded-lg"
+                          }
+                        >
+                          {presentAtt}/{totalAtt} có mặt {absentAtt > 0 ? `· ${absentAtt} vắng` : ""}
+                        </Badge>
+                      ) : (
+                        <Badge variant="secondary" className="text-xs font-bold px-2.5 py-1 text-muted-foreground border border-border/70 rounded-lg">
+                          Chưa điểm danh
+                        </Badge>
+                      )}
+                    </div>
+                  </li>
+                )
+              })}
             </ul>
           )}
         </CardContent>
