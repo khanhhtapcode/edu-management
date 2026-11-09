@@ -10,6 +10,7 @@ import { cn } from "@/lib/utils"
 import { STUDENT_NAV } from "@/lib/nav"
 import { Button } from "@/components/ui/button"
 import { ThemeToggle } from "@/components/theme-toggle"
+import { LogoMark } from "@/components/brand-logo"
 
 export function StudentHeader({
   fullName,
@@ -24,9 +25,7 @@ export function StudentHeader({
   return (
     <header className="sticky top-0 z-30 border-b border-border bg-card/95 backdrop-blur-sm">
       <div className="mx-auto flex h-14 max-w-3xl items-center gap-3 px-4">
-        <div className="flex size-7 items-center justify-center rounded-md bg-primary text-xs font-bold text-primary-foreground">
-          NY
-        </div>
+        <LogoMark className="size-7" />
         <div className="min-w-0 flex-1 leading-tight">
           <p className="truncate text-sm font-semibold text-foreground">{fullName}</p>
           <p className="truncate text-[11px] text-muted-foreground">

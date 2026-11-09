@@ -5,7 +5,8 @@ import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
 import { NAV, isNavActive } from "@/lib/nav"
 import { useSidebar } from "./sidebar-context"
-import { ChevronRight, Sparkles } from "lucide-react"
+import { ChevronRight } from "lucide-react"
+import { LogoMark } from "@/components/brand-logo"
 
 export function Sidebar() {
   const pathname = usePathname()
@@ -27,19 +28,11 @@ export function Sidebar() {
           collapsed ? "justify-center px-0" : "px-4 gap-3"
         )}
       >
-        <div className="relative flex size-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-tr from-indigo-600 via-violet-600 to-purple-500 text-white font-extrabold text-xs shadow-md shadow-indigo-500/25 ring-1 ring-white/20">
-          NY
-          <Sparkles className="absolute -top-1 -right-1 size-3 text-amber-300 animate-pulse" />
-        </div>
+        <LogoMark />
         {!collapsed && (
-          <div className="flex flex-col min-w-0">
-            <span className="text-sm font-bold text-sidebar-foreground tracking-tight truncate leading-tight">
-              NY Math Class
-            </span>
-            <span className="text-[10px] font-medium text-muted-foreground/80 tracking-wide uppercase">
-              Edu Management
-            </span>
-          </div>
+          <span className="text-base font-bold text-sidebar-foreground tracking-tight truncate">
+            MathClass
+          </span>
         )}
       </div>
 

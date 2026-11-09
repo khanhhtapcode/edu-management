@@ -17,6 +17,7 @@ import { cn } from "@/lib/utils"
 import { NAV, isNavActive } from "@/lib/nav"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { ThemeToggle } from "@/components/theme-toggle"
+import { LogoMark } from "@/components/brand-logo"
 import { useSidebar } from "./sidebar-context"
 
 export function Topbar() {
@@ -55,13 +56,8 @@ export function Topbar() {
           <SheetHeader className="h-16 justify-center border-b border-sidebar-border px-4">
             <SheetTitle className="sr-only">Menu điều hướng</SheetTitle>
             <div className="flex items-center gap-3">
-              <div className="flex size-8 items-center justify-center rounded-xl bg-gradient-to-tr from-indigo-600 to-purple-600 text-white font-bold text-xs shadow-md shadow-indigo-500/20">
-                NY
-              </div>
-              <div className="flex flex-col text-left">
-                <span className="text-sm font-bold text-sidebar-foreground">NY Math Class</span>
-                <span className="text-[10px] text-muted-foreground">Edu Management</span>
-              </div>
+              <LogoMark className="size-8" />
+              <span className="text-left text-base font-bold text-sidebar-foreground">MathClass</span>
             </div>
           </SheetHeader>
           <nav className="py-4 px-3 space-y-1">

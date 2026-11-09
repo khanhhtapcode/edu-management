@@ -1,7 +1,7 @@
 // Tất cả magic values / status strings tập trung tại đây.
 
 /** Logo trung tâm (file trong `public/`) */
-export const APP_LOGO = "/f3b299eb5f38de668729.jpg"
+export const APP_LOGO = "/logo.svg"
 
 export const MEMBER_STATUS = {
   ACTIVE: "ACTIVE",

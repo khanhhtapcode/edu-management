@@ -1,7 +1,8 @@
 import { BookOpen, CheckCircle2, Sparkles } from "lucide-react"
 import { LoginForm } from "./_components/login-form"
+import { LogoMark } from "@/components/brand-logo"
 
-export const metadata = { title: "Đăng nhập — NY MATH CLASS" }
+export const metadata = { title: "Đăng nhập — MathClass" }
 
 const FEATURES = [
   "Điểm danh học sinh theo từng buổi học",
@@ -18,14 +19,8 @@ export default function LoginPage() {
         {/* Top brand */}
         <div className="flex h-16 items-center border-b border-border px-8">
           <div className="flex items-center gap-3">
-            <div className="relative flex size-9 items-center justify-center rounded-xl bg-gradient-to-tr from-indigo-600 via-violet-600 to-purple-500 text-sm font-extrabold text-white shadow-md shadow-indigo-500/25 ring-1 ring-white/20">
-              NY
-              <Sparkles className="absolute -right-1 -top-1 size-3 text-amber-400" />
-            </div>
-            <div className="leading-tight">
-              <p className="font-bold tracking-tight text-foreground">NY Math Class</p>
-              <p className="mt-0.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Edu Management</p>
-            </div>
+            <LogoMark />
+            <p className="text-lg font-bold tracking-tight text-foreground">MathClass</p>
           </div>
         </div>
 
@@ -51,7 +46,7 @@ export default function LoginPage() {
         {/* Footer */}
         <div className="flex h-12 items-center border-t border-border px-8">
           <p className="text-xs text-muted-foreground">
-            &copy; {new Date().getFullYear()} NY MATH CLASS &nbsp;&middot;&nbsp; Học Toán Thông Minh
+            &copy; {new Date().getFullYear()} MathClass &nbsp;&middot;&nbsp; Học Toán Thông Minh
           </p>
         </div>
       </div>

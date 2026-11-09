@@ -2,7 +2,6 @@ import type { Metadata } from "next"
 import { Inter } from "next/font/google"
 import "./globals.css"
 import { Toaster } from "@/components/ui/sonner"
-import { APP_LOGO } from "@/lib/constants"
 import { Providers } from "@/components/providers"
 
 const inter = Inter({
@@ -11,13 +10,10 @@ const inter = Inter({
 })
 
 export const metadata: Metadata = {
-  title: "NY MATH CLASS — Quản lý lớp học & học sinh",
+  title: "MathClass — Quản lý lớp học & học sinh",
   description:
     "Hệ thống quản lý lớp học, học sinh, điểm danh và báo cáo cho trung tâm giáo dục.",
-  icons: {
-    icon: APP_LOGO,
-    apple: APP_LOGO,
-  },
+  // Favicon: app/icon.svg (Next.js tự nhận diện)
 }
 
 export default function RootLayout({

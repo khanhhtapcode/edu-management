@@ -41,11 +41,6 @@ export default async function DashboardPage({
   const classId = sp.classId
   const shiftId = sp.shiftId
 
-  const [classes, shifts] = await Promise.all([
-    db.class.findMany({ orderBy: { name: "asc" } }),
-    db.shift.findMany({ orderBy: { startTime: "asc" } }),
-  ])
-
   const studentWhere = {
     status: MEMBER_STATUS.ACTIVE,
     ...(classId ? { classId } : {}),
@@ -66,16 +61,29 @@ export default async function DashboardPage({
     ...(classId ? { student: { classId } } : {}),
   }
 
-  const [activeStudents, totalShifts, lessonsInRange, attendances] =
+  // Gộp mọi truy vấn vào 1 lượt song song — mỗi round-trip tới DB đều tốn thời gian
+  const [classes, shifts, activeStudents, lessonsInRange, attendances, recentLessons] =
     await Promise.all([
+      db.class.findMany({ orderBy: { name: "asc" } }),
+      db.shift.findMany({ orderBy: { startTime: "asc" } }),
       db.student.count({ where: studentWhere }),
-      db.shift.count(),
       db.lesson.count({ where: lessonWhere }),
       db.attendance.findMany({
         where: attendanceWhere,
         select: { status: true, student: { select: { classId: true } } },
       }),
+      db.lesson.findMany({
+        where: lessonWhere,
+        include: {
+          shift: true,
+          class: true,
+          _count: { select: { attendances: true } },
+        },
+        orderBy: { date: "desc" },
+        take: 5,
+      }),
     ])
+  const totalShifts = shifts.length
 
   const counts = {
     PRESENT: 0,
@@ -115,17 +123,6 @@ export default async function DashboardPage({
       }
     })
 
-  const recentLessons = await db.lesson.findMany({
-    where: lessonWhere,
-    include: {
-      shift: true,
-      class: true,
-      _count: { select: { attendances: true } },
-    },
-    orderBy: { date: "desc" },
-    take: 5,
-  })
-
   const rangeLabel = RANGE_LABELS[preset]
 
   return (
@@ -140,7 +137,7 @@ export default async function DashboardPage({
           <div className="space-y-1.5">
             <div className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
               <Sparkles className="size-3.5 text-amber-500 animate-spin" />
-              <span>Hệ thống Quản lý Lớp học EduTrack</span>
+              <span>Hệ thống Quản lý Lớp học MathClass</span>
             </div>
             <h1 className="text-2xl font-extrabold tracking-tight text-foreground md:text-3xl">
               Xin chào, Quản trị viên! 👋

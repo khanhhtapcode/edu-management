@@ -81,25 +81,33 @@ export default async function ReportsPage({
 
   let stats: ReportStats | null = null
   if (studentId) {
-    const s = await computeMonthlyStats(studentId, month)
-    const existing = await db.monthlyReport.findUnique({
-      where: { studentId_reportMonth: { studentId, reportMonth: month } },
-    })
-
     // Danh sách buổi học trong tháng (kèm trạng thái điểm danh của HS này)
     const [y, m] = month.split("-").map(Number)
     const start = new Date(y, m - 1, 1)
     const end = new Date(y, m, 1)
-    const monthLessons = await db.lesson.findMany({
-      where: { classId: s.student.classId, date: { gte: start, lt: end } },
-      include: {
-        attendances: {
-          where: { studentId },
-          select: { status: true },
+    const fetchMonthLessons = (classId: string) =>
+      db.lesson.findMany({
+        where: { classId, date: { gte: start, lt: end } },
+        include: {
+          attendances: {
+            where: { studentId },
+            select: { status: true },
+          },
         },
-      },
-      orderBy: { date: "asc" },
-    })
+        orderBy: { date: "asc" },
+      })
+
+    // Chạy song song thay vì tuần tự để giảm số round-trip tới DB
+    const knownClassId = students.find((st) => st.id === studentId)?.classId
+    const [s, existing, prefetchedLessons] = await Promise.all([
+      computeMonthlyStats(studentId, month),
+      db.monthlyReport.findUnique({
+        where: { studentId_reportMonth: { studentId, reportMonth: month } },
+      }),
+      knownClassId ? fetchMonthLessons(knownClassId) : null,
+    ])
+    const monthLessons =
+      prefetchedLessons ?? (await fetchMonthLessons(s.student.classId))
     const sessions = monthLessons.map((l) => ({
       date: l.date.toISOString(),
       topic: l.topic ?? "",
