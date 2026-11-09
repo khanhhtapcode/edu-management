@@ -270,7 +270,7 @@ function ReportDocument({
         </View>
 
         <Text style={styles.footer} fixed>
-          NY MATH CLASS · Phiếu báo cáo được tạo tự động ·{" "}
+          MathClass · Phiếu báo cáo được tạo tự động ·{" "}
           {formatMonth(data.reportMonth)}
         </Text>
       </Page>
